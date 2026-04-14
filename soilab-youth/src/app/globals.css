@@ -1,26 +1,37 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-navy:       #46549C;
+  --color-navy-dark:  #363F7A;
+  --color-blue:       #248DAC;
+  --color-blue-dark:  #1A6B84;
+  --color-green:      #228D7B;
+  --color-green-dark: #1A6B5D;
+  --color-cream:      #F8F9FC;
+  --color-background: #ffffff;
+  --color-foreground: #171717;
+  --font-sans: var(--font-noto-sans-kr), 'Apple SD Gothic Neo', sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-foreground);
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bounce-y {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(6px); }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.7s ease both;
+}
+
+.animate-bounce-y {
+  animation: bounce-y 1.4s ease-in-out infinite;
 }

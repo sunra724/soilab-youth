@@ -8,6 +8,7 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
 const DB_ID = process.env.NOTION_CANDIDATES_DB!;
+const COLLECTION_ID = process.env.NOTION_CANDIDATES_COLLECTION!;
 
 // 수집 키워드별 카테고리
 const FEEDS = [
@@ -51,7 +52,7 @@ async function getExistingUrls(): Promise<Set<string>> {
   const urls = new Set<string>();
   try {
     const res = await notion.dataSources.query({
-      data_source_id: DB_ID,
+      data_source_id: COLLECTION_ID,
       page_size: 100,
     });
     for (const page of res.results) {
@@ -63,6 +64,16 @@ async function getExistingUrls(): Promise<Set<string>> {
     console.error('[collect] getExistingUrls:', e);
   }
   return urls;
+}
+
+function toIsoDate(pubDate: string): string {
+  try {
+    const d = new Date(pubDate);
+    if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
+  } catch {
+    // ignore
+  }
+  return new Date().toISOString().slice(0, 10);
 }
 
 async function saveToNotion(item: {
@@ -79,7 +90,7 @@ async function saveToNotion(item: {
       '제목': { title: [{ text: { content: item.title } }] },
       '원문링크': { url: item.url },
       '출처': { rich_text: [{ text: { content: item.source } }] },
-      '수집일': { date: { start: item.pubDate.slice(0, 10) } },
+      '수집일': { date: { start: toIsoDate(item.pubDate) } },
       '요약': { rich_text: [{ text: { content: item.summary } }] },
       '카테고리': { select: { name: item.category } },
       '발송선택': { checkbox: false },

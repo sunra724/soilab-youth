@@ -7,11 +7,12 @@ import { ko } from 'date-fns/locale';
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 const DB_ID = process.env.NOTION_CANDIDATES_DB!;
+const COLLECTION_ID = process.env.NOTION_CANDIDATES_COLLECTION!;
 
 // 발송선택=true, 발송완료=false 항목 가져오기
 async function getSelectedItems() {
   const res = await notion.dataSources.query({
-    data_source_id: DB_ID,
+    data_source_id: COLLECTION_ID,
     filter: {
       and: [
         { property: '발송선택', checkbox: { equals: true } },

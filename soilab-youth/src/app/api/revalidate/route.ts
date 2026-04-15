@@ -7,9 +7,9 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  revalidateTag('cardnews');
-  revalidateTag('newsletter');
-  revalidateTag('stats');
+  revalidateTag('cardnews', {});
+  revalidateTag('newsletter', {});
+  revalidateTag('stats', {});
 
   return NextResponse.json({ revalidated: true, at: new Date().toISOString() });
 }

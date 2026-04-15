@@ -34,7 +34,7 @@ export default function ProgramsSection() {
               </p>
               <div className="flex gap-2 flex-wrap">
                 <a
-                  href="https://sunra724.github.io/youthreconnect"
+                  href="https://forms.gle/ADcNkuMBENKfyuEi8"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm px-4 py-2 rounded-lg font-semibold transition-opacity hover:opacity-90 text-white"

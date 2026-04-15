@@ -29,7 +29,7 @@ export default function Footer() {
               <li><Link href="/cardnews" className="hover:text-white transition-colors">소식 &amp; 카드뉴스</Link></li>
               <li><Link href="/newsletter" className="hover:text-white transition-colors">뉴스레터</Link></li>
               <li>
-                <a href="https://sunra724.github.io/youthreconnect" target="_blank" rel="noopener noreferrer"
+                <a href="https://forms.gle/ADcNkuMBENKfyuEi8" target="_blank" rel="noopener noreferrer"
                    className="hover:text-white transition-colors">
                   성과 사례집 상세보기 →
                 </a>
@@ -52,7 +52,7 @@ export default function Footer() {
 
         <div className="mt-10 pt-6 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-600">
           <span>© 2026 협동조합 소이랩. All rights reserved.</span>
-          <a href="https://sunra724.github.io/youthreconnect" target="_blank" rel="noopener noreferrer"
+          <a href="https://forms.gle/ADcNkuMBENKfyuEi8" target="_blank" rel="noopener noreferrer"
              className="hover:text-gray-400 transition-colors">
             성과 사례집 상세보기 →
           </a>

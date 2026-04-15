@@ -40,7 +40,7 @@ export default function HeroSection() {
               사업 소개 보기
             </a>
             <a
-              href="https://sunra724.github.io/youthreconnect"
+              href="https://forms.gle/ADcNkuMBENKfyuEi8"
               target="_blank"
               rel="noopener noreferrer"
               className="px-6 py-3 rounded-lg font-semibold text-sm border border-white text-white

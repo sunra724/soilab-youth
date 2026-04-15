@@ -37,7 +37,7 @@ export const getCardNewsList = unstable_cache(
   async (): Promise<CardNews[]> => {
     try {
       const res = await notion.dataSources.query({
-        data_source_id: process.env.NOTION_CARDNEWS_DB!,
+        data_source_id: process.env.NOTION_CARDNEWS_COLLECTION!,
         filter: { property: '공개', checkbox: { equals: true } },
         sorts: [{ property: '발행일', direction: 'descending' }],
       });
@@ -89,7 +89,7 @@ export const getNewsletterList = unstable_cache(
   async (): Promise<Newsletter[]> => {
     try {
       const res = await notion.dataSources.query({
-        data_source_id: process.env.NOTION_NEWSLETTER_DB!,
+        data_source_id: process.env.NOTION_NEWSLETTER_COLLECTION!,
         filter: { property: '공개', checkbox: { equals: true } },
         sorts: [{ property: '발행호수', direction: 'descending' }],
       });
@@ -115,7 +115,7 @@ export const getStatsList = unstable_cache(
   async (): Promise<StatItem[]> => {
     try {
       const res = await notion.dataSources.query({
-        data_source_id: process.env.NOTION_STATS_DB!,
+        data_source_id: process.env.NOTION_STATS_COLLECTION!,
         filter: { property: '활성', checkbox: { equals: true } },
         sorts: [{ property: '순서', direction: 'ascending' }],
       });

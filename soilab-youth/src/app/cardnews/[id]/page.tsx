@@ -75,8 +75,25 @@ export default async function CardNewsDetailPage({
           </p>
         )}
 
-        {/* 외부 링크 */}
-        {item.externalUrl && (
+        {/* 카드뉴스 HTML 임베드 or 외부 링크 */}
+        {item.externalUrl && item.externalUrl.endsWith('.html') ? (
+          <div className="mb-10">
+            <iframe
+              src={item.externalUrl}
+              className="w-full rounded-2xl border border-gray-100"
+              style={{ height: '80vh', minHeight: '600px' }}
+              title={item.title}
+            />
+            <a
+              href={item.externalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 mt-3 text-xs text-gray-400 hover:text-gray-700 transition-colors"
+            >
+              새 탭에서 열기 →
+            </a>
+          </div>
+        ) : item.externalUrl ? (
           <a
             href={item.externalUrl}
             target="_blank"
@@ -86,7 +103,7 @@ export default async function CardNewsDetailPage({
           >
             원본 보기 →
           </a>
-        )}
+        ) : null}
 
         {/* 하단 네비 */}
         <div className="border-t border-gray-100 pt-8 mt-8">

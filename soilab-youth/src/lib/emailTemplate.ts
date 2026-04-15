@@ -113,7 +113,7 @@ ${catItems.map(newsCard).join('')}
     <!-- 푸터 -->
     <tr><td style="background:#1a1f36;border-radius:0 0 14px 14px;padding:24px 32px">
       <div style="font-size:12px;color:rgba(255,255,255,.5);line-height:1.8">
-        협동조합 소이랩 · 대구광역시<br>
+        협동조합 소이랩 · 대구광역시 북구 대현로 3, 2층(대현동)<br>
         📞 053-941-9003 &nbsp;|&nbsp; 📧 soilabcoop@gmail.com<br>
         🌐 <a href="https://soilab-youth.kr" style="color:rgba(255,255,255,.6)">soilab-youth.kr</a>
       </div>

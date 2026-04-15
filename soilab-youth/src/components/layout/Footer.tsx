@@ -45,7 +45,7 @@ export default function Footer() {
               <li>📧 <a href="mailto:soilabcoop@gmail.com" className="hover:text-white transition-colors">soilabcoop@gmail.com</a></li>
               <li>🌐 <a href="https://soilabcoop.kr" target="_blank" rel="noopener noreferrer"
                        className="hover:text-white transition-colors">soilabcoop.kr</a></li>
-              <li>📍 대구광역시</li>
+              <li>📍 대구광역시 북구 대현로 3, 2층(대현동)</li>
             </ul>
           </div>
         </div>

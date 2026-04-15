@@ -43,8 +43,8 @@ export default function Header() {
             🌱
           </div>
           <div>
-            <span className="font-bold text-base" style={{ color: '#46549C' }}>소이랩</span>
-            <span className="text-xs text-gray-500 block leading-none">고립·은둔 청년 지원센터</span>
+            <span className="font-bold text-base" style={{ color: '#46549C' }}>협동조합 소이랩</span>
+            <span className="text-xs text-gray-500 block leading-none">고립·은둔 청년지원센터</span>
           </div>
         </Link>
 

@@ -41,6 +41,7 @@ export const CANDIDATE_PROPS = {
 export const CANDIDATE_CATEGORIES = {
   isolationYouth: '고립은둔',
   youthSupport: '청년지원',
+  socialValue: '사회적가치',
   socialEconomy: '사회적경제',
   other: '기타',
 } as const;

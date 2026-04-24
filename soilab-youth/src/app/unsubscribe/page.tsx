@@ -5,7 +5,7 @@ import UnsubscribeForm from './UnsubscribeForm';
 
 export const metadata: Metadata = {
   title: '뉴스레터 수신거부',
-  description: '소이랩 다시봄레터 수신거부를 처리합니다.',
+  description: '소이랩 뉴스레터 수신거부를 처리합니다.',
 };
 
 interface Props {
@@ -28,7 +28,7 @@ export default async function UnsubscribePage({ searchParams }: Props) {
           <div className="max-w-3xl mx-auto px-4 sm:px-6">
             <h1 className="text-3xl font-bold text-white mb-2">뉴스레터 수신거부</h1>
             <p className="text-sm" style={{ color: 'rgba(255,255,255,0.75)' }}>
-              다시봄레터 수신 여부를 변경합니다.
+              소이랩 뉴스레터 수신 여부를 변경합니다.
             </p>
           </div>
         </div>

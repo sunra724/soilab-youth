@@ -17,9 +17,9 @@ const CANDIDATES_COLLECTION_ID = process.env.NOTION_CANDIDATES_COLLECTION!;
 const FEEDS = [
   { query: '고립은둔 청년', category: CANDIDATE_CATEGORIES.isolationYouth },
   { query: '은둔형외톨이', category: CANDIDATE_CATEGORIES.isolationYouth },
-  { query: '고립 청년', category: CANDIDATE_CATEGORIES.isolationYouth },
-  { query: '은둔 청년 지원', category: CANDIDATE_CATEGORIES.isolationYouth },
-  { query: '고립은둔 청년 지원사업', category: CANDIDATE_CATEGORIES.isolationYouth },
+  { query: '청년 고립 지원', category: CANDIDATE_CATEGORIES.youthSupport },
+  { query: '청년지원', category: CANDIDATE_CATEGORIES.youthSupport },
+  { query: '사회적가치', category: CANDIDATE_CATEGORIES.socialValue },
 ];
 
 function googleRssUrl(query: string) {
@@ -34,7 +34,7 @@ async function summarize(title: string, description: string): Promise<string> {
       messages: [
         {
           role: 'user',
-          content: `다음 뉴스 기사를 2문장으로 요약해줘. 소이랩 고립·은둔 청년 지원 담당자가 읽을 뉴스레터용이야. 핵심 내용만 간결하게.
+          content: `다음 뉴스 기사를 2문장으로 요약해줘. 소이랩 고립·은둔 청년 지원 담당자가 읽을 매일 뉴스클리핑용이야. 핵심 내용만 간결하게.
 
 제목: ${title}
 내용: ${description?.slice(0, 300) ?? ''}

@@ -8,7 +8,6 @@ import { buildEmailHtml, buildEmailText } from '@/lib/emailTemplate';
 import { createUnsubscribeUrl } from '@/lib/newsletterToken';
 import { listNewsletterRecipients } from '@/lib/resendContacts';
 import {
-  CANDIDATE_CATEGORIES,
   CANDIDATE_PROPS,
   NEWSLETTER_PROPS,
 } from '@/lib/notionSchema';
@@ -34,7 +33,6 @@ async function getSelectedItems() {
       and: [
         { property: CANDIDATE_PROPS.isSelected, checkbox: { equals: true } },
         { property: CANDIDATE_PROPS.isSent, checkbox: { equals: false } },
-        { property: CANDIDATE_PROPS.category, select: { equals: CANDIDATE_CATEGORIES.isolationYouth } },
       ],
     },
     sorts: [{ property: CANDIDATE_PROPS.category, direction: 'ascending' }],
@@ -63,7 +61,6 @@ async function getAutoSelectableItems(limit: number) {
       and: [
         { property: CANDIDATE_PROPS.isSent, checkbox: { equals: false } },
         { property: CANDIDATE_PROPS.isSelected, checkbox: { equals: false } },
-        { property: CANDIDATE_PROPS.category, select: { equals: CANDIDATE_CATEGORIES.isolationYouth } },
       ],
     },
     sorts: [{ property: CANDIDATE_PROPS.collectedAt, direction: 'descending' }],
@@ -131,7 +128,7 @@ function buildArchiveSummary(items: SelectedNewsItem[]) {
     .join(' / ');
 
   return [
-    `고립·은둔 청년 관련 주요 뉴스 ${items.length}건을 묶었습니다.`,
+    `고립은둔·사회적가치·청년지원 관련 주요 뉴스 ${items.length}건을 묶었습니다.`,
     categories.length > 0 ? `주요 카테고리: ${categories.join(', ')}` : '',
     headlinePreview ? `대표 기사: ${headlinePreview}` : '',
   ]
@@ -144,7 +141,7 @@ async function archiveNewsletter(issueNumber: number, label: string, items: Sele
     parent: { database_id: NEWSLETTER_DB_ID },
     properties: {
       [NEWSLETTER_PROPS.title]: {
-        title: [{ text: { content: `다시봄레터 ${label}` } }],
+        title: [{ text: { content: `다시봄 뉴스클리핑 ${label}` } }],
       },
       [NEWSLETTER_PROPS.issueNumber]: { number: issueNumber },
       [NEWSLETTER_PROPS.publishedAt]: {
@@ -319,7 +316,7 @@ export async function POST(req: Request) {
               from,
               to: recipient,
               replyTo: process.env.NEWSLETTER_REPLY_TO ?? unsubscribeEmail,
-              subject: `${testMode ? '[테스트] ' : ''}[다시봄레터] ${label} - 고립·은둔 청년 뉴스 모음`,
+              subject: `${testMode ? '[테스트] ' : ''}[다시봄 뉴스클리핑] ${label} - 오늘의 주요 뉴스`,
               headers: {
                 'List-Unsubscribe': `<${unsubscribeUrl}>, <${unsubscribeMailto}>`,
               },
@@ -346,7 +343,7 @@ export async function POST(req: Request) {
           from,
           to: recipientChunk,
           replyTo: process.env.NEWSLETTER_REPLY_TO ?? unsubscribeEmail,
-          subject: `${testMode ? '[테스트] ' : ''}[다시봄레터] ${label} - 고립·은둔 청년 뉴스 모음`,
+          subject: `${testMode ? '[테스트] ' : ''}[다시봄 뉴스클리핑] ${label} - 오늘의 주요 뉴스`,
           headers: {
             'List-Unsubscribe': `<${unsubscribeMailto}>`,
           },

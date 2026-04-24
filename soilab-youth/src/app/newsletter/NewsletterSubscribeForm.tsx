@@ -33,7 +33,7 @@ export default function NewsletterSubscribeForm() {
 
       setState('success');
       setEmail('');
-      setMessage('구독 신청이 완료되었습니다. 다음 다시봄레터부터 보내드릴게요.');
+      setMessage('구독 신청이 완료되었습니다. 다음 뉴스클리핑과 기관 소식부터 보내드릴게요.');
     });
   }
 

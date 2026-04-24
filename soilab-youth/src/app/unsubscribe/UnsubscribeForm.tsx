@@ -47,7 +47,7 @@ export default function UnsubscribeForm({ email, token }: Props) {
   return (
     <form onSubmit={handleSubmit} className="mt-6">
       <p className="text-sm text-gray-500">
-        <strong className="font-semibold text-gray-900">{email}</strong> 주소로 보내는 다시봄레터 수신을 중단합니다.
+        <strong className="font-semibold text-gray-900">{email}</strong> 주소로 보내는 소이랩 뉴스레터 수신을 중단합니다.
       </p>
       <button
         type="submit"

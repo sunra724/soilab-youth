@@ -9,6 +9,7 @@ interface NewsItem {
 const CATEGORY_COLOR: Record<string, string> = {
   고립은둔: '#46549C',
   청년지원: '#248DAC',
+  사회적가치: '#228D7B',
   사회적경제: '#228D7B',
   기타: '#888888',
 };
@@ -50,7 +51,7 @@ export function buildEmailHtml(params: {
   const {
     issueLabel,
     items,
-    previewText = '소이랩 다시봄레터 - 고립·은둔 청년 관련 최신 뉴스를 전합니다.',
+    previewText = '소이랩 다시봄 뉴스클리핑 - 고립은둔·사회적가치·청년지원 주요 뉴스를 전합니다.',
     unsubscribeUrl,
   } = params;
 
@@ -79,7 +80,7 @@ ${categoryItems.map(newsCard).join('')}
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>다시봄레터 ${issueLabel}</title>
+<title>다시봄 뉴스클리핑 ${issueLabel}</title>
 </head>
 <body style="margin:0;padding:0;background:#f0f2f8;font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif">
 
@@ -93,17 +94,17 @@ ${categoryItems.map(newsCard).join('')}
         ${issueLabel}
       </div>
       <div style="font-size:28px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:6px">
-        다시봄레터
+        다시봄 뉴스클리핑
       </div>
       <div style="font-size:13px;color:rgba(255,255,255,.75)">
-        고립·은둔 청년 곁에서 전하는 소이랩 뉴스 큐레이션
+        고립은둔·사회적가치·청년지원 이슈를 모은 매일 뉴스 큐레이션
       </div>
     </td></tr>
 
     <tr><td style="background:#fff;padding:24px 32px 8px">
       <div style="font-size:14px;color:#444;line-height:1.8;border-left:3px solid #46549C;padding-left:14px">
-        안녕하세요. 소이랩 다시봄레터입니다.<br>
-        고립·은둔 청년 지원 현장에서 알아두면 좋을 최신 소식을 정리해 전합니다.
+        안녕하세요. 소이랩 다시봄 뉴스클리핑입니다.<br>
+        고립은둔·사회적가치·청년지원 현장에서 알아두면 좋을 최신 뉴스를 정리해 전합니다.
       </div>
     </td></tr>
 
@@ -135,7 +136,7 @@ ${categoryItems.map(newsCard).join('')}
 
 export function buildEmailText(params: { issueLabel: string; items: NewsItem[]; unsubscribeUrl?: string }) {
   const lines = [
-    `다시봄레터 ${params.issueLabel}`,
+    `다시봄 뉴스클리핑 ${params.issueLabel}`,
     '협동조합 소이랩 | soilab-youth.kr',
     '',
   ];

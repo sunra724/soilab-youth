@@ -169,11 +169,17 @@ async function getRecipients(resend: Resend) {
   return recipients.map((recipient) => recipient.email);
 }
 
-function getTestRecipients() {
-  return (process.env.NEWSLETTER_TEST_TO ?? process.env.NEWSLETTER_TO ?? 'soilabcoop@gmail.com')
-    .split(',')
+async function getTestRecipients(resend: Resend) {
+  const testRecipients = process.env.NEWSLETTER_TEST_TO
+    ?.split(',')
     .map((email) => email.trim())
     .filter(Boolean);
+
+  if (testRecipients?.length) {
+    return testRecipients;
+  }
+
+  return getRecipients(resend);
 }
 
 function missingConfig() {
@@ -274,7 +280,7 @@ export async function POST(req: Request) {
 
     const label = issueLabel();
     const issueNumber = await getNextIssueNumber();
-    const recipients = testMode ? getTestRecipients() : await getRecipients(resend);
+    const recipients = testMode ? await getTestRecipients(resend) : await getRecipients(resend);
 
     if (recipients.length === 0) {
       return NextResponse.json({

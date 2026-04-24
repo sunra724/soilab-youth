@@ -8,6 +8,7 @@ import { buildEmailHtml, buildEmailText } from '@/lib/emailTemplate';
 import { createUnsubscribeUrl } from '@/lib/newsletterToken';
 import { listNewsletterRecipients } from '@/lib/resendContacts';
 import {
+  CANDIDATE_CATEGORIES,
   CANDIDATE_PROPS,
   NEWSLETTER_PROPS,
 } from '@/lib/notionSchema';
@@ -33,6 +34,7 @@ async function getSelectedItems() {
       and: [
         { property: CANDIDATE_PROPS.isSelected, checkbox: { equals: true } },
         { property: CANDIDATE_PROPS.isSent, checkbox: { equals: false } },
+        { property: CANDIDATE_PROPS.category, select: { equals: CANDIDATE_CATEGORIES.isolationYouth } },
       ],
     },
     sorts: [{ property: CANDIDATE_PROPS.category, direction: 'ascending' }],
@@ -61,6 +63,7 @@ async function getAutoSelectableItems(limit: number) {
       and: [
         { property: CANDIDATE_PROPS.isSent, checkbox: { equals: false } },
         { property: CANDIDATE_PROPS.isSelected, checkbox: { equals: false } },
+        { property: CANDIDATE_PROPS.category, select: { equals: CANDIDATE_CATEGORIES.isolationYouth } },
       ],
     },
     sorts: [{ property: CANDIDATE_PROPS.collectedAt, direction: 'descending' }],

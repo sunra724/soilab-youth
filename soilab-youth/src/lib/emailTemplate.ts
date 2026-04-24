@@ -89,14 +89,14 @@ ${categoryItems.map(newsCard).join('')}
 <table width="100%" cellpadding="0" cellspacing="0" border="0">
 <tr><td align="center" style="padding:32px 16px">
   <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%">
-    <tr><td style="background:linear-gradient(135deg,#46549C 0%,#248DAC 100%);border-radius:14px 14px 0 0;padding:32px 32px 28px">
-      <div style="display:inline-block;background:rgba(255,255,255,.18);color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:.07em;margin-bottom:12px">
+    <tr><td style="background:#248DAC;border-radius:14px 14px 0 0;padding:32px 32px 28px">
+      <div style="display:inline-block;background:#ffffff;color:#248DAC;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:.07em;margin-bottom:12px">
         ${issueLabel}
       </div>
-      <div style="font-size:28px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:6px">
+      <div style="font-size:28px;font-weight:700;color:#ffffff;line-height:1.3;margin-bottom:6px">
         다시봄 뉴스클리핑
       </div>
-      <div style="font-size:13px;color:rgba(255,255,255,.75)">
+      <div style="font-size:13px;color:#ffffff">
         고립은둔·사회적가치·청년지원 이슈를 모은 매일 뉴스 큐레이션
       </div>
     </td></tr>
@@ -114,17 +114,17 @@ ${categoryItems.map(newsCard).join('')}
       </table>
     </td></tr>
 
-    <tr><td style="background:#1a1f36;border-radius:0 0 14px 14px;padding:24px 32px">
-      <div style="font-size:12px;color:rgba(255,255,255,.6);line-height:1.8">
+    <tr><td style="background:#eef7f9;border-top:1px solid #d8e9ee;border-radius:0 0 14px 14px;padding:24px 32px">
+      <div style="font-size:12px;color:#334155;line-height:1.8">
         협동조합 소이랩 고립·은둔 청년 지원센터<br>
         대구광역시 북구 대현로 3, 2층(대현동)<br>
         053-941-9003 | youth-news@soilabcoop.kr<br>
         ${
           unsubscribeUrl
-            ? `<a href="${unsubscribeUrl}" style="color:rgba(255,255,255,.7)">뉴스레터 수신거부</a><br>`
+            ? `<a href="${unsubscribeUrl}" style="color:#1f6f8b;text-decoration:underline">뉴스레터 수신거부</a><br>`
             : '수신을 원하지 않으시면 이 메일에 답장으로 알려주세요.<br>'
         }
-        <a href="https://soilab-youth.kr" style="color:rgba(255,255,255,.7)">soilab-youth.kr</a>
+        <a href="https://soilab-youth.kr" style="color:#1f6f8b;text-decoration:underline">soilab-youth.kr</a>
       </div>
     </td></tr>
   </table>

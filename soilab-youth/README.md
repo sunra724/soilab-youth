@@ -37,17 +37,17 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## 다시봄레터 자동화
 
-뉴스 수집은 매월 1일과 15일 오전 9시에 `/api/collect-news`로 실행되고, 발송은 매월 2일과 16일 오전 10시에 `/api/send-newsletter`로 실행됩니다. 발송 대상은 노션 후보 DB에서 `발송선택=true`, `발송완료=false`인 기사입니다.
+뉴스 수집은 매일 오전 7시 50분(KST)에 `/api/collect-news`로 실행되고, 발송은 매일 오전 8시(KST)에 `/api/send-newsletter`로 실행됩니다. Vercel cron은 UTC 기준이라 각각 `50 22 * * *`, `0 23 * * *`로 설정되어 있습니다. 발송 대상은 노션 후보 DB에서 `발송선택=true`, `발송완료=false`인 기사이며, 선택된 기사가 없으면 `NEWSLETTER_AUTO_SELECT_COUNT`만큼 최신 미발송 후보를 자동 선택합니다.
 
 필요한 환경변수:
 
 - `RESEND_API_KEY`: Resend API 키
-- `RESEND_FROM`: 인증된 소이랩 도메인의 발신자 주소. 예: `소이랩 다시봄레터 <newsletter@soilab-youth.kr>`
+- `RESEND_FROM`: 인증된 소이랩 도메인의 발신자 주소. 예: `소이랩 다시봄레터 <youth-news@soilabcoop.kr>`
 - `RESEND_SEGMENT_ID`: 뉴스레터 구독자를 저장할 Resend segment ID
 - `RESEND_AUDIENCE_ID`: 기존 audience를 계속 쓰는 경우의 호환 설정. `RESEND_SEGMENT_ID`가 있으면 segment를 우선 사용합니다.
 - `NEWSLETTER_TO`: Resend segment/audience가 없을 때 쓰는 테스트/백업 수신자 목록
 - `NEWSLETTER_REPLY_TO`: 답장 받을 주소. 없으면 `NEWSLETTER_UNSUBSCRIBE_EMAIL`을 사용합니다.
-- `NEWSLETTER_UNSUBSCRIBE_EMAIL`: 수신거부 요청을 받을 주소. 없으면 `soilabcoop@gmail.com`을 사용합니다.
+- `NEWSLETTER_UNSUBSCRIBE_EMAIL`: 수신거부 요청을 받을 주소. 없으면 `youth-news@soilabcoop.kr`을 사용합니다.
 - `NEWSLETTER_UNSUBSCRIBE_SECRET`: 개인별 수신거부 링크 서명용 비밀값. 없으면 `CRON_SECRET`을 사용합니다.
 - `NEWSLETTER_AUTO_SELECT_COUNT`: 발송선택된 기사가 없을 때 최신 미발송 후보를 자동 선택할 개수. 예: `5`
 - `CRON_SECRET`: cron/API 보호용 bearer token

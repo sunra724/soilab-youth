@@ -303,7 +303,7 @@ export async function POST(req: Request) {
     }
 
     const emailIds: string[] = [];
-    const unsubscribeEmail = process.env.NEWSLETTER_UNSUBSCRIBE_EMAIL ?? 'soilabcoop@gmail.com';
+    const unsubscribeEmail = process.env.NEWSLETTER_UNSUBSCRIBE_EMAIL ?? 'youth-news@soilabcoop.kr';
     const unsubscribeMailto = `mailto:${unsubscribeEmail}?subject=${encodeURIComponent('뉴스레터 수신거부')}`;
     const hasResendList = Boolean(process.env.RESEND_SEGMENT_ID || process.env.RESEND_AUDIENCE_ID);
 

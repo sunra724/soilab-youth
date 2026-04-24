@@ -2,11 +2,11 @@
   "crons": [
     {
       "path": "/api/collect-news",
-      "schedule": "0 9 1,15 * *"
+      "schedule": "50 22 * * *"
     },
     {
       "path": "/api/send-newsletter",
-      "schedule": "0 10 2,16 * *"
+      "schedule": "0 23 * * *"
     }
   ]
 }

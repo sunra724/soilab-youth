@@ -39,7 +39,7 @@ export default function UnsubscribeForm({ email, token }: Props) {
   if (!email || !token) {
     return (
       <p className="text-sm text-gray-500">
-        수신거부 링크가 올바르지 않습니다. soilabcoop@gmail.com 으로 알려주시면 바로 도와드리겠습니다.
+        수신거부 링크가 올바르지 않습니다. youth-news@soilabcoop.kr 으로 알려주시면 바로 도와드리겠습니다.
       </p>
     );
   }

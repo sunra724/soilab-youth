@@ -17,9 +17,9 @@ const CANDIDATES_COLLECTION_ID = process.env.NOTION_CANDIDATES_COLLECTION!;
 const FEEDS = [
   { query: '고립은둔 청년', category: CANDIDATE_CATEGORIES.isolationYouth },
   { query: '은둔형외톨이', category: CANDIDATE_CATEGORIES.isolationYouth },
-  { query: '청년 고립 지원', category: CANDIDATE_CATEGORIES.youthSupport },
-  { query: '청년 복지 사업', category: CANDIDATE_CATEGORIES.youthSupport },
-  { query: '사회적경제 협동조합', category: CANDIDATE_CATEGORIES.socialEconomy },
+  { query: '고립 청년', category: CANDIDATE_CATEGORIES.isolationYouth },
+  { query: '은둔 청년 지원', category: CANDIDATE_CATEGORIES.isolationYouth },
+  { query: '고립은둔 청년 지원사업', category: CANDIDATE_CATEGORIES.isolationYouth },
 ];
 
 function googleRssUrl(query: string) {

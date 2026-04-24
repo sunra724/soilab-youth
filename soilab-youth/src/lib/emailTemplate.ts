@@ -116,8 +116,8 @@ ${categoryItems.map(newsCard).join('')}
     <tr><td style="background:#1a1f36;border-radius:0 0 14px 14px;padding:24px 32px">
       <div style="font-size:12px;color:rgba(255,255,255,.6);line-height:1.8">
         협동조합 소이랩 고립·은둔 청년 지원센터<br>
-        대구광역시 북구 대학로 3, 2층(산격동)<br>
-        053-941-9003 | soilabcoop@gmail.com<br>
+        대구광역시 북구 대현로 3, 2층(대현동)<br>
+        053-941-9003 | youth-news@soilabcoop.kr<br>
         ${
           unsubscribeUrl
             ? `<a href="${unsubscribeUrl}" style="color:rgba(255,255,255,.7)">뉴스레터 수신거부</a><br>`
@@ -152,6 +152,11 @@ export function buildEmailText(params: { issueLabel: string; items: NewsItem[]; 
     lines.push(params.unsubscribeUrl);
     lines.push('');
   }
+
+  lines.push('협동조합 소이랩 고립·은둔 청년 지원센터');
+  lines.push('대구광역시 북구 대현로 3, 2층(대현동)');
+  lines.push('053-941-9003 | youth-news@soilabcoop.kr');
+  lines.push('soilab-youth.kr');
 
   return lines.join('\n');
 }

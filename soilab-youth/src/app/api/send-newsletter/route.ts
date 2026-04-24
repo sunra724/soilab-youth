@@ -120,8 +120,7 @@ async function getNextIssueNumber() {
 
 function issueLabel() {
   const now = new Date();
-  const half = now.getDate() <= 15 ? 1 : 2;
-  return `${format(now, 'yyyy년 M월', { locale: ko })} ${half}호`;
+  return format(now, 'yyyy년 M월 d일', { locale: ko });
 }
 
 function buildArchiveSummary(items: SelectedNewsItem[]) {

@@ -7,15 +7,15 @@ interface NewsItem {
 }
 
 const CATEGORY_COLOR: Record<string, string> = {
-  '고립은둔':   '#46549C',
-  '청년지원':   '#248DAC',
-  '사회적경제': '#228D7B',
-  '기타':       '#888888',
+  고립은둔: '#46549C',
+  청년지원: '#248DAC',
+  사회적경제: '#228D7B',
+  기타: '#888888',
 };
 
-function categoryBadge(cat: string) {
-  const color = CATEGORY_COLOR[cat] ?? CATEGORY_COLOR['기타'];
-  return `<span style="display:inline-block;background:${color};color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px;letter-spacing:.04em">${cat}</span>`;
+function categoryBadge(category: string) {
+  const color = CATEGORY_COLOR[category] ?? CATEGORY_COLOR.기타;
+  return `<span style="display:inline-block;background:${color};color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px;letter-spacing:.04em">${category}</span>`;
 }
 
 function newsCard(item: NewsItem) {
@@ -42,27 +42,37 @@ function newsCard(item: NewsItem) {
 }
 
 export function buildEmailHtml(params: {
-  issueLabel: string;   // 예) "2026년 4월 1호"
+  issueLabel: string;
   items: NewsItem[];
   previewText?: string;
+  unsubscribeUrl?: string;
 }) {
-  const { issueLabel, items, previewText = '소이랩 다시봄레터 — 고립·은둔 청년 관련 최신 뉴스를 전합니다.' } = params;
+  const {
+    issueLabel,
+    items,
+    previewText = '소이랩 다시봄레터 - 고립·은둔 청년 관련 최신 뉴스를 전합니다.',
+    unsubscribeUrl,
+  } = params;
 
   const byCategory: Record<string, NewsItem[]> = {};
   for (const item of items) {
-    const cat = item.category ?? '기타';
-    if (!byCategory[cat]) byCategory[cat] = [];
-    byCategory[cat].push(item);
+    const category = item.category || '기타';
+    if (!byCategory[category]) byCategory[category] = [];
+    byCategory[category].push(item);
   }
 
-  const sections = Object.entries(byCategory).map(([cat, catItems]) => `
+  const sections = Object.entries(byCategory)
+    .map(
+      ([category, categoryItems]) => `
 <tr><td style="padding:0 0 6px">
-  <div style="font-size:13px;font-weight:700;color:${CATEGORY_COLOR[cat] ?? '#888'};letter-spacing:.05em;padding-bottom:10px;border-bottom:2px solid ${CATEGORY_COLOR[cat] ?? '#888'};margin-bottom:16px">
-    #${cat}
+  <div style="font-size:13px;font-weight:700;color:${CATEGORY_COLOR[category] ?? CATEGORY_COLOR.기타};letter-spacing:.05em;padding-bottom:10px;border-bottom:2px solid ${CATEGORY_COLOR[category] ?? CATEGORY_COLOR.기타};margin-bottom:16px">
+    #${category}
   </div>
 </td></tr>
-${catItems.map(newsCard).join('')}
-`).join('');
+${categoryItems.map(newsCard).join('')}
+`
+    )
+    .join('');
 
   return `<!DOCTYPE html>
 <html lang="ko">
@@ -73,52 +83,49 @@ ${catItems.map(newsCard).join('')}
 </head>
 <body style="margin:0;padding:0;background:#f0f2f8;font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif">
 
-<!-- 프리뷰 텍스트 -->
 <div style="display:none;max-height:0;overflow:hidden">${previewText}</div>
 
 <table width="100%" cellpadding="0" cellspacing="0" border="0">
 <tr><td align="center" style="padding:32px 16px">
-
-  <!-- 카드 컨테이너 -->
   <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%">
-
-    <!-- 헤더 -->
     <tr><td style="background:linear-gradient(135deg,#46549C 0%,#248DAC 100%);border-radius:14px 14px 0 0;padding:32px 32px 28px">
       <div style="display:inline-block;background:rgba(255,255,255,.18);color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:.07em;margin-bottom:12px">
         ${issueLabel}
       </div>
       <div style="font-size:28px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:6px">
-        🌱 다시봄레터
+        다시봄레터
       </div>
       <div style="font-size:13px;color:rgba(255,255,255,.75)">
-        고립·은둔 청년 곁에서 — 협동조합 소이랩
+        고립·은둔 청년 곁에서 전하는 소이랩 뉴스 큐레이션
       </div>
     </td></tr>
 
-    <!-- 인트로 -->
     <tr><td style="background:#fff;padding:24px 32px 8px">
       <div style="font-size:14px;color:#444;line-height:1.8;border-left:3px solid #46549C;padding-left:14px">
-        안녕하세요, 소이랩 다시봄레터입니다.<br>
-        고립·은둔 청년 지원 현장에서 알아두면 좋을 최신 소식을 격주로 전합니다.
+        안녕하세요. 소이랩 다시봄레터입니다.<br>
+        고립·은둔 청년 지원 현장에서 알아두면 좋을 최신 소식을 정리해 전합니다.
       </div>
     </td></tr>
 
-    <!-- 뉴스 목록 -->
     <tr><td style="background:#f8f9fc;padding:24px 32px">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         ${sections}
       </table>
     </td></tr>
 
-    <!-- 푸터 -->
     <tr><td style="background:#1a1f36;border-radius:0 0 14px 14px;padding:24px 32px">
-      <div style="font-size:12px;color:rgba(255,255,255,.5);line-height:1.8">
-        협동조합 소이랩 · 대구광역시 북구 대현로 3, 2층(대현동)<br>
-        📞 053-941-9003 &nbsp;|&nbsp; 📧 soilabcoop@gmail.com<br>
-        🌐 <a href="https://soilab-youth.kr" style="color:rgba(255,255,255,.6)">soilab-youth.kr</a>
+      <div style="font-size:12px;color:rgba(255,255,255,.6);line-height:1.8">
+        협동조합 소이랩 고립·은둔 청년 지원센터<br>
+        대구광역시 북구 대학로 3, 2층(산격동)<br>
+        053-941-9003 | soilabcoop@gmail.com<br>
+        ${
+          unsubscribeUrl
+            ? `<a href="${unsubscribeUrl}" style="color:rgba(255,255,255,.7)">뉴스레터 수신거부</a><br>`
+            : '수신을 원하지 않으시면 이 메일에 답장으로 알려주세요.<br>'
+        }
+        <a href="https://soilab-youth.kr" style="color:rgba(255,255,255,.7)">soilab-youth.kr</a>
       </div>
     </td></tr>
-
   </table>
 </td></tr>
 </table>
@@ -126,17 +133,25 @@ ${catItems.map(newsCard).join('')}
 </html>`;
 }
 
-export function buildEmailText(params: { issueLabel: string; items: NewsItem[] }) {
+export function buildEmailText(params: { issueLabel: string; items: NewsItem[]; unsubscribeUrl?: string }) {
   const lines = [
-    `🌱 다시봄레터 ${params.issueLabel}`,
-    `협동조합 소이랩 | soilab-youth.kr`,
+    `다시봄레터 ${params.issueLabel}`,
+    '협동조합 소이랩 | soilab-youth.kr',
     '',
   ];
+
   for (const item of params.items) {
     lines.push(`[${item.category}] ${item.title}`);
     if (item.summary) lines.push(item.summary);
     lines.push(item.url);
     lines.push('');
   }
+
+  if (params.unsubscribeUrl) {
+    lines.push('수신거부');
+    lines.push(params.unsubscribeUrl);
+    lines.push('');
+  }
+
   return lines.join('\n');
 }

@@ -1,6 +1,11 @@
 import { Client } from '@notionhq/client';
 import { unstable_cache } from 'next/cache';
 import type { CardNews, Newsletter, StatItem } from '@/types/notion';
+import {
+  CARDNEWS_PROPS,
+  NEWSLETTER_PROPS,
+  STATS_PROPS,
+} from '@/lib/notionSchema';
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
@@ -8,26 +13,32 @@ const notion = new Client({ auth: process.env.NOTION_TOKEN });
 function getProp(props: any, key: string) {
   return props?.[key];
 }
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function titleProp(props: any, key: string): string {
   return getProp(props, key)?.title?.[0]?.plain_text ?? '';
 }
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function richTextProp(props: any, key: string): string {
   return getProp(props, key)?.rich_text?.[0]?.plain_text ?? '';
 }
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function selectProp(props: any, key: string): string {
   return getProp(props, key)?.select?.name ?? '';
 }
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function dateProp(props: any, key: string): string {
   return getProp(props, key)?.date?.start ?? '';
 }
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function urlProp(props: any, key: string): string {
   return getProp(props, key)?.url ?? '';
 }
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function numberProp(props: any, key: string): number {
   return getProp(props, key)?.number ?? 0;
@@ -38,19 +49,20 @@ export const getCardNewsList = unstable_cache(
     try {
       const res = await notion.dataSources.query({
         data_source_id: process.env.NOTION_CARDNEWS_COLLECTION!,
-        filter: { property: '공개', checkbox: { equals: true } },
-        sorts: [{ property: '발행일', direction: 'descending' }],
+        filter: { property: CARDNEWS_PROPS.isPublic, checkbox: { equals: true } },
+        sorts: [{ property: CARDNEWS_PROPS.publishedAt, direction: 'descending' }],
       });
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return res.results.map((page: any) => ({
         id: page.id,
-        title: titleProp(page.properties, '제목'),
-        category: selectProp(page.properties, '카테고리'),
-        project: selectProp(page.properties, '사업'),
-        publishedAt: dateProp(page.properties, '발행일'),
-        thumbnailColor: selectProp(page.properties, '썸네일색상'),
-        summary: richTextProp(page.properties, '요약'),
-        externalUrl: urlProp(page.properties, '외부링크'),
+        title: titleProp(page.properties, CARDNEWS_PROPS.title),
+        category: selectProp(page.properties, CARDNEWS_PROPS.category),
+        project: selectProp(page.properties, CARDNEWS_PROPS.project),
+        publishedAt: dateProp(page.properties, CARDNEWS_PROPS.publishedAt),
+        thumbnailColor: selectProp(page.properties, CARDNEWS_PROPS.thumbnailColor),
+        summary: richTextProp(page.properties, CARDNEWS_PROPS.summary),
+        externalUrl: urlProp(page.properties, CARDNEWS_PROPS.externalUrl),
       }));
     } catch (e) {
       console.error('[Notion] getCardNewsList:', e);
@@ -65,16 +77,17 @@ export const getCardNewsDetail = unstable_cache(
   async (id: string): Promise<CardNews | null> => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const page = await notion.pages.retrieve({ page_id: id }) as any;
+      const page = (await notion.pages.retrieve({ page_id: id })) as any;
+
       return {
         id: page.id,
-        title: titleProp(page.properties, '제목'),
-        category: selectProp(page.properties, '카테고리'),
-        project: selectProp(page.properties, '사업'),
-        publishedAt: dateProp(page.properties, '발행일'),
-        thumbnailColor: selectProp(page.properties, '썸네일색상'),
-        summary: richTextProp(page.properties, '요약'),
-        externalUrl: urlProp(page.properties, '외부링크'),
+        title: titleProp(page.properties, CARDNEWS_PROPS.title),
+        category: selectProp(page.properties, CARDNEWS_PROPS.category),
+        project: selectProp(page.properties, CARDNEWS_PROPS.project),
+        publishedAt: dateProp(page.properties, CARDNEWS_PROPS.publishedAt),
+        thumbnailColor: selectProp(page.properties, CARDNEWS_PROPS.thumbnailColor),
+        summary: richTextProp(page.properties, CARDNEWS_PROPS.summary),
+        externalUrl: urlProp(page.properties, CARDNEWS_PROPS.externalUrl),
       };
     } catch (e) {
       console.error('[Notion] getCardNewsDetail:', e);
@@ -90,17 +103,18 @@ export const getNewsletterList = unstable_cache(
     try {
       const res = await notion.dataSources.query({
         data_source_id: process.env.NOTION_NEWSLETTER_COLLECTION!,
-        filter: { property: '공개', checkbox: { equals: true } },
-        sorts: [{ property: '발행호수', direction: 'descending' }],
+        filter: { property: NEWSLETTER_PROPS.isPublic, checkbox: { equals: true } },
+        sorts: [{ property: NEWSLETTER_PROPS.issueNumber, direction: 'descending' }],
       });
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return res.results.map((page: any) => ({
         id: page.id,
-        title: titleProp(page.properties, '제목'),
-        issueNumber: numberProp(page.properties, '발행호수'),
-        publishedAt: dateProp(page.properties, '발행일'),
-        summary: richTextProp(page.properties, '요약'),
-        pdfUrl: urlProp(page.properties, 'PDF링크'),
+        title: titleProp(page.properties, NEWSLETTER_PROPS.title),
+        issueNumber: numberProp(page.properties, NEWSLETTER_PROPS.issueNumber),
+        publishedAt: dateProp(page.properties, NEWSLETTER_PROPS.publishedAt),
+        summary: richTextProp(page.properties, NEWSLETTER_PROPS.summary),
+        pdfUrl: urlProp(page.properties, NEWSLETTER_PROPS.pdfUrl),
       }));
     } catch (e) {
       console.error('[Notion] getNewsletterList:', e);
@@ -116,16 +130,17 @@ export const getStatsList = unstable_cache(
     try {
       const res = await notion.dataSources.query({
         data_source_id: process.env.NOTION_STATS_COLLECTION!,
-        filter: { property: '활성', checkbox: { equals: true } },
-        sorts: [{ property: '순서', direction: 'ascending' }],
+        filter: { property: STATS_PROPS.isActive, checkbox: { equals: true } },
+        sorts: [{ property: STATS_PROPS.order, direction: 'ascending' }],
       });
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return res.results.map((page: any) => ({
         id: page.id,
-        name: titleProp(page.properties, '지표명'),
-        value: numberProp(page.properties, '수치'),
-        unit: selectProp(page.properties, '단위'),
-        description: richTextProp(page.properties, '설명'),
+        name: titleProp(page.properties, STATS_PROPS.name),
+        value: numberProp(page.properties, STATS_PROPS.value),
+        unit: selectProp(page.properties, STATS_PROPS.unit),
+        description: richTextProp(page.properties, STATS_PROPS.description),
       }));
     } catch (e) {
       console.error('[Notion] getStatsList:', e);

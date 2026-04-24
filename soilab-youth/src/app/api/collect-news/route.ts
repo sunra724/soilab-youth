@@ -2,21 +2,24 @@ import { NextResponse } from 'next/server';
 import Parser from 'rss-parser';
 import Anthropic from '@anthropic-ai/sdk';
 import { Client } from '@notionhq/client';
+import {
+  CANDIDATE_CATEGORIES,
+  CANDIDATE_PROPS,
+} from '@/lib/notionSchema';
 
 const parser = new Parser({ timeout: 10000 });
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
-const DB_ID = process.env.NOTION_CANDIDATES_DB!;
-const COLLECTION_ID = process.env.NOTION_CANDIDATES_COLLECTION!;
+const CANDIDATES_DB_ID = process.env.NOTION_CANDIDATES_DB!;
+const CANDIDATES_COLLECTION_ID = process.env.NOTION_CANDIDATES_COLLECTION!;
 
-// 수집 키워드별 카테고리
 const FEEDS = [
-  { query: '고립은둔 청년', category: '고립은둔' },
-  { query: '은둔형외톨이', category: '고립은둔' },
-  { query: '청년 고립 지원', category: '청년지원' },
-  { query: '청년 복지 사업', category: '청년지원' },
-  { query: '사회적기업 협동조합', category: '사회적경제' },
+  { query: '고립은둔 청년', category: CANDIDATE_CATEGORIES.isolationYouth },
+  { query: '은둔형외톨이', category: CANDIDATE_CATEGORIES.isolationYouth },
+  { query: '청년 고립 지원', category: CANDIDATE_CATEGORIES.youthSupport },
+  { query: '청년 복지 사업', category: CANDIDATE_CATEGORIES.youthSupport },
+  { query: '사회적경제 협동조합', category: CANDIDATE_CATEGORIES.socialEconomy },
 ];
 
 function googleRssUrl(query: string) {
@@ -40,6 +43,7 @@ async function summarize(title: string, description: string): Promise<string> {
         },
       ],
     });
+
     const block = msg.content[0];
     return block.type === 'text' ? block.text.trim() : '';
   } catch {
@@ -47,32 +51,37 @@ async function summarize(title: string, description: string): Promise<string> {
   }
 }
 
-// 이미 노션에 저장된 URL 목록 가져오기 (중복 방지)
 async function getExistingUrls(): Promise<Set<string>> {
   const urls = new Set<string>();
+
   try {
     const res = await notion.dataSources.query({
-      data_source_id: COLLECTION_ID,
+      data_source_id: CANDIDATES_COLLECTION_ID,
       page_size: 100,
     });
+
     for (const page of res.results) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const url = (page as any).properties?.['원문링크']?.url;
+      const url = (page as any).properties?.[CANDIDATE_PROPS.url]?.url;
       if (url) urls.add(url);
     }
   } catch (e) {
     console.error('[collect] getExistingUrls:', e);
   }
+
   return urls;
 }
 
 function toIsoDate(pubDate: string): string {
   try {
-    const d = new Date(pubDate);
-    if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
+    const date = new Date(pubDate);
+    if (!Number.isNaN(date.getTime())) {
+      return date.toISOString().slice(0, 10);
+    }
   } catch {
-    // ignore
+    // Ignore parse failures and fall back to today's date.
   }
+
   return new Date().toISOString().slice(0, 10);
 }
 
@@ -85,22 +94,21 @@ async function saveToNotion(item: {
   category: string;
 }) {
   await notion.pages.create({
-    parent: { database_id: DB_ID },
+    parent: { database_id: CANDIDATES_DB_ID },
     properties: {
-      '제목': { title: [{ text: { content: item.title } }] },
-      '원문링크': { url: item.url },
-      '출처': { rich_text: [{ text: { content: item.source } }] },
-      '수집일': { date: { start: toIsoDate(item.pubDate) } },
-      '요약': { rich_text: [{ text: { content: item.summary } }] },
-      '카테고리': { select: { name: item.category } },
-      '발송선택': { checkbox: false },
-      '발송완료': { checkbox: false },
+      [CANDIDATE_PROPS.title]: { title: [{ text: { content: item.title } }] },
+      [CANDIDATE_PROPS.url]: { url: item.url },
+      [CANDIDATE_PROPS.source]: { rich_text: [{ text: { content: item.source } }] },
+      [CANDIDATE_PROPS.collectedAt]: { date: { start: toIsoDate(item.pubDate) } },
+      [CANDIDATE_PROPS.summary]: { rich_text: [{ text: { content: item.summary } }] },
+      [CANDIDATE_PROPS.category]: { select: { name: item.category } },
+      [CANDIDATE_PROPS.isSelected]: { checkbox: false },
+      [CANDIDATE_PROPS.isSent]: { checkbox: false },
     },
   });
 }
 
 export async function GET(req: Request) {
-  // cron secret 검증
   const auth = req.headers.get('authorization');
   if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -113,20 +121,29 @@ export async function GET(req: Request) {
   for (const feed of FEEDS) {
     try {
       const rss = await parser.parseURL(googleRssUrl(feed.query));
-      const items = rss.items.slice(0, 5); // 키워드당 최신 5건
+      const items = rss.items.slice(0, 5);
 
       for (const item of items) {
         const url = item.link ?? '';
-        if (!url || existingUrls.has(url)) continue;
+        if (!url || existingUrls.has(url)) {
+          continue;
+        }
 
         const title = item.title ?? '';
-        const source = item.creator ?? (item as Record<string, string>)['source'] ?? '';
+        const source = item.creator ?? (item as Record<string, string>)?.source ?? '';
         const pubDate = item.pubDate ?? new Date().toISOString();
         const description = item.contentSnippet ?? item.content ?? '';
-
         const summary = await summarize(title, description);
 
-        await saveToNotion({ title, url, source, pubDate, summary, category: feed.category });
+        await saveToNotion({
+          title,
+          url,
+          source,
+          pubDate,
+          summary,
+          category: feed.category,
+        });
+
         existingUrls.add(url);
         saved.push(title);
       }

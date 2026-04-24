@@ -34,3 +34,29 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## 다시봄레터 자동화
+
+뉴스 수집은 매월 1일과 15일 오전 9시에 `/api/collect-news`로 실행되고, 발송은 매월 2일과 16일 오전 10시에 `/api/send-newsletter`로 실행됩니다. 발송 대상은 노션 후보 DB에서 `발송선택=true`, `발송완료=false`인 기사입니다.
+
+필요한 환경변수:
+
+- `RESEND_API_KEY`: Resend API 키
+- `RESEND_FROM`: 인증된 소이랩 도메인의 발신자 주소. 예: `소이랩 다시봄레터 <newsletter@soilab-youth.kr>`
+- `RESEND_SEGMENT_ID`: 뉴스레터 구독자를 저장할 Resend segment ID
+- `RESEND_AUDIENCE_ID`: 기존 audience를 계속 쓰는 경우의 호환 설정. `RESEND_SEGMENT_ID`가 있으면 segment를 우선 사용합니다.
+- `NEWSLETTER_TO`: Resend segment/audience가 없을 때 쓰는 테스트/백업 수신자 목록
+- `NEWSLETTER_REPLY_TO`: 답장 받을 주소. 없으면 `NEWSLETTER_UNSUBSCRIBE_EMAIL`을 사용합니다.
+- `NEWSLETTER_UNSUBSCRIBE_EMAIL`: 수신거부 요청을 받을 주소. 없으면 `soilabcoop@gmail.com`을 사용합니다.
+- `NEWSLETTER_UNSUBSCRIBE_SECRET`: 개인별 수신거부 링크 서명용 비밀값. 없으면 `CRON_SECRET`을 사용합니다.
+- `NEWSLETTER_AUTO_SELECT_COUNT`: 발송선택된 기사가 없을 때 최신 미발송 후보를 자동 선택할 개수. 예: `5`
+- `CRON_SECRET`: cron/API 보호용 bearer token
+
+발송 전 점검:
+
+```bash
+curl -s https://soilab-youth.kr/api/send-newsletter \
+  -H "Authorization: Bearer $CRON_SECRET"
+```
+
+응답의 `ready`가 `true`이면 선택 기사와 수신자가 모두 준비된 상태입니다. 실제 발송은 같은 endpoint에 `POST`로 호출합니다.

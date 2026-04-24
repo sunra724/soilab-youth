@@ -182,6 +182,15 @@ async function getTestRecipients(resend: Resend) {
   return getRecipients(resend);
 }
 
+function maskEmail(email: string) {
+  const [name, domain] = email.split('@');
+  if (!name || !domain) {
+    return email;
+  }
+
+  return `${name.slice(0, 2)}***@${domain}`;
+}
+
 function missingConfig() {
   return [
     !process.env.RESEND_API_KEY ? 'RESEND_API_KEY' : '',
@@ -201,6 +210,7 @@ async function buildDryRunPayload(resend: Resend) {
     ? await getAutoSelectableItems(autoSelectLimit())
     : [];
   const recipients = await getRecipients(resend);
+  const testRecipients = await getTestRecipients(resend);
 
   return {
     ready: missingConfig().length === 0
@@ -211,6 +221,10 @@ async function buildDryRunPayload(resend: Resend) {
     autoSelectLimit: autoSelectLimit(),
     autoSelectableItems: autoSelectableItems.length,
     recipients: recipients.length,
+    recipientPreview: recipients.slice(0, 5).map(maskEmail),
+    testRecipients: testRecipients.length,
+    testRecipientPreview: testRecipients.slice(0, 5).map(maskEmail),
+    testRecipientSource: process.env.NEWSLETTER_TEST_TO ? 'NEWSLETTER_TEST_TO' : 'newsletter-list',
     sampleTitles: (items.length > 0 ? items : autoSelectableItems)
       .slice(0, 5)
       .map((item) => item.title),
@@ -360,6 +374,7 @@ export async function POST(req: Request) {
       emailIds,
       sent: items.length,
       recipients: recipients.length,
+      recipientPreview: recipients.slice(0, 5).map(maskEmail),
       label,
       issueNumber,
       testMode,

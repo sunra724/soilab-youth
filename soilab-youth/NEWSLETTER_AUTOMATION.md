@@ -8,7 +8,7 @@
 
 소이랩 뉴스레터는 두 갈래로 운영합니다.
 
-- `다시봄 뉴스클리핑`: 고립은둔, 사회적가치, 청년지원 관련 뉴스를 매일 자동 수집하고 매일 오전 8시에 이메일로 발송합니다.
+- `다시봄 뉴스클리핑`: 고립은둔, 사회적가치, 청년지원 관련 뉴스와 유튜브 영상을 매일 자동 수집하고 매일 오전 8시에 이메일로 발송합니다.
 - `기관 소식`: 소이랩 고립·은둔 청년 지원센터가 직접 작성하는 활동보고, 행사 안내, 공지 등을 비정기적으로 발송하거나 웹에 게시합니다.
 
 현재 구독자는 같은 Resend segment/audience를 사용합니다. 나중에 `뉴스클리핑만 받기`, `기관 소식만 받기`처럼 수신 선택을 나누려면 Resend segment를 분리하고 구독 폼에 선호 항목을 추가해야 합니다.
@@ -16,7 +16,7 @@
 ## 운영 흐름
 
 1. Vercel Cron이 매일 오전 7시 50분(KST)에 `/api/collect-news`를 호출합니다.
-2. `collect-news`는 Google News RSS를 키워드별로 조회해 새 기사 URL만 Notion 후보 DB에 저장합니다.
+2. `collect-news`는 Google News RSS와 YouTube Data API를 키워드별로 조회해 새 기사/영상 URL만 Notion 후보 DB에 저장합니다.
 3. Vercel Cron이 매일 오전 8시(KST)에 `/api/send-newsletter/cron`을 호출합니다.
 4. `send-newsletter`는 Notion 후보 DB에서 `발송선택=true`, `발송완료=false`인 기사를 우선 발송합니다.
 5. 선택된 기사가 없으면 `NEWSLETTER_AUTO_SELECT_COUNT` 값만큼 최신 미발송 후보를 자동 선택해 발송합니다.
@@ -51,9 +51,18 @@ Vercel Cron은 UTC 기준입니다.
 
 키워드가 너무 넓거나 좁으면 이 배열을 먼저 조정하면 됩니다. 예를 들어 구글 알리미의 `고립은둔` 결과와 최대한 비슷하게 맞추려면 `고립은둔 청년`, `고립은둔`, `은둔형외톨이` 중심으로 줄이면 됩니다.
 
+현재 YouTube Data API 조회 키워드는 다음과 같습니다.
+
+- `고립은둔 청년` → 카테고리 `고립은둔`
+- `은둔형외톨이` → 카테고리 `고립은둔`
+- `청년지원` → 카테고리 `청년지원`
+- `사회적가치 청년` → 카테고리 `사회적가치`
+
+유튜브 영상은 기존 Notion 후보 DB 스키마를 깨지 않기 위해 제목 앞에 `[영상]`을 붙이고, 출처는 `YouTube · 채널명`으로 저장합니다. `YOUTUBE_API_KEY`가 없으면 영상 수집만 건너뛰고 뉴스 수집은 계속 진행됩니다.
+
 ## 주요 파일
 
-- `src/app/api/collect-news/route.ts`: Google News RSS 수집, 요약 생성, Notion 후보 DB 저장
+- `src/app/api/collect-news/route.ts`: Google News RSS와 YouTube Data API 수집, 요약 생성, Notion 후보 DB 저장
 - `src/app/api/send-newsletter/route.ts`: 드라이런, 테스트 발송, 정식 발송, 자동선택, 발송완료 처리, 아카이브 생성
 - `src/app/api/send-newsletter/cron/route.ts`: Vercel Cron용 GET 경로. Vercel Cron은 GET만 보내기 때문에 실제 발송용 POST 핸들러를 GET으로 재사용합니다.
 - `src/app/api/subscribe-newsletter/route.ts`: 구독 폼에서 Resend 연락처 등록
@@ -82,6 +91,9 @@ Vercel Production 환경변수 기준입니다. 값은 Vercel 대시보드에서
 - `NEWSLETTER_AUTO_SELECT_COUNT`: 발송선택된 기사가 없을 때 최신 미발송 후보를 자동 선택할 개수. 현재 운영 의도는 `5`입니다.
 - `CRON_SECRET`: cron/API 보호용 bearer token
 - `ANTHROPIC_API_KEY`: 기사 요약 생성용
+- `YOUTUBE_API_KEY`: 유튜브 영상 수집용 YouTube Data API 키. 없으면 영상 수집만 건너뜁니다.
+- `YOUTUBE_VIDEO_LIMIT_PER_QUERY`: 유튜브 키워드별 수집 개수. 기본값 `2`, 최대 `5`
+- `YOUTUBE_VIDEO_LOOKBACK_DAYS`: 유튜브 검색 기간. 기본값 `14`, 최대 `30`
 - `NOTION_TOKEN`: Notion API 토큰
 - `NOTION_CANDIDATES_DB`: 뉴스 후보 DB ID
 - `NOTION_CANDIDATES_COLLECTION`: 뉴스 후보 data source ID
@@ -109,6 +121,13 @@ Vercel Production 환경변수 기준입니다. 값은 Vercel 대시보드에서
 - `사회적가치`
 - `사회적경제`
 - `기타`
+
+영상 후보는 현재 별도 필드 없이 기존 DB에 저장됩니다.
+
+- `제목`: `[영상] 영상 제목`
+- `원문링크`: `https://www.youtube.com/watch?v=...`
+- `출처`: `YouTube · 채널명`
+- `요약`: 영상 설명 기반 2문장 요약
 
 뉴스레터 아카이브 DB 속성은 `NEWSLETTER_PROPS`와 맞아야 합니다.
 

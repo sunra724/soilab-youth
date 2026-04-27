@@ -14,7 +14,28 @@ const notion = new Client({ auth: process.env.NOTION_TOKEN });
 const CANDIDATES_DB_ID = process.env.NOTION_CANDIDATES_DB!;
 const CANDIDATES_COLLECTION_ID = process.env.NOTION_CANDIDATES_COLLECTION!;
 
-const FEEDS = [
+interface ContentFeed {
+  query: string;
+  category: string;
+}
+
+interface YouTubeSearchItem {
+  id?: {
+    videoId?: string;
+  };
+  snippet?: {
+    title?: string;
+    description?: string;
+    channelTitle?: string;
+    publishedAt?: string;
+  };
+}
+
+interface YouTubeSearchResponse {
+  items?: YouTubeSearchItem[];
+}
+
+const NEWS_FEEDS: ContentFeed[] = [
   { query: '고립은둔 청년', category: CANDIDATE_CATEGORIES.isolationYouth },
   { query: '은둔형외톨이', category: CANDIDATE_CATEGORIES.isolationYouth },
   { query: '청년 고립 지원', category: CANDIDATE_CATEGORIES.youthSupport },
@@ -22,11 +43,50 @@ const FEEDS = [
   { query: '사회적가치', category: CANDIDATE_CATEGORIES.socialValue },
 ];
 
+const VIDEO_FEEDS: ContentFeed[] = [
+  { query: '고립은둔 청년', category: CANDIDATE_CATEGORIES.isolationYouth },
+  { query: '은둔형외톨이', category: CANDIDATE_CATEGORIES.isolationYouth },
+  { query: '청년지원', category: CANDIDATE_CATEGORIES.youthSupport },
+  { query: '사회적가치 청년', category: CANDIDATE_CATEGORIES.socialValue },
+];
+
 function googleRssUrl(query: string) {
   return `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=ko&gl=KR&ceid=KR:ko`;
 }
 
-async function summarize(title: string, description: string): Promise<string> {
+function numberEnv(name: string, fallback: number, max: number) {
+  const value = Number(process.env[name] ?? fallback);
+  if (!Number.isFinite(value) || value <= 0) {
+    return fallback;
+  }
+
+  return Math.min(Math.floor(value), max);
+}
+
+function youtubeSearchUrl(query: string) {
+  const apiKey = process.env.YOUTUBE_API_KEY;
+  if (!apiKey) {
+    return '';
+  }
+
+  const lookbackDays = numberEnv('YOUTUBE_VIDEO_LOOKBACK_DAYS', 14, 30);
+  const publishedAfter = new Date(Date.now() - lookbackDays * 24 * 60 * 60 * 1000).toISOString();
+  const params = new URLSearchParams({
+    key: apiKey,
+    part: 'snippet',
+    q: query,
+    type: 'video',
+    order: 'date',
+    relevanceLanguage: 'ko',
+    regionCode: 'KR',
+    maxResults: String(numberEnv('YOUTUBE_VIDEO_LIMIT_PER_QUERY', 2, 5)),
+    publishedAfter,
+  });
+
+  return `https://www.googleapis.com/youtube/v3/search?${params.toString()}`;
+}
+
+async function summarize(title: string, description: string, contentType = '뉴스 기사'): Promise<string> {
   try {
     const msg = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
@@ -34,7 +94,7 @@ async function summarize(title: string, description: string): Promise<string> {
       messages: [
         {
           role: 'user',
-          content: `다음 뉴스 기사를 2문장으로 요약해줘. 소이랩 고립·은둔 청년 지원 담당자가 읽을 매일 뉴스클리핑용이야. 핵심 내용만 간결하게.
+          content: `다음 ${contentType}를 2문장으로 요약해줘. 소이랩 고립·은둔 청년 지원 담당자가 읽을 매일 뉴스클리핑용이야. 핵심 내용만 간결하게.
 
 제목: ${title}
 내용: ${description?.slice(0, 300) ?? ''}
@@ -85,6 +145,85 @@ function toIsoDate(pubDate: string): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+async function collectNewsFeed(feed: ContentFeed, existingUrls: Set<string>) {
+  const rss = await parser.parseURL(googleRssUrl(feed.query));
+  const items = rss.items.slice(0, 5);
+  const saved: string[] = [];
+
+  for (const item of items) {
+    const url = item.link ?? '';
+    if (!url || existingUrls.has(url)) {
+      continue;
+    }
+
+    const title = item.title ?? '';
+    const source = item.creator ?? (item as Record<string, string>)?.source ?? '';
+    const pubDate = item.pubDate ?? new Date().toISOString();
+    const description = item.contentSnippet ?? item.content ?? '';
+    const summary = await summarize(title, description);
+
+    await saveToNotion({
+      title,
+      url,
+      source,
+      pubDate,
+      summary,
+      category: feed.category,
+    });
+
+    existingUrls.add(url);
+    saved.push(title);
+  }
+
+  return saved;
+}
+
+async function collectYouTubeFeed(feed: ContentFeed, existingUrls: Set<string>) {
+  const url = youtubeSearchUrl(feed.query);
+  if (!url) {
+    return [];
+  }
+
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`YouTube API ${res.status}: ${await res.text()}`);
+  }
+
+  const payload = await res.json() as YouTubeSearchResponse;
+  const saved: string[] = [];
+
+  for (const item of payload.items ?? []) {
+    const videoId = item.id?.videoId;
+    const snippet = item.snippet;
+    if (!videoId || !snippet?.title) {
+      continue;
+    }
+
+    const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+    if (existingUrls.has(videoUrl)) {
+      continue;
+    }
+
+    const title = `[영상] ${snippet.title}`;
+    const description = snippet.description ?? '';
+    const summary = await summarize(title, description, '유튜브 영상 설명');
+
+    await saveToNotion({
+      title,
+      url: videoUrl,
+      source: `YouTube · ${snippet.channelTitle ?? '채널명 없음'}`,
+      pubDate: snippet.publishedAt ?? new Date().toISOString(),
+      summary,
+      category: feed.category,
+    });
+
+    existingUrls.add(videoUrl);
+    saved.push(title);
+  }
+
+  return saved;
+}
+
 async function saveToNotion(item: {
   title: string;
   url: string;
@@ -116,42 +255,36 @@ export async function GET(req: Request) {
 
   const existingUrls = await getExistingUrls();
   const saved: string[] = [];
+  const videoSaved: string[] = [];
   const errors: string[] = [];
+  const youtubeEnabled = Boolean(process.env.YOUTUBE_API_KEY);
 
-  for (const feed of FEEDS) {
+  for (const feed of NEWS_FEEDS) {
     try {
-      const rss = await parser.parseURL(googleRssUrl(feed.query));
-      const items = rss.items.slice(0, 5);
-
-      for (const item of items) {
-        const url = item.link ?? '';
-        if (!url || existingUrls.has(url)) {
-          continue;
-        }
-
-        const title = item.title ?? '';
-        const source = item.creator ?? (item as Record<string, string>)?.source ?? '';
-        const pubDate = item.pubDate ?? new Date().toISOString();
-        const description = item.contentSnippet ?? item.content ?? '';
-        const summary = await summarize(title, description);
-
-        await saveToNotion({
-          title,
-          url,
-          source,
-          pubDate,
-          summary,
-          category: feed.category,
-        });
-
-        existingUrls.add(url);
-        saved.push(title);
-      }
+      saved.push(...await collectNewsFeed(feed, existingUrls));
     } catch (e) {
       errors.push(`${feed.query}: ${String(e)}`);
       console.error('[collect] feed error:', feed.query, e);
     }
   }
 
-  return NextResponse.json({ saved: saved.length, titles: saved, errors });
+  if (youtubeEnabled) {
+    for (const feed of VIDEO_FEEDS) {
+      try {
+        videoSaved.push(...await collectYouTubeFeed(feed, existingUrls));
+      } catch (e) {
+        errors.push(`YouTube ${feed.query}: ${String(e)}`);
+        console.error('[collect] YouTube feed error:', feed.query, e);
+      }
+    }
+  }
+
+  return NextResponse.json({
+    saved: saved.length + videoSaved.length,
+    articleSaved: saved.length,
+    videoSaved: videoSaved.length,
+    youtubeEnabled,
+    titles: [...saved, ...videoSaved],
+    errors,
+  });
 }

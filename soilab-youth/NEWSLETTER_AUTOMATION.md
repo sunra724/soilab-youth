@@ -17,7 +17,7 @@
 
 1. Vercel Cron이 매일 오전 7시 50분(KST)에 `/api/collect-news`를 호출합니다.
 2. `collect-news`는 Google News RSS를 키워드별로 조회해 새 기사 URL만 Notion 후보 DB에 저장합니다.
-3. Vercel Cron이 매일 오전 8시(KST)에 `/api/send-newsletter`를 호출합니다.
+3. Vercel Cron이 매일 오전 8시(KST)에 `/api/send-newsletter/cron`을 호출합니다.
 4. `send-newsletter`는 Notion 후보 DB에서 `발송선택=true`, `발송완료=false`인 기사를 우선 발송합니다.
 5. 선택된 기사가 없으면 `NEWSLETTER_AUTO_SELECT_COUNT` 값만큼 최신 미발송 후보를 자동 선택해 발송합니다.
 6. 정식 발송이 끝나면 후보 기사는 `발송완료=true`로 바뀌고, 뉴스레터 아카이브 DB에 `다시봄 뉴스클리핑 YYYY년 M월 D일` 항목이 생성됩니다.
@@ -30,7 +30,7 @@
 Vercel Cron은 UTC 기준입니다.
 
 - `/api/collect-news`: `50 22 * * *`
-- `/api/send-newsletter`: `0 23 * * *`
+- `/api/send-newsletter/cron`: `0 23 * * *`
 
 한국시간 기준으로는 다음과 같습니다.
 
@@ -55,6 +55,7 @@ Vercel Cron은 UTC 기준입니다.
 
 - `src/app/api/collect-news/route.ts`: Google News RSS 수집, 요약 생성, Notion 후보 DB 저장
 - `src/app/api/send-newsletter/route.ts`: 드라이런, 테스트 발송, 정식 발송, 자동선택, 발송완료 처리, 아카이브 생성
+- `src/app/api/send-newsletter/cron/route.ts`: Vercel Cron용 GET 경로. Vercel Cron은 GET만 보내기 때문에 실제 발송용 POST 핸들러를 GET으로 재사용합니다.
 - `src/app/api/subscribe-newsletter/route.ts`: 구독 폼에서 Resend 연락처 등록
 - `src/app/api/unsubscribe-newsletter/route.ts`: 개인별 수신거부 링크 처리
 - `src/lib/emailTemplate.ts`: HTML/text 이메일 템플릿
@@ -205,4 +206,3 @@ Invoke-RestMethod -Uri "https://api.resend.com/emails/<EMAIL_ID>" -Headers $head
 - 기사 자동선택 기준에 날짜 필터를 추가해 너무 오래된 미발송 후보가 섞이지 않게 하기
 - Google News RSS 키워드 품질을 며칠간 모니터링한 뒤 키워드 목록 조정하기
 - 발송 전에 운영자가 후보 기사 목록을 웹에서 승인할 수 있는 간단한 관리자 화면 만들기
-

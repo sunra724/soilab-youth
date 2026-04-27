@@ -5,7 +5,7 @@
       "schedule": "50 22 * * *"
     },
     {
-      "path": "/api/send-newsletter",
+      "path": "/api/send-newsletter/cron",
       "schedule": "0 23 * * *"
     }
   ]

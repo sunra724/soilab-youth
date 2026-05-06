@@ -66,4 +66,4 @@ curl -s https://soilab-youth.kr/api/send-newsletter \
   -H "Authorization: Bearer $CRON_SECRET"
 ```
 
-응답의 `ready`가 `true`이면 선택 기사와 수신자가 모두 준비된 상태입니다. 실제 발송은 같은 endpoint에 `POST`로 호출합니다.
+응답의 `ready`가 `true`이면 선택 기사와 수신자가 모두 준비된 상태입니다. 실제 발송은 같은 endpoint에 `POST`로 호출합니다. 

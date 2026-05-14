@@ -43,13 +43,17 @@ Vercel Cron은 UTC 기준입니다.
 
 현재 Google News RSS 조회 키워드는 다음과 같습니다.
 
+- `고립은둔` → 카테고리 `고립은둔`
+- `고립·은둔` → 카테고리 `고립은둔`
+- `고립 은둔` → 카테고리 `고립은둔`
 - `고립은둔 청년` → 카테고리 `고립은둔`
+- `고립·은둔 청년` → 카테고리 `고립은둔`
 - `은둔형외톨이` → 카테고리 `고립은둔`
 - `청년 고립 지원` → 카테고리 `청년지원`
 - `청년지원` → 카테고리 `청년지원`
 - `사회적가치` → 카테고리 `사회적가치`
 
-키워드가 너무 넓거나 좁으면 이 배열을 먼저 조정하면 됩니다. 예를 들어 구글 알리미의 `고립은둔` 결과와 최대한 비슷하게 맞추려면 `고립은둔 청년`, `고립은둔`, `은둔형외톨이` 중심으로 줄이면 됩니다.
+키워드가 너무 넓거나 좁으면 이 배열을 먼저 조정하면 됩니다. 구글 알리미의 `고립은둔` 결과와 최대한 비슷하게 맞추기 위해 띄어쓰기와 가운뎃점이 다른 `고립은둔`, `고립·은둔`, `고립 은둔` 변형을 함께 조회합니다.
 
 현재 YouTube Data API 조회 키워드는 다음과 같습니다.
 
@@ -58,7 +62,11 @@ Vercel Cron은 UTC 기준입니다.
 - `청년지원` → 카테고리 `청년지원`
 - `사회적가치 청년` → 카테고리 `사회적가치`
 
-유튜브 영상은 기존 Notion 후보 DB 스키마를 깨지 않기 위해 제목 앞에 `[영상]`을 붙이고, 출처는 `YouTube · 채널명`으로 저장합니다. `YOUTUBE_API_KEY`가 없으면 영상 수집만 건너뛰고 뉴스 수집은 계속 진행됩니다.
+유튜브 영상은 기존 Notion 후보 DB 스키마를 깨지 않기 위해 제목 앞에 `[영상]`을 붙이고, 출처는 `YouTube · 채널명 · 조회수 ... · 구독자 ...` 형식으로 저장합니다. `YOUTUBE_API_KEY`가 없으면 영상 수집만 건너뛰고 뉴스 수집은 계속 진행됩니다.
+
+유튜브 수집은 검색 결과를 바로 저장하지 않습니다. 먼저 후보를 넉넉히 가져온 뒤 YouTube `videos.list`의 `statistics.viewCount`와 `channels.list`의 `statistics.subscriberCount`를 조회해 조회수/구독자 기준을 통과한 영상만 점수순으로 저장합니다. 기존에 저장된 낮은 품질 영상이 자동발송에 섞이지 않도록 발송 자동선택 단계에서도 조회수/구독자 정보가 없는 `[영상]` 후보는 제외합니다.
+
+발송 자동선택은 뉴스 기사를 우선합니다. `NEWSLETTER_AUTO_SELECT_ARTICLE_RATIO` 기본값은 `0.7`이며, 예를 들어 `NEWSLETTER_AUTO_SELECT_COUNT=10`이면 기사 7건, 영상 3건을 목표로 선택합니다. 기사가 부족할 때만 남은 자리를 영상으로 채우고, 영상이 부족하면 기사로 채웁니다. 노션에서 `발송선택`을 직접 체크한 항목은 운영자가 고른 목록으로 보고 이 비율을 강제로 바꾸지 않습니다.
 
 ## 주요 파일
 
@@ -89,11 +97,17 @@ Vercel Production 환경변수 기준입니다. 값은 Vercel 대시보드에서
 - `NEWSLETTER_UNSUBSCRIBE_EMAIL`: 수신거부 요청을 받을 주소. 기본값은 `youth-news@soilabcoop.kr`입니다.
 - `NEWSLETTER_UNSUBSCRIBE_SECRET`: 개인별 수신거부 링크 서명용 비밀값. 없으면 `CRON_SECRET`을 사용합니다.
 - `NEWSLETTER_AUTO_SELECT_COUNT`: 발송선택된 기사가 없을 때 최신 미발송 후보를 자동 선택할 개수. 현재 운영 의도는 `5`입니다.
+- `NEWSLETTER_AUTO_SELECT_ARTICLE_RATIO`: 자동선택 시 뉴스 기사 목표 비율. 기본값 `0.7`
 - `CRON_SECRET`: cron/API 보호용 bearer token
 - `ANTHROPIC_API_KEY`: 기사 요약 생성용
 - `YOUTUBE_API_KEY`: 유튜브 영상 수집용 YouTube Data API 키. 없으면 영상 수집만 건너뜁니다.
-- `YOUTUBE_VIDEO_LIMIT_PER_QUERY`: 유튜브 키워드별 수집 개수. 기본값 `2`, 최대 `5`
+- `NEWS_ITEM_LIMIT_PER_QUERY`: Google News RSS 키워드별 기사 검토 개수. 기본값 `10`, 최대 `20`
+- `YOUTUBE_VIDEO_LIMIT_PER_QUERY`: 유튜브 키워드별 수집 개수. 기본값 `1`, 최대 `5`
+- `YOUTUBE_VIDEO_SEARCH_POOL_PER_QUERY`: 유튜브 키워드별 검토 후보 개수. 기본값 `10`, 최대 `25`
 - `YOUTUBE_VIDEO_LOOKBACK_DAYS`: 유튜브 검색 기간. 기본값 `14`, 최대 `30`
+- `YOUTUBE_MIN_VIEW_COUNT`: 유튜브 영상 최소 조회수. 기본값 `1000`
+- `YOUTUBE_MIN_CHANNEL_SUBSCRIBERS`: 유튜브 채널 최소 구독자 수. 기본값 `1000`
+- `YOUTUBE_VIDEO_SEARCH_ORDER`: 유튜브 검색 정렬. 기본값 `viewCount`
 - `NOTION_TOKEN`: Notion API 토큰
 - `NOTION_CANDIDATES_DB`: 뉴스 후보 DB ID
 - `NOTION_CANDIDATES_COLLECTION`: 뉴스 후보 data source ID
@@ -126,8 +140,8 @@ Vercel Production 환경변수 기준입니다. 값은 Vercel 대시보드에서
 
 - `제목`: `[영상] 영상 제목`
 - `원문링크`: `https://www.youtube.com/watch?v=...`
-- `출처`: `YouTube · 채널명`
-- `요약`: 영상 설명 기반 2문장 요약
+- `출처`: `YouTube · 채널명 · 조회수 ...회 · 구독자 ...명`
+- `요약`: `[조회수 ...회 · 구독자 ...명]` + 영상 설명 기반 2문장 요약
 
 뉴스레터 아카이브 DB 속성은 `NEWSLETTER_PROPS`와 맞아야 합니다.
 

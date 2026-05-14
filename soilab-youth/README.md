@@ -41,7 +41,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 `/api/collect-news`와 `/api/send-newsletter`는 매일 발송되는 `다시봄 뉴스클리핑` 자동화입니다. 고립은둔·사회적가치·청년지원 키워드로 뉴스와 유튜브 영상을 수집하고, 매일 오전 8시(KST)에 자동 발송합니다. 소이랩 고립·은둔 청년 지원센터의 활동보고·행사 안내 같은 비정기 소식은 뉴스레터 페이지의 `기관 소식`으로 별도 구분합니다.
 
-뉴스 수집은 매일 오전 7시 50분(KST)에 `/api/collect-news`로 실행되고, 발송은 매일 오전 8시(KST)에 `/api/send-newsletter/cron`으로 실행됩니다. Vercel cron은 UTC 기준이라 각각 `50 22 * * *`, `0 23 * * *`로 설정되어 있습니다. 발송 대상은 노션 후보 DB에서 `발송선택=true`, `발송완료=false`인 기사이며, 선택된 기사가 없으면 `NEWSLETTER_AUTO_SELECT_COUNT`만큼 최신 미발송 후보를 자동 선택합니다.
+뉴스 수집은 매일 오전 7시 50분(KST)에 `/api/collect-news`로 실행되고, 발송은 매일 오전 8시(KST)에 `/api/send-newsletter/cron`으로 실행됩니다. Vercel cron은 UTC 기준이라 각각 `50 22 * * *`, `0 23 * * *`로 설정되어 있습니다. 발송 대상은 노션 후보 DB에서 `발송선택=true`, `발송완료=false`인 기사이며, 선택된 기사가 없으면 `NEWSLETTER_AUTO_SELECT_COUNT`만큼 최신 미발송 후보를 기사 70%, 영상 30% 목표로 자동 선택합니다.
 
 필요한 환경변수:
 
@@ -54,10 +54,16 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - `NEWSLETTER_UNSUBSCRIBE_EMAIL`: 수신거부 요청을 받을 주소. 없으면 `youth-news@soilabcoop.kr`을 사용합니다.
 - `NEWSLETTER_UNSUBSCRIBE_SECRET`: 개인별 수신거부 링크 서명용 비밀값. 없으면 `CRON_SECRET`을 사용합니다.
 - `NEWSLETTER_AUTO_SELECT_COUNT`: 발송선택된 기사가 없을 때 최신 미발송 후보를 자동 선택할 개수. 예: `5`
+- `NEWSLETTER_AUTO_SELECT_ARTICLE_RATIO`: 자동선택 시 뉴스 기사 목표 비율. 기본값 `0.7`
 - `CRON_SECRET`: cron/API 보호용 bearer token
 - `YOUTUBE_API_KEY`: 유튜브 영상 수집용 YouTube Data API 키. 없으면 영상 수집만 건너뜁니다.
-- `YOUTUBE_VIDEO_LIMIT_PER_QUERY`: 유튜브 키워드별 수집 개수. 기본값 `2`, 최대 `5`
+- `NEWS_ITEM_LIMIT_PER_QUERY`: Google News RSS 키워드별 기사 검토 개수. 기본값 `10`, 최대 `20`
+- `YOUTUBE_VIDEO_LIMIT_PER_QUERY`: 유튜브 키워드별 수집 개수. 기본값 `1`, 최대 `5`
+- `YOUTUBE_VIDEO_SEARCH_POOL_PER_QUERY`: 유튜브 키워드별 검토 후보 개수. 기본값 `10`, 최대 `25`
 - `YOUTUBE_VIDEO_LOOKBACK_DAYS`: 유튜브 검색 기간. 기본값 `14`, 최대 `30`
+- `YOUTUBE_MIN_VIEW_COUNT`: 유튜브 영상 최소 조회수. 기본값 `1000`
+- `YOUTUBE_MIN_CHANNEL_SUBSCRIBERS`: 유튜브 채널 최소 구독자 수. 기본값 `1000`
+- `YOUTUBE_VIDEO_SEARCH_ORDER`: 유튜브 검색 정렬. 기본값 `viewCount`
 
 발송 전 점검:
 

@@ -26,6 +26,7 @@ interface YouTubeSearchItem {
   snippet?: {
     title?: string;
     description?: string;
+    channelId?: string;
     channelTitle?: string;
     publishedAt?: string;
   };
@@ -35,8 +36,47 @@ interface YouTubeSearchResponse {
   items?: YouTubeSearchItem[];
 }
 
+interface YouTubeVideoStatsItem {
+  id?: string;
+  statistics?: {
+    viewCount?: string;
+  };
+}
+
+interface YouTubeVideoStatsResponse {
+  items?: YouTubeVideoStatsItem[];
+}
+
+interface YouTubeChannelStatsItem {
+  id?: string;
+  statistics?: {
+    subscriberCount?: string;
+    hiddenSubscriberCount?: boolean;
+  };
+}
+
+interface YouTubeChannelStatsResponse {
+  items?: YouTubeChannelStatsItem[];
+}
+
+interface YouTubeCandidate {
+  videoId: string;
+  title: string;
+  description: string;
+  channelId: string;
+  channelTitle: string;
+  publishedAt: string;
+  viewCount: number;
+  subscriberCount: number;
+  hiddenSubscriberCount: boolean;
+}
+
 const NEWS_FEEDS: ContentFeed[] = [
+  { query: '고립은둔', category: CANDIDATE_CATEGORIES.isolationYouth },
+  { query: '고립·은둔', category: CANDIDATE_CATEGORIES.isolationYouth },
+  { query: '고립 은둔', category: CANDIDATE_CATEGORIES.isolationYouth },
   { query: '고립은둔 청년', category: CANDIDATE_CATEGORIES.isolationYouth },
+  { query: '고립·은둔 청년', category: CANDIDATE_CATEGORIES.isolationYouth },
   { query: '은둔형외톨이', category: CANDIDATE_CATEGORIES.isolationYouth },
   { query: '청년 고립 지원', category: CANDIDATE_CATEGORIES.youthSupport },
   { query: '청년지원', category: CANDIDATE_CATEGORIES.youthSupport },
@@ -63,6 +103,16 @@ function numberEnv(name: string, fallback: number, max: number) {
   return Math.min(Math.floor(value), max);
 }
 
+function stringEnv(name: string, fallback: string, allowed: string[]) {
+  const value = process.env[name] ?? fallback;
+  return allowed.includes(value) ? value : fallback;
+}
+
+function parseCount(value?: string) {
+  const parsed = Number(value ?? 0);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
 function youtubeSearchUrl(query: string) {
   const apiKey = process.env.YOUTUBE_API_KEY;
   if (!apiKey) {
@@ -76,14 +126,29 @@ function youtubeSearchUrl(query: string) {
     part: 'snippet',
     q: query,
     type: 'video',
-    order: 'date',
+    order: stringEnv('YOUTUBE_VIDEO_SEARCH_ORDER', 'viewCount', ['date', 'relevance', 'viewCount']),
     relevanceLanguage: 'ko',
     regionCode: 'KR',
-    maxResults: String(numberEnv('YOUTUBE_VIDEO_LIMIT_PER_QUERY', 2, 5)),
+    maxResults: String(numberEnv('YOUTUBE_VIDEO_SEARCH_POOL_PER_QUERY', 10, 25)),
     publishedAfter,
   });
 
   return `https://www.googleapis.com/youtube/v3/search?${params.toString()}`;
+}
+
+function youtubeStatsUrl(resource: 'videos' | 'channels', ids: string[]) {
+  const apiKey = process.env.YOUTUBE_API_KEY;
+  if (!apiKey || ids.length === 0) {
+    return '';
+  }
+
+  const params = new URLSearchParams({
+    key: apiKey,
+    part: 'statistics',
+    id: ids.join(','),
+  });
+
+  return `https://www.googleapis.com/youtube/v3/${resource}?${params.toString()}`;
 }
 
 async function summarize(title: string, description: string, contentType = '뉴스 기사'): Promise<string> {
@@ -147,7 +212,7 @@ function toIsoDate(pubDate: string): string {
 
 async function collectNewsFeed(feed: ContentFeed, existingUrls: Set<string>) {
   const rss = await parser.parseURL(googleRssUrl(feed.query));
-  const items = rss.items.slice(0, 5);
+  const items = rss.items.slice(0, numberEnv('NEWS_ITEM_LIMIT_PER_QUERY', 10, 20));
   const saved: string[] = [];
 
   for (const item of items) {
@@ -190,30 +255,64 @@ async function collectYouTubeFeed(feed: ContentFeed, existingUrls: Set<string>) 
   }
 
   const payload = await res.json() as YouTubeSearchResponse;
+  const searchItems = (payload.items ?? [])
+    .map((item) => {
+      const videoId = item.id?.videoId;
+      const snippet = item.snippet;
+
+      if (!videoId || !snippet?.title || !snippet.channelId) {
+        return null;
+      }
+
+      return {
+        videoId,
+        title: snippet.title,
+        description: snippet.description ?? '',
+        channelId: snippet.channelId,
+        channelTitle: snippet.channelTitle ?? '채널명 없음',
+        publishedAt: snippet.publishedAt ?? new Date().toISOString(),
+      };
+    })
+    .filter((item): item is Omit<YouTubeCandidate, 'viewCount' | 'subscriberCount' | 'hiddenSubscriberCount'> => Boolean(item));
+
+  const videoStats = await getYouTubeVideoStats(searchItems.map((item) => item.videoId));
+  const channelStats = await getYouTubeChannelStats(searchItems.map((item) => item.channelId));
+  const minViews = numberEnv('YOUTUBE_MIN_VIEW_COUNT', 1000, 1_000_000_000);
+  const minSubscribers = numberEnv('YOUTUBE_MIN_CHANNEL_SUBSCRIBERS', 1000, 100_000_000);
+  const saveLimit = numberEnv('YOUTUBE_VIDEO_LIMIT_PER_QUERY', 1, 5);
+  const candidates = searchItems
+    .map((item): YouTubeCandidate => {
+      const channel = channelStats.get(item.channelId);
+
+      return {
+        ...item,
+        viewCount: videoStats.get(item.videoId) ?? 0,
+        subscriberCount: channel?.subscriberCount ?? 0,
+        hiddenSubscriberCount: channel?.hiddenSubscriberCount ?? false,
+      };
+    })
+    .filter((item) => item.viewCount >= minViews)
+    .filter((item) => item.hiddenSubscriberCount || item.subscriberCount >= minSubscribers)
+    .sort((a, b) => scoreYouTubeCandidate(b) - scoreYouTubeCandidate(a))
+    .slice(0, saveLimit);
   const saved: string[] = [];
 
-  for (const item of payload.items ?? []) {
-    const videoId = item.id?.videoId;
-    const snippet = item.snippet;
-    if (!videoId || !snippet?.title) {
-      continue;
-    }
-
-    const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+  for (const item of candidates) {
+    const videoUrl = `https://www.youtube.com/watch?v=${item.videoId}`;
     if (existingUrls.has(videoUrl)) {
       continue;
     }
 
-    const title = `[영상] ${snippet.title}`;
-    const description = snippet.description ?? '';
+    const title = `[영상] ${item.title}`;
+    const description = item.description;
     const summary = await summarize(title, description, '유튜브 영상 설명');
 
     await saveToNotion({
       title,
       url: videoUrl,
-      source: `YouTube · ${snippet.channelTitle ?? '채널명 없음'}`,
-      pubDate: snippet.publishedAt ?? new Date().toISOString(),
-      summary,
+      source: formatYouTubeSource(item),
+      pubDate: item.publishedAt,
+      summary: `${formatYouTubeStats(item)} ${summary}`.trim(),
       category: feed.category,
     });
 
@@ -222,6 +321,79 @@ async function collectYouTubeFeed(feed: ContentFeed, existingUrls: Set<string>) 
   }
 
   return saved;
+}
+
+async function getYouTubeVideoStats(videoIds: string[]) {
+  const stats = new Map<string, number>();
+  const uniqueIds = Array.from(new Set(videoIds)).slice(0, 50);
+  const url = youtubeStatsUrl('videos', uniqueIds);
+
+  if (!url) {
+    return stats;
+  }
+
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`YouTube videos API ${res.status}: ${await res.text()}`);
+  }
+
+  const payload = await res.json() as YouTubeVideoStatsResponse;
+  for (const item of payload.items ?? []) {
+    if (item.id) {
+      stats.set(item.id, parseCount(item.statistics?.viewCount));
+    }
+  }
+
+  return stats;
+}
+
+async function getYouTubeChannelStats(channelIds: string[]) {
+  const stats = new Map<string, { subscriberCount: number; hiddenSubscriberCount: boolean }>();
+  const uniqueIds = Array.from(new Set(channelIds)).slice(0, 50);
+  const url = youtubeStatsUrl('channels', uniqueIds);
+
+  if (!url) {
+    return stats;
+  }
+
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`YouTube channels API ${res.status}: ${await res.text()}`);
+  }
+
+  const payload = await res.json() as YouTubeChannelStatsResponse;
+  for (const item of payload.items ?? []) {
+    if (item.id) {
+      stats.set(item.id, {
+        subscriberCount: parseCount(item.statistics?.subscriberCount),
+        hiddenSubscriberCount: Boolean(item.statistics?.hiddenSubscriberCount),
+      });
+    }
+  }
+
+  return stats;
+}
+
+function scoreYouTubeCandidate(item: YouTubeCandidate) {
+  return Math.log10(item.viewCount + 1) * 2 + Math.log10(item.subscriberCount + 1);
+}
+
+function formatNumber(value: number) {
+  return value.toLocaleString('ko-KR');
+}
+
+function formatYouTubeStats(item: YouTubeCandidate) {
+  const subscribers = item.hiddenSubscriberCount
+    ? '구독자 비공개'
+    : `구독자 ${formatNumber(item.subscriberCount)}명`;
+
+  return `[조회수 ${formatNumber(item.viewCount)}회 · ${subscribers}]`;
+}
+
+function formatYouTubeSource(item: YouTubeCandidate) {
+  return `YouTube · ${item.channelTitle} · 조회수 ${formatNumber(item.viewCount)}회 · ${
+    item.hiddenSubscriberCount ? '구독자 비공개' : `구독자 ${formatNumber(item.subscriberCount)}명`
+  }`;
 }
 
 async function saveToNotion(item: {

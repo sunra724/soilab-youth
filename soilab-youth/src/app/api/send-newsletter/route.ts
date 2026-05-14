@@ -56,7 +56,7 @@ async function getAutoSelectableItems(limit: number) {
 
   const res = await notion.dataSources.query({
     data_source_id: CANDIDATES_COLLECTION_ID,
-    page_size: Math.min(limit, 25),
+    page_size: Math.min(limit * 10, 100),
     filter: {
       and: [
         { property: CANDIDATE_PROPS.isSent, checkbox: { equals: false } },
@@ -66,15 +66,18 @@ async function getAutoSelectableItems(limit: number) {
     sorts: [{ property: CANDIDATE_PROPS.collectedAt, direction: 'descending' }],
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return res.results.map((page: any): SelectedNewsItem => ({
-    id: page.id,
-    title: page.properties[CANDIDATE_PROPS.title]?.title?.[0]?.plain_text ?? '',
-    url: page.properties[CANDIDATE_PROPS.url]?.url ?? '',
-    source: page.properties[CANDIDATE_PROPS.source]?.rich_text?.[0]?.plain_text ?? '',
-    summary: page.properties[CANDIDATE_PROPS.summary]?.rich_text?.[0]?.plain_text ?? '',
-    category: page.properties[CANDIDATE_PROPS.category]?.select?.name ?? '기타',
-  }));
+  const candidates = res.results
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .map((page: any): SelectedNewsItem => ({
+      id: page.id,
+      title: page.properties[CANDIDATE_PROPS.title]?.title?.[0]?.plain_text ?? '',
+      url: page.properties[CANDIDATE_PROPS.url]?.url ?? '',
+      source: page.properties[CANDIDATE_PROPS.source]?.rich_text?.[0]?.plain_text ?? '',
+      summary: page.properties[CANDIDATE_PROPS.summary]?.rich_text?.[0]?.plain_text ?? '',
+      category: page.properties[CANDIDATE_PROPS.category]?.select?.name ?? '기타',
+    }));
+
+  return prioritizeAutoSelectableItems(candidates, limit);
 }
 
 async function markAsSelected(pageIds: string[]) {
@@ -203,11 +206,105 @@ function autoSelectLimit() {
   return Number.isFinite(value) && value > 0 ? Math.floor(value) : 0;
 }
 
+function autoSelectArticleRatio() {
+  const value = Number(process.env.NEWSLETTER_AUTO_SELECT_ARTICLE_RATIO ?? 0.7);
+  if (!Number.isFinite(value)) {
+    return 0.7;
+  }
+
+  return Math.min(Math.max(value, 0), 1);
+}
+
+function autoSelectArticleTarget(limit: number) {
+  return Math.min(limit, Math.ceil(limit * autoSelectArticleRatio()));
+}
+
+function numberEnv(name: string, fallback: number) {
+  const value = Number(process.env[name] ?? fallback);
+  return Number.isFinite(value) && value >= 0 ? Math.floor(value) : fallback;
+}
+
+function isVideoItem(item: SelectedNewsItem) {
+  return item.title.startsWith('[영상]');
+}
+
+function parseMetric(text: string, pattern: RegExp) {
+  const match = text.match(pattern);
+  if (!match?.[1]) {
+    return null;
+  }
+
+  const value = Number(match[1].replaceAll(',', ''));
+  return Number.isFinite(value) ? value : null;
+}
+
+function isQualifiedAutoSelectableItem(item: SelectedNewsItem) {
+  if (!isVideoItem(item)) {
+    return true;
+  }
+
+  const metricText = `${item.source} ${item.summary}`;
+  const viewCount = parseMetric(metricText, /조회수\s*([\d,]+)회/);
+  const subscriberCount = parseMetric(metricText, /구독자\s*([\d,]+)명/);
+  const hiddenSubscriberCount = metricText.includes('구독자 비공개');
+
+  if (viewCount === null) {
+    return false;
+  }
+
+  if (viewCount < numberEnv('YOUTUBE_MIN_VIEW_COUNT', 1000)) {
+    return false;
+  }
+
+  return hiddenSubscriberCount
+    || (subscriberCount !== null && subscriberCount >= numberEnv('YOUTUBE_MIN_CHANNEL_SUBSCRIBERS', 1000));
+}
+
+function prioritizeAutoSelectableItems(items: SelectedNewsItem[], limit: number) {
+  const qualifiedItems = items.filter(isQualifiedAutoSelectableItem);
+  const articles = qualifiedItems.filter((item) => !isVideoItem(item));
+  const videos = qualifiedItems.filter(isVideoItem);
+  const articleTarget = autoSelectArticleTarget(limit);
+  const videoTarget = limit - articleTarget;
+  const selected = [
+    ...articles.slice(0, articleTarget),
+    ...videos.slice(0, videoTarget),
+  ];
+  const selectedIds = new Set(selected.map((item) => item.id));
+  const fillers = [
+    ...articles.slice(articleTarget),
+    ...videos.slice(videoTarget),
+  ];
+
+  for (const item of fillers) {
+    if (selected.length >= limit) {
+      break;
+    }
+
+    if (!selectedIds.has(item.id)) {
+      selected.push(item);
+      selectedIds.add(item.id);
+    }
+  }
+
+  return selected;
+}
+
+function itemMix(items: SelectedNewsItem[]) {
+  const videos = items.filter(isVideoItem).length;
+  return {
+    articles: items.length - videos,
+    videos,
+  };
+}
+
 async function buildDryRunPayload(resend: Resend) {
   const items = await getSelectedItems();
   const autoSelectableItems = items.length === 0
     ? await getAutoSelectableItems(autoSelectLimit())
     : [];
+  const selectedMix = itemMix(items);
+  const autoSelectableMix = itemMix(autoSelectableItems);
   const recipients = await getRecipients(resend);
   const testRecipients = await getTestRecipients(resend);
 
@@ -217,8 +314,14 @@ async function buildDryRunPayload(resend: Resend) {
       && recipients.length > 0,
     missingEnv: missingConfig(),
     selectedItems: items.length,
+    selectedArticleItems: selectedMix.articles,
+    selectedVideoItems: selectedMix.videos,
     autoSelectLimit: autoSelectLimit(),
+    autoSelectArticleRatio: autoSelectArticleRatio(),
+    autoSelectArticleTarget: autoSelectArticleTarget(autoSelectLimit()),
     autoSelectableItems: autoSelectableItems.length,
+    autoSelectableArticleItems: autoSelectableMix.articles,
+    autoSelectableVideoItems: autoSelectableMix.videos,
     recipients: recipients.length,
     recipientPreview: recipients.slice(0, 5).map(maskEmail),
     testRecipients: testRecipients.length,
@@ -368,10 +471,14 @@ export async function POST(req: Request) {
       revalidateTag('newsletter', {});
     }
 
+    const sentMix = itemMix(items);
+
     return NextResponse.json({
       success: true,
       emailIds,
       sent: items.length,
+      sentArticleItems: sentMix.articles,
+      sentVideoItems: sentMix.videos,
       recipients: recipients.length,
       recipientPreview: recipients.slice(0, 5).map(maskEmail),
       label,

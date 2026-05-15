@@ -81,6 +81,14 @@ const NEWS_FEEDS: ContentFeed[] = [
   { query: '청년 고립 지원', category: CANDIDATE_CATEGORIES.youthSupport },
   { query: '청년지원', category: CANDIDATE_CATEGORIES.youthSupport },
   { query: '사회적가치', category: CANDIDATE_CATEGORIES.socialValue },
+  { query: '사회적 가치 거래', category: CANDIDATE_CATEGORIES.socialValue },
+  { query: '임팩트 측정 사회적가치', category: CANDIDATE_CATEGORIES.socialValue },
+  { query: '임팩트 측정 복지', category: CANDIDATE_CATEGORIES.socialValue },
+  { query: '사회성과인센티브', category: CANDIDATE_CATEGORIES.socialValue },
+  { query: 'Tradeable Impact', category: CANDIDATE_CATEGORIES.socialValue },
+  { query: 'Social Progress Credit', category: CANDIDATE_CATEGORIES.socialValue },
+  { query: 'SPC 사회성과', category: CANDIDATE_CATEGORIES.socialValue },
+  { query: 'SPC 사회성과인센티브', category: CANDIDATE_CATEGORIES.socialValue },
 ];
 
 const VIDEO_FEEDS: ContentFeed[] = [

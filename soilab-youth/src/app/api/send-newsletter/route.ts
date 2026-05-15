@@ -8,6 +8,7 @@ import { buildEmailHtml, buildEmailText } from '@/lib/emailTemplate';
 import { createUnsubscribeUrl } from '@/lib/newsletterToken';
 import { listNewsletterRecipients } from '@/lib/resendContacts';
 import {
+  CANDIDATE_CATEGORIES,
   CANDIDATE_PROPS,
   NEWSLETTER_PROPS,
 } from '@/lib/notionSchema';
@@ -219,6 +220,16 @@ function autoSelectArticleTarget(limit: number) {
   return Math.min(limit, Math.ceil(limit * autoSelectArticleRatio()));
 }
 
+function autoSelectImpactLimit(limit: number) {
+  const fallback = Math.min(2, Math.max(1, Math.floor(limit * 0.2)));
+  const value = Number(process.env.NEWSLETTER_AUTO_SELECT_IMPACT_LIMIT ?? fallback);
+  if (!Number.isFinite(value)) {
+    return fallback;
+  }
+
+  return Math.min(limit, Math.max(0, Math.floor(value)));
+}
+
 function numberEnv(name: string, fallback: number) {
   const value = Number(process.env[name] ?? fallback);
   return Number.isFinite(value) && value >= 0 ? Math.floor(value) : fallback;
@@ -260,8 +271,31 @@ function isQualifiedAutoSelectableItem(item: SelectedNewsItem) {
     || (subscriberCount !== null && subscriberCount >= numberEnv('YOUTUBE_MIN_CHANNEL_SUBSCRIBERS', 1000));
 }
 
+function isImpactItem(item: SelectedNewsItem) {
+  return item.category === CANDIDATE_CATEGORIES.socialValue
+    || item.category === CANDIDATE_CATEGORIES.socialEconomy;
+}
+
+function limitImpactItems(items: SelectedNewsItem[], limit: number) {
+  const impactLimit = autoSelectImpactLimit(limit);
+  let impactCount = 0;
+
+  return items.filter((item) => {
+    if (!isImpactItem(item)) {
+      return true;
+    }
+
+    if (impactCount >= impactLimit) {
+      return false;
+    }
+
+    impactCount += 1;
+    return true;
+  });
+}
+
 function prioritizeAutoSelectableItems(items: SelectedNewsItem[], limit: number) {
-  const qualifiedItems = items.filter(isQualifiedAutoSelectableItem);
+  const qualifiedItems = limitImpactItems(items.filter(isQualifiedAutoSelectableItem), limit);
   const articles = qualifiedItems.filter((item) => !isVideoItem(item));
   const videos = qualifiedItems.filter(isVideoItem);
   const articleTarget = autoSelectArticleTarget(limit);
@@ -292,9 +326,11 @@ function prioritizeAutoSelectableItems(items: SelectedNewsItem[], limit: number)
 
 function itemMix(items: SelectedNewsItem[]) {
   const videos = items.filter(isVideoItem).length;
+  const impact = items.filter(isImpactItem).length;
   return {
     articles: items.length - videos,
     videos,
+    impact,
   };
 }
 
@@ -316,12 +352,15 @@ async function buildDryRunPayload(resend: Resend) {
     selectedItems: items.length,
     selectedArticleItems: selectedMix.articles,
     selectedVideoItems: selectedMix.videos,
+    selectedImpactItems: selectedMix.impact,
     autoSelectLimit: autoSelectLimit(),
     autoSelectArticleRatio: autoSelectArticleRatio(),
     autoSelectArticleTarget: autoSelectArticleTarget(autoSelectLimit()),
+    autoSelectImpactLimit: autoSelectImpactLimit(autoSelectLimit()),
     autoSelectableItems: autoSelectableItems.length,
     autoSelectableArticleItems: autoSelectableMix.articles,
     autoSelectableVideoItems: autoSelectableMix.videos,
+    autoSelectableImpactItems: autoSelectableMix.impact,
     recipients: recipients.length,
     recipientPreview: recipients.slice(0, 5).map(maskEmail),
     testRecipients: testRecipients.length,
@@ -479,6 +518,7 @@ export async function POST(req: Request) {
       sent: items.length,
       sentArticleItems: sentMix.articles,
       sentVideoItems: sentMix.videos,
+      sentImpactItems: sentMix.impact,
       recipients: recipients.length,
       recipientPreview: recipients.slice(0, 5).map(maskEmail),
       label,

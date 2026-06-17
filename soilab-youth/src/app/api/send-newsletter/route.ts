@@ -2,8 +2,6 @@ import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { Client } from '@notionhq/client';
 import { revalidateTag } from 'next/cache';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
 import { buildEmailHtml, buildEmailText } from '@/lib/emailTemplate';
 import { createUnsubscribeUrl } from '@/lib/newsletterToken';
 import { listNewsletterRecipients } from '@/lib/resendContacts';
@@ -26,6 +24,7 @@ const notion = new Client({ auth: process.env.NOTION_TOKEN });
 const CANDIDATES_COLLECTION_ID = process.env.NOTION_CANDIDATES_COLLECTION!;
 const NEWSLETTER_DB_ID = process.env.NOTION_NEWSLETTER_DB!;
 const NEWSLETTER_COLLECTION_ID = process.env.NOTION_NEWSLETTER_COLLECTION!;
+const NEWSLETTER_TIME_ZONE = 'Asia/Seoul';
 
 async function getSelectedItems() {
   const res = await notion.dataSources.query({
@@ -119,9 +118,29 @@ async function getNextIssueNumber() {
   return latestIssue + 1;
 }
 
-function issueLabel() {
-  const now = new Date();
-  return format(now, 'yyyy년 M월 d일', { locale: ko });
+function kstDateParts(date = new Date()) {
+  const parts = new Intl.DateTimeFormat('ko-KR', {
+    timeZone: NEWSLETTER_TIME_ZONE,
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  }).formatToParts(date);
+
+  return {
+    year: parts.find((part) => part.type === 'year')?.value ?? '',
+    month: parts.find((part) => part.type === 'month')?.value ?? '',
+    day: parts.find((part) => part.type === 'day')?.value ?? '',
+  };
+}
+
+function issueLabel(date = new Date()) {
+  const { year, month, day } = kstDateParts(date);
+  return `${year}년 ${month}월 ${day}일`;
+}
+
+function issueDateKey(date = new Date()) {
+  const { year, month, day } = kstDateParts(date);
+  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 }
 
 function buildArchiveSummary(items: SelectedNewsItem[]) {
@@ -149,7 +168,7 @@ async function archiveNewsletter(issueNumber: number, label: string, items: Sele
       },
       [NEWSLETTER_PROPS.issueNumber]: { number: issueNumber },
       [NEWSLETTER_PROPS.publishedAt]: {
-        date: { start: new Date().toISOString().slice(0, 10) },
+        date: { start: issueDateKey() },
       },
       [NEWSLETTER_PROPS.summary]: {
         rich_text: [{ text: { content: buildArchiveSummary(items) } }],

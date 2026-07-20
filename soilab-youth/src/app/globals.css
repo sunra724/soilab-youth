@@ -18,6 +18,10 @@ body {
   color: var(--color-foreground);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(24px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -34,4 +38,19 @@ body {
 
 .animate-bounce-y {
   animation: bounce-y 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }

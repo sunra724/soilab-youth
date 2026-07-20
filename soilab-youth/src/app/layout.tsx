@@ -9,6 +9,7 @@ const notoSansKR = Noto_Sans_KR({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://soilab-youth.kr"),
   title: {
     default: "협동조합 소이랩 고립·은둔 청년 지원센터",
     template: "%s | 소이랩 청년지원센터",

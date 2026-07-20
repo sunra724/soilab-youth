@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const NAV_ITEMS = [
   { label: '소개', href: '/#about' },
   { label: '사업', href: '/#programs' },
+  { label: '리빙랩', href: '/livinglab' },
   { label: '성과', href: '/#stats' },
   { label: '소식', href: '/cardnews' },
   { label: '뉴스레터', href: '/newsletter' },
@@ -15,6 +17,14 @@ const NAV_ITEMS = [
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  const isCurrent = (href: string) => {
+    if (href === '/livinglab') return pathname === '/livinglab';
+    if (href === '/cardnews') return pathname.startsWith('/cardnews');
+    if (href === '/newsletter') return pathname.startsWith('/newsletter');
+    return false;
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -54,13 +64,16 @@ export default function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm text-gray-700 hover:text-navy font-medium transition-colors"
+              aria-current={isCurrent(item.href) ? 'page' : undefined}
+              className={`text-sm hover:text-navy font-medium transition-colors ${
+                isCurrent(item.href) ? 'text-navy' : 'text-gray-700'
+              }`}
             >
               {item.label}
             </Link>
           ))}
           <a
-            href="tel:05394194903"
+            href="tel:0539419003"
             className="ml-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
             style={{ background: '#46549C' }}
           >
@@ -93,14 +106,17 @@ export default function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className="block py-3 text-sm text-gray-700 border-b border-gray-50 font-medium"
+              aria-current={isCurrent(item.href) ? 'page' : undefined}
+              className={`block py-3 text-sm border-b border-gray-50 font-medium ${
+                isCurrent(item.href) ? 'text-navy' : 'text-gray-700'
+              }`}
               onClick={() => setMenuOpen(false)}
             >
               {item.label}
             </Link>
           ))}
           <a
-            href="tel:05394194903"
+            href="tel:0539419003"
             className="mt-3 block w-full text-center py-3 rounded-lg text-sm font-semibold text-white"
             style={{ background: '#46549C' }}
           >

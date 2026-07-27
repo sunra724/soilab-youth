@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { label: '소식', href: '/cardnews' },
   { label: '뉴스레터', href: '/newsletter' },
   { label: '문의', href: '/#contact' },
+  { label: 'CSR', href: '/csr', accent: true },
 ];
 
 export default function Header() {
@@ -23,6 +24,9 @@ export default function Header() {
     if (href === '/livinglab') return pathname === '/livinglab';
     if (href === '/cardnews') return pathname.startsWith('/cardnews');
     if (href === '/newsletter') return pathname.startsWith('/newsletter');
+    if (href === '/csr') {
+      return pathname.startsWith('/csr') || pathname === '/morning' || pathname.startsWith('/impact');
+    }
     return false;
   };
 
@@ -59,15 +63,23 @@ export default function Header() {
         </Link>
 
         {/* 데스크탑 Nav */}
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden lg:flex items-center gap-5">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               aria-current={isCurrent(item.href) ? 'page' : undefined}
-              className={`text-sm hover:text-navy font-medium transition-colors ${
-                isCurrent(item.href) ? 'text-navy' : 'text-gray-700'
-              }`}
+              className={
+                item.accent
+                  ? `rounded-full border px-3 py-1.5 text-sm font-bold transition-colors ${
+                      isCurrent(item.href)
+                        ? 'border-navy bg-navy text-white'
+                        : 'border-navy/25 bg-navy/5 text-navy hover:bg-navy hover:text-white'
+                    }`
+                  : `text-sm hover:text-navy font-medium transition-colors ${
+                      isCurrent(item.href) ? 'text-navy' : 'text-gray-700'
+                    }`
+              }
             >
               {item.label}
             </Link>
@@ -83,7 +95,7 @@ export default function Header() {
 
         {/* 모바일 햄버거 */}
         <button
-          className="md:hidden p-2 rounded-lg text-gray-700"
+          className="lg:hidden p-2 rounded-lg text-gray-700"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label={menuOpen ? '메뉴 닫기' : '메뉴 열기'}
         >
@@ -101,18 +113,22 @@ export default function Header() {
 
       {/* 모바일 메뉴 */}
       {menuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 px-4 pb-4">
+        <div className="lg:hidden bg-white border-t border-gray-100 px-4 pb-4">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               aria-current={isCurrent(item.href) ? 'page' : undefined}
               className={`block py-3 text-sm border-b border-gray-50 font-medium ${
-                isCurrent(item.href) ? 'text-navy' : 'text-gray-700'
+                item.accent
+                  ? 'text-navy font-bold'
+                  : isCurrent(item.href)
+                    ? 'text-navy'
+                    : 'text-gray-700'
               }`}
               onClick={() => setMenuOpen(false)}
             >
-              {item.label}
+              {item.accent ? 'CSR 기업사회공헌' : item.label}
             </Link>
           ))}
           <a

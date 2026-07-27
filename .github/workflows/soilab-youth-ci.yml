@@ -1,0 +1,36 @@
+name: Soilab Youth CI
+
+on:
+  pull_request:
+    paths:
+      - "soilab-youth/**"
+      - ".github/workflows/soilab-youth-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "soilab-youth/**"
+      - ".github/workflows/soilab-youth-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: soilab-youth
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: soilab-youth/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm audit --omit=dev --audit-level=high

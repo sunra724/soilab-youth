@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { label: '성과', href: '/#stats' },
   { label: '소식', href: '/cardnews' },
   { label: '뉴스레터', href: '/newsletter' },
+  { label: 'CSR', href: 'https://csr.soilab-youth.kr', external: true },
   { label: '문의', href: '/#contact' },
 ];
 
@@ -60,18 +61,26 @@ export default function Header() {
 
         {/* 데스크탑 Nav */}
         <nav className="hidden md:flex items-center gap-6">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              aria-current={isCurrent(item.href) ? 'page' : undefined}
-              className={`text-sm hover:text-navy font-medium transition-colors ${
-                isCurrent(item.href) ? 'text-navy' : 'text-gray-700'
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {NAV_ITEMS.map((item) => {
+            const className = `text-sm hover:text-navy font-medium transition-colors ${
+              item.external || isCurrent(item.href) ? 'text-navy' : 'text-gray-700'
+            }`;
+
+            return item.external ? (
+              <a key={item.href} href={item.href} className={className}>
+                {item.label}
+              </a>
+            ) : (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={isCurrent(item.href) ? 'page' : undefined}
+                className={className}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
           <a
             href="tel:0539419003"
             className="ml-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
@@ -102,19 +111,32 @@ export default function Header() {
       {/* 모바일 메뉴 */}
       {menuOpen && (
         <div className="md:hidden bg-white border-t border-gray-100 px-4 pb-4">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              aria-current={isCurrent(item.href) ? 'page' : undefined}
-              className={`block py-3 text-sm border-b border-gray-50 font-medium ${
-                isCurrent(item.href) ? 'text-navy' : 'text-gray-700'
-              }`}
-              onClick={() => setMenuOpen(false)}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {NAV_ITEMS.map((item) => {
+            const className = `block py-3 text-sm border-b border-gray-50 font-medium ${
+              item.external || isCurrent(item.href) ? 'text-navy' : 'text-gray-700'
+            }`;
+
+            return item.external ? (
+              <a
+                key={item.href}
+                href={item.href}
+                className={className}
+                onClick={() => setMenuOpen(false)}
+              >
+                {item.label}
+              </a>
+            ) : (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={isCurrent(item.href) ? 'page' : undefined}
+                className={className}
+                onClick={() => setMenuOpen(false)}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
           <a
             href="tel:0539419003"
             className="mt-3 block w-full text-center py-3 rounded-lg text-sm font-semibold text-white"

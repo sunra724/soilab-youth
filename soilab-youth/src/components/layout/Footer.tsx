@@ -26,6 +26,8 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li><Link href="/#about" className="hover:text-white transition-colors">소이랩 소개</Link></li>
               <li><Link href="/#programs" className="hover:text-white transition-colors">주요 사업</Link></li>
+              <li><Link href="/csr" className="hover:text-white transition-colors">CSR 기업사회공헌</Link></li>
+              <li><Link href="/csr/morning-challenge" className="hover:text-white transition-colors">모닝챌린지</Link></li>
               <li><Link href="/cardnews" className="hover:text-white transition-colors">소식 &amp; 카드뉴스</Link></li>
               <li><Link href="/newsletter" className="hover:text-white transition-colors">뉴스레터</Link></li>
               <li>

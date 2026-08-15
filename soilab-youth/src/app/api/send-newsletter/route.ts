@@ -20,6 +20,7 @@ import {
   createUnsubscribeUrl,
 } from '@/lib/newsletterToken';
 import { listNewsletterRecipients } from '@/lib/resendContacts';
+import { sendTelegramDigest } from '@/lib/telegram';
 import {
   CANDIDATE_PROPS,
   NEWSLETTER_PROPS,
@@ -703,6 +704,26 @@ export async function POST(req: Request) {
       revalidatePath('/newsletter/[id]', 'page');
     }
 
+    let telegramSkipped = true;
+    let telegramSkipReason: string | undefined;
+    let telegramMessageIds: number[] = [];
+    let telegramError: string | undefined;
+
+    try {
+      const telegramResult = await sendTelegramDigest({
+        issueLabel: label,
+        items,
+        testMode,
+      });
+      telegramSkipped = telegramResult.skipped;
+      telegramSkipReason = telegramResult.reason;
+      telegramMessageIds = telegramResult.messageIds;
+    } catch (error) {
+      telegramSkipped = false;
+      telegramError = error instanceof Error ? error.message : String(error);
+      console.error('[send-newsletter] Telegram error:', error);
+    }
+
     const sentMix = itemMix(items);
 
     return NextResponse.json({
@@ -722,6 +743,10 @@ export async function POST(req: Request) {
       label,
       issueNumber,
       testMode,
+      telegramSkipped,
+      telegramSkipReason,
+      telegramMessageIds,
+      telegramError,
     });
   } catch (e) {
     console.error('[send-newsletter]', e);

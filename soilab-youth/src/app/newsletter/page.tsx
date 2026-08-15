@@ -9,6 +9,7 @@ import {
 import { NEWSLETTER_PUBLIC_RELEASE } from '@/config/newsletterRelease';
 import { pageMetadata } from '@/lib/metadata';
 import { getNewsletterList } from '@/lib/notion';
+import { resolveTelegramChannelUrl } from '@/lib/telegram';
 import { formatDate } from '@/lib/utils';
 import NewsletterArchive from './NewsletterArchive';
 import NewsletterSubscribeForm from './NewsletterSubscribeForm';
@@ -136,6 +137,7 @@ export default async function NewsletterPage() {
   const items = await getNewsletterList();
   const newsClippings = items.filter(isNewsClipping);
   const centerLetters = items.filter((item) => !isNewsClipping(item));
+  const telegramChannelUrl = resolveTelegramChannelUrl();
 
   return (
     <>
@@ -269,6 +271,54 @@ export default async function NewsletterPage() {
               신청 후 확인 메일의 버튼을 눌러야 구독이 시작됩니다.
             </p>
             <NewsletterSubscribeForm />
+            {telegramChannelUrl && (
+              <div
+                className="mt-5 flex flex-col gap-3 rounded-xl border border-[#A8D8E8] bg-white p-3 sm:flex-row sm:items-center sm:justify-between"
+                data-telegram-subscribe
+              >
+                <div className="flex min-w-0 items-center gap-3">
+                  <span
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E8F7FC] text-[#229ED9]"
+                    aria-hidden="true"
+                  >
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none">
+                      <path
+                        d="M21 3 9.5 14.5M21 3l-7 18-4-6-6-4 17-8Z"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-bold text-gray-900">
+                      텔레그램 채널에서도 받아보세요
+                    </h3>
+                    <p className="mt-0.5 text-xs leading-5 text-gray-500">
+                      같은 뉴스클리핑을 무료 알림으로 받을 수 있습니다.
+                    </p>
+                  </div>
+                </div>
+                <a
+                  href={telegramChannelUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-[#229ED9] px-4 text-sm font-bold text-white transition-colors hover:bg-[#1688BE] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#229ED9]"
+                >
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden="true">
+                    <path
+                      d="M21 3 9.5 14.5M21 3l-7 18-4-6-6-4 17-8Z"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  텔레그램으로 받아보기
+                </a>
+              </div>
+            )}
           </div>
         </div>
       </main>

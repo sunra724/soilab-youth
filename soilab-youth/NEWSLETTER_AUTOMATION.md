@@ -1,6 +1,6 @@
 # 소이랩 뉴스레터 자동화 작업 메모
 
-마지막 정리일: 2026-07-28
+마지막 정리일: 2026-08-15
 
 이 문서는 `다시봄 뉴스클리핑` 자동 발송과 `기관 소식` 뉴스레터 구분 작업을 다음 작업 때 빠르게 이어가기 위한 운영 메모입니다. 비밀키와 실제 토큰은 문서에 남기지 않습니다.
 
@@ -8,7 +8,7 @@
 
 소이랩 뉴스레터는 두 갈래로 운영합니다.
 
-- `다시봄 뉴스클리핑`: 고립은둔, 사회적가치, 청년지원 관련 뉴스와 유튜브 영상을 매일 자동 수집하고 매일 오전 8시에 이메일로 발송합니다.
+- `다시봄 뉴스클리핑`: 고립은둔, 사회적가치, 청년지원 관련 뉴스와 유튜브 영상을 매일 자동 수집하고 매일 오전 8시에 이메일과 텔레그램으로 발송합니다.
 - `기관 소식`: 소이랩 고립·은둔 청년 지원센터가 직접 작성하는 활동보고, 행사 안내, 공지 등을 비정기적으로 발송하거나 웹에 게시합니다.
 
 현재 구독자는 같은 Resend segment/audience를 사용합니다. 나중에 `뉴스클리핑만 받기`, `기관 소식만 받기`처럼 수신 선택을 나누려면 Resend segment를 분리하고 구독 폼에 선호 항목을 추가해야 합니다.
@@ -20,8 +20,9 @@
 3. Vercel Cron이 매일 오전 8시(KST)에 `/api/send-newsletter/cron`을 호출합니다.
 4. `send-newsletter`는 Notion 후보 DB에서 `발송선택=true`, `발송완료=false`인 기사를 우선 발송합니다.
 5. 선택된 기사가 없으면 `NEWSLETTER_AUTO_SELECT_COUNT` 값만큼 최신 미발송 후보를 자동 선택해 발송합니다.
-6. 정식 발송이 끝나면 후보 기사는 `발송완료=true`로 바뀌고, 뉴스레터 아카이브 DB에 `다시봄 뉴스클리핑 YYYY년 M월 D일` 항목이 생성됩니다.
-7. `test=1` 테스트 발송은 메일만 보내고 Notion의 발송완료/아카이브 처리는 하지 않습니다.
+6. 이메일 정식 발송이 끝나면 후보 기사는 `발송완료=true`로 바뀌고, 뉴스레터 아카이브 DB에 `다시봄 뉴스클리핑 YYYY년 M월 D일` 항목이 생성됩니다.
+7. `TELEGRAM_ENABLED=true`이면 같은 뉴스 목록을 텔레그램 채널에도 발송합니다. 텔레그램 장애는 이메일 재시도와 중복 발송을 일으키지 않도록 별도 오류로 응답에 기록합니다.
+8. `test=1` 테스트 발송은 테스트 메일과 `TELEGRAM_TEST_CHAT_ID`에만 보내고 Notion의 발송완료/아카이브 처리는 하지 않습니다. 테스트 채널이 없으면 텔레그램은 건너뛰며 운영 채널로 보내지 않습니다.
 
 ## Cron 설정
 
@@ -87,6 +88,7 @@ Vercel Cron은 UTC 기준입니다.
 - `src/app/api/subscribe-newsletter/route.ts`: 구독 폼에서 Resend 연락처 등록
 - `src/app/api/unsubscribe-newsletter/route.ts`: 개인별 수신거부 링크 처리
 - `src/lib/emailTemplate.ts`: HTML/text 이메일 템플릿
+- `src/lib/telegram.ts`: 텔레그램 메시지 생성·분할·Bot API 발송과 웹 채널 링크 생성
 - `src/lib/newsletterMailer.ts`: SMTP/Resend 발송 수단 선택과 SMTP 연결 설정
 - `src/lib/newsletterSuppression.ts`: 과거 bounce 뒤 정상 배달 이력이 있는 오래된 Resend suppression만 안전하게 복구
 - `src/lib/resendContacts.ts`: Resend segment/audience 연락처 조회/생성/수신거부
@@ -119,6 +121,11 @@ Vercel Production 환경변수 기준입니다. 값은 Vercel 대시보드에서
 - `NEWSLETTER_AUTO_SELECT_COUNT`: 발송선택된 기사가 없을 때 최신 미발송 후보를 자동 선택할 개수. 현재 운영 의도는 `5`입니다.
 - `NEWSLETTER_AUTO_SELECT_ARTICLE_RATIO`: 자동선택 시 뉴스 기사 목표 비율. 기본값 `0.7`
 - `NEWSLETTER_AUTO_SELECT_IMPACT_LIMIT`: 자동선택 시 `사회적가치`/`사회적경제` 카테고리 최대 포함 개수. 기본값은 발송 건수의 20%, 최소 `1`, 최대 `2`
+- `TELEGRAM_ENABLED`: `true`일 때 텔레그램 동시 발송을 활성화합니다. 설정하지 않거나 다른 값이면 건너뜁니다.
+- `TELEGRAM_BOT_TOKEN`: BotFather에서 발급받은 봇 토큰. 저장소·문서·로그에 실제 값을 남기지 않습니다.
+- `TELEGRAM_CHAT_ID`: 정식 발송 대상 채널의 `@username` 또는 숫자 chat ID. 봇을 채널 관리자로 추가해야 합니다. 공개 `@username`이면 `/newsletter`의 구독 버튼 링크로도 사용합니다.
+- `TELEGRAM_TEST_CHAT_ID`: `test=1` 전용 테스트 채널 ID. 없으면 테스트 텔레그램 발송을 건너뛰며 `TELEGRAM_CHAT_ID`로 대체하지 않습니다.
+- `TELEGRAM_CHANNEL_URL`: 선택 설정. 비공개 초대 링크 등 `TELEGRAM_CHAT_ID`로 공개 링크를 만들 수 없을 때 사용할 `https://t.me/...` 주소
 - `CRON_SECRET`: cron/API 보호용 bearer token
 - `ANTHROPIC_API_KEY`: 기사 요약 생성용
 - `YOUTUBE_API_KEY`: 유튜브 영상 수집용 YouTube Data API 키. 없으면 영상 수집만 건너뜁니다.
@@ -217,12 +224,14 @@ Invoke-RestMethod `
   -Method Post
 ```
 
-테스트 메일을 보냅니다. `test=1`은 발송완료/아카이브 처리를 하지 않습니다.
+테스트 메일을 보냅니다. 텔레그램이 활성화되어 있으면 `TELEGRAM_TEST_CHAT_ID`에도 보냅니다. `test=1`은 발송완료/아카이브 처리를 하지 않으며 운영 텔레그램 채널에는 보내지 않습니다.
 
 ```powershell
 $headers = @{ Authorization = "Bearer $env:CRON_SECRET" }
 Invoke-RestMethod -Uri "https://www.soilab-youth.kr/api/send-newsletter?test=1" -Headers $headers -Method Post
 ```
+
+응답의 `telegramSkipped`, `telegramSkipReason`, `telegramMessageIds`, `telegramError`로 텔레그램 결과를 확인합니다. 텔레그램 오류가 있어도 이미 성공한 이메일을 자동 재발송하지 않도록 전체 응답은 이메일 발송 성공으로 유지됩니다.
 
 정식 발송입니다. 운영자가 명시적으로 요청했을 때만 실행합니다.
 

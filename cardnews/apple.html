@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>청년다다름 대구제작소 3월 활동보고</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --sk-black: #000000;
+  --sk-light-gray: #f5f5f7;
+  --sk-near-black: #1d1d1f;
+  --sk-blue: #0071e3;
+  --sk-link-blue: #0066cc;
+  --sk-bright-blue: #2997ff;
+  --sk-text-light: rgba(0, 0, 0, 0.8);
+  --sk-text-secondary: rgba(0, 0, 0, 0.48);
+  --sk-card-shadow: rgba(0, 0, 0, 0.22) 3px 5px 30px 0px;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  background: var(--sk-light-gray);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
+  font-size: 17px;
+  line-height: 1.47;
+  color: var(--sk-near-black);
+  letter-spacing: -0.374px;
+}
+
+section {
+  width: 100%;
+  padding: 80px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+section.dark {
+  background: var(--sk-black);
+  color: #ffffff;
+}
+
+section.light {
+  background: var(--sk-light-gray);
+  color: var(--sk-near-black);
+}
+
+.section-content {
+  max-width: 980px;
+  width: 100%;
+}
+
+h1 {
+  font-family: inherit;
+  font-size: 56px;
+  font-weight: 600;
+  line-height: 1.07;
+  letter-spacing: -0.28px;
+  margin-bottom: 20px;
+}
+
+h2 {
+  font-family: inherit;
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.10;
+  margin-bottom: 16px;
+}
+
+h3 {
+  font-family: inherit;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: 0.196px;
+  margin-bottom: 14px;
+}
+
+h4 {
+  font-family: inherit;
+  font-size: 21px;
+  font-weight: 400;
+  line-height: 1.19;
+  letter-spacing: 0.231px;
+  margin-bottom: 12px;
+}
+
+p {
+  line-height: 1.47;
+  margin-bottom: 16px;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  background: var(--sk-blue);
+  color: #ffffff;
+}
+
+.tag.secondary {
+  background: rgba(0, 113, 227, 0.1);
+  color: var(--sk-blue);
+}
+
+.btn {
+  display: inline-block;
+  padding: 8px 15px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 400;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  letter-spacing: -0.374px;
+}
+
+.btn-primary {
+  background: var(--sk-blue);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: #0062cc;
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--sk-blue);
+  border: 1px solid var(--sk-blue);
+  border-radius: 980px;
+}
+
+.btn-outline:hover {
+  text-decoration: underline;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
+  margin: 32px 0;
+}
+
+.metric-card {
+  background: #ffffff;
+  padding: 32px 24px;
+  border-radius: 8px;
+  box-shadow: var(--sk-card-shadow);
+}
+
+section.dark .metric-card {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.metric-num {
+  font-family: inherit;
+  font-size: 42px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--sk-blue);
+  margin-bottom: 8px;
+}
+
+section.dark .metric-num {
+  color: #ffffff;
+}
+
+.metric-label {
+  font-size: 14px;
+  color: var(--sk-text-secondary);
+  line-height: 1.43;
+}
+
+section.dark .metric-label {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.list-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.list-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.list-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sk-blue);
+  margin-top: 7px;
+  flex-shrink: 0;
+}
+
+.list-content {
+  flex: 1;
+}
+
+.list-text {
+  font-size: 17px;
+  line-height: 1.47;
+  margin-bottom: 4px;
+}
+
+.list-meta {
+  font-size: 14px;
+  color: var(--sk-text-secondary);
+}
+
+.grid-2col {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 32px;
+  margin: 32px 0;
+}
+
+.card {
+  padding: 32px;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+section.dark .card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+footer {
+  padding: 60px 20px;
+  text-align: center;
+  background: var(--sk-light-gray);
+  color: var(--sk-text-secondary);
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  section {
+    padding: 60px 20px;
+  }
+
+  h1 {
+    font-size: 40px;
+    line-height: 1.10;
+  }
+
+  h2 {
+    font-size: 28px;
+    line-height: 1.14;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Hero Section -->
+<section class="dark">
+  <div class="section-content">
+    <span class="tag">2026년 3월</span>
+    <h1>청년다다름사업<br>대구제작소</h1>
+    <p>월간 활동보고</p>
+    <div style="margin: 32px 0;">
+      <p><strong>운영기관</strong> | 협동조합 소이랩</p>
+      <p><strong>보고기간</strong> | 2026년 3월 1일 ~ 31일</p>
+      <p><strong>참여청년</strong> | 20명</p>
+    </div>
+    <div style="margin-top: 40px;">
+      <a href="#" class="btn btn-primary" style="margin-right: 16px;">자세히 보기</a>
+      <a href="#" class="btn btn-outline">다운로드</a>
+    </div>
+  </div>
+</section>
+
+<!-- Key Metrics Section -->
+<section class="light">
+  <div class="section-content">
+    <span class="tag secondary">이달의 핵심 지표</span>
+    <h2>3월, 준비를 완성했습니다</h2>
+    <p>사전인터뷰부터 식비카드 발급까지</p>
+
+    <div class="metrics-grid">
+      <div class="metric-card" style="grid-column: span 2;">
+        <div class="metric-num">47</div>
+        <div class="metric-label">청년 사전인터뷰 완료 (3/23 ~ 3/30, 총 6회 진행)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-num">5</div>
+        <div class="metric-label">홍보 및 자원연계 기관</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-num">20</div>
+        <div class="metric-label">식비카드 발급 신청완료</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Promotion & Partnership Section -->
+<section class="dark">
+  <div class="section-content">
+    <span class="tag">홍보 · 자원연계</span>
+    <h3>5개 기관·채널과 사업을 연결했습니다</h3>
+
+    <div class="list-group">
+      <div class="list-item">
+        <div class="list-dot"></div>
+        <div class="list-content">
+          <div class="list-text">대구자립통합지원센터 — 자립준비청년 추천 요청</div>
+          <div class="list-meta">2월 4일</div>
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="list-dot"></div>
+        <div class="list-content">
+          <div class="list-text">공식 인스타그램 · 홈페이지 사업 홍보 시작</div>
+          <div class="list-meta">3월 4일</div>
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="list-dot"></div>
+        <div class="list-content">
+          <div class="list-text">남구청년센터 협의체 <strong>26개 기관</strong> 사업 홍보 요청</div>
+          <div class="list-meta">3월 5일</div>
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="list-dot"></div>
+        <div class="list-content">
+          <div class="list-text">대구 남구청 인구총괄과 — 각 행정복지센터 홍보 요청</div>
+          <div class="list-meta">3월 10일</div>
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="list-dot"></div>
+        <div class="list-content">
+          <div class="list-text">대구시설관리공단 — 기부금 확대 및 니즈 맞춤 프로그램 협의</div>
+          <div class="list-meta">3월 12일</div>
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="list-dot"></div>
+        <div class="list-content">
+          <div class="list-text">국립현대미술관 〈미술관을 즐겁게 헤매는 방법〉 — 참여자 우선선발 내부 협의</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Interview Progress Section -->
+<section class="light">
+  <div class="section-content">
+    <span class="tag secondary">청년 사전인터뷰</span>
+    <h3>총 47건 완료 (3월 23일 ~ 30일)</h3>
+
+    <div class="grid-2col">
+      <div class="card">
+        <h4>일정별 진행 현황</h4>
+        <div style="margin-top: 20px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span>3월 23일</span>
+            <span>17건</span>
+          </div>
+          <div style="width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+            <div style="width: 100%; height: 100%; background: var(--sk-blue);"></div>
+          </div>
+        </div>
+        <div style="margin-top: 16px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span>3월 25일</span>
+            <span>9건</span>
+          </div>
+          <div style="width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+            <div style="width: 53%; height: 100%; background: var(--sk-blue);"></div>
+          </div>
+        </div>
+        <div style="margin-top: 16px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span>3월 26일</span>
+            <span>9건</span>
+          </div>
+          <div style="width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+            <div style="width: 53%; height: 100%; background: var(--sk-blue);"></div>
+          </div>
+        </div>
+        <div style="margin-top: 16px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span>3월 27일</span>
+            <span>4건</span>
+          </div>
+          <div style="width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+            <div style="width: 24%; height: 100%; background: var(--sk-blue);"></div>
+          </div>
+        </div>
+        <div style="margin-top: 16px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span>3월 28일</span>
+            <span>2건</span>
+          </div>
+          <div style="width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+            <div style="width: 12%; height: 100%; background: var(--sk-blue);"></div>
+          </div>
+        </div>
+        <div style="margin-top: 16px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span>3월 30일</span>
+            <span>6건</span>
+          </div>
+          <div style="width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+            <div style="width: 35%; height: 100%; background: var(--sk-blue);"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>참여청년 현황</h4>
+        <p style="margin: 20px 0;">20명 전원 식비지원카드 발급 신청완료 ✓</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; margin-top: 20px;">
+          <div style="background: rgba(0,113,227,0.1); padding: 8px; border-radius: 6px; text-align: center; font-size: 12px;">권미정</div>
+          <div style="background: rgba(0,113,227,0.1); padding: 8px; border-radius: 6px; text-align: center; font-size: 12px;">권보경</div>
+          <div style="background: rgba(0,113,227,0.1); padding: 8px; border-radius: 6px; text-align: center; font-size: 12px;">김명완</div>
+          <div style="background: rgba(0,113,227,0.1); padding: 8px; border-radius: 6px; text-align: center; font-size: 12px;">김민서</div>
+          <div style="background: rgba(0,113,227,0.1); padding: 8px; border-radius: 6px; text-align: center; font-size: 12px;">김양우</div>
+          <div style="background: rgba(0,113,227,0.1); padding: 8px; border-radius: 6px; text-align: center; font-size: 12px;">김예슬</div>
+          <div style="background: rgba(0,113,227,0.1); padding: 8px; border-radius: 6px; text-align: center; font-size: 12px;">나진희</div>
+          <div style="background: rgba(0,113,227,0.1); padding: 8px; border-radius: 6px; text-align: center; font-size: 12px;">박정민</div>
+          <div style="background: rgba(0,113,227,0.1); padding: 8px; border-radius: 6px; text-align: center; font-size: 12px;">석보경</div>
+          <div style="background: rgba(0,113,227,0.1); padding: 8px; border-radius: 6px; text-align: center; font-size: 12px;">성현우</div>
+          <div style="background: rgba(0,113,227,0.1); padding: 8px; border-radius: 6px; text-align: center; font-size: 12px;">손민영</div>
+          <div style="background: rgba(0,113,227,0.1); padding: 8px; border-radius: 6px; text-align: center; font-size: 12px;">유지영</div>
+          <div style="background: rgba(0,113,227,0.1); padding: 8px; border-radius: 6px; text-align: center; font-size: 12px;">윤주원</div>
+          <div style="background: rgba(0,113,227,0.1); padding: 8px; border-radius: 6px; text-align: center; font-size: 12px;">윤희원</div>
+          <div style="background: rgba(0,113,227,0.1); padding: 8px; border-radius: 6px; text-align: center; font-size: 12px;">이선진</div>
+          <div style="background: rgba(0,113,227,0.1); padding: 8px; border-radius: 6px; text-align: center; font-size: 12px;">이정하</div>
+          <div style="background: rgba(0,113,227,0.1); padding: 8px; border-radius: 6px; text-align: center; font-size: 12px;">전이래</div>
+          <div style="background: rgba(0,113,227,0.1); padding: 8px; border-radius: 6px; text-align: center; font-size: 12px;">정분도</div>
+          <div style="background: rgba(0,113,227,0.1); padding: 8px; border-radius: 6px; text-align: center; font-size: 12px;">조일현</div>
+          <div style="background: rgba(0,113,227,0.1); padding: 8px; border-radius: 6px; text-align: center; font-size: 12px;">최승혜</div>
+        </div>
+        <div style="margin-top: 20px; padding: 16px; background: rgba(0,113,227,0.05); border-radius: 8px; font-size: 14px;">
+          ✔ 참여청년 전원(20명) 식비 지원카드 신청 완료<br>
+          ✔ 4월 오리엔테이션 준비 완료 (4월 6일 예정)
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- April Plan Section -->
+<section class="dark">
+  <div class="section-content">
+    <span class="tag">4월 추진계획</span>
+    <h2>본 프로그램이 시작됩니다</h2>
+    <p>참여청년과 함께하는 여정의 출발</p>
+
+    <div class="list-group">
+      <div class="list-item">
+        <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 16px;">🎯</div>
+        <div class="list-content">
+          <div class="list-text" style="font-weight: 600;">참여자 오리엔테이션</div>
+          <div class="list-meta">20명 대상 · 4월 6일</div>
+        </div>
+      </div>
+      <div class="list-item">
+        <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 16px;">💬</div>
+        <div class="list-content">
+          <div class="list-text" style="font-weight: 600;">심층면담</div>
+          <div class="list-meta">목표 20명</div>
+        </div>
+      </div>
+      <div class="list-item">
+        <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 16px;">📚</div>
+        <div class="list-content">
+          <div class="list-text" style="font-weight: 600;">역량강화 지원</div>
+          <div class="list-meta">목표 10명 / 지출 10명</div>
+        </div>
+      </div>
+      <div class="list-item">
+        <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 16px;">🤝</div>
+        <div class="list-content">
+          <div class="list-text" style="font-weight: 600;">제작자 역량강화 교육</div>
+          <div class="list-meta">청년재단 주관 · 4월 1일</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>협동조합 소이랩 · 청년다다름사업 대구제작소 · 2026년 4월</p>
+</footer>
+
+</body>
+</html>

@@ -1,6 +1,10 @@
 import Link from 'next/link';
 
-export default function Footer() {
+export default function Footer({
+  newsletterContact = false,
+}: {
+  newsletterContact?: boolean;
+}) {
   return (
     <footer style={{ background: '#1A1F36' }} className="text-gray-400">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
@@ -26,6 +30,26 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li><Link href="/#about" className="hover:text-white transition-colors">소이랩 소개</Link></li>
               <li><Link href="/#programs" className="hover:text-white transition-colors">주요 사업</Link></li>
+              <li>
+                <a
+                  href="https://csr.soilab-youth.kr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors"
+                >
+                  CSR 전용 홈페이지 ↗
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://bridge.soilab-youth.kr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors"
+                >
+                  청년 탄탄대로 브릿지 ↗
+                </a>
+              </li>
               <li><Link href="/cardnews" className="hover:text-white transition-colors">소식 &amp; 카드뉴스</Link></li>
               <li><Link href="/newsletter" className="hover:text-white transition-colors">뉴스레터</Link></li>
               <li>
@@ -39,12 +63,22 @@ export default function Footer() {
 
           {/* 연락처 */}
           <div>
-            <h3 className="text-white text-sm font-semibold mb-4">연락처</h3>
+            <h3 className="text-white text-sm font-semibold mb-4">
+              {newsletterContact ? '뉴스레터 문의' : '사업·협력 문의'}
+            </h3>
             <ul className="space-y-2 text-sm">
-              <li>📞 <a href="tel:05394194903" className="hover:text-white transition-colors">053-941-9003</a></li>
-              <li>📧 <a href="mailto:soilabcoop@gmail.com" className="hover:text-white transition-colors">soilabcoop@gmail.com</a></li>
-              <li>🌐 <a href="https://soilabcoop.kr" target="_blank" rel="noopener noreferrer"
-                       className="hover:text-white transition-colors">soilabcoop.kr</a></li>
+              <li>
+                📧{' '}
+                <a
+                  href={`mailto:${newsletterContact ? 'youth-news@soilabcoop.kr' : 'soilabcoop@gmail.com'}`}
+                  className="hover:text-white transition-colors"
+                >
+                  {newsletterContact ? 'youth-news@soilabcoop.kr' : 'soilabcoop@gmail.com'}
+                </a>
+              </li>
+              <li>🌐 <a href="https://www.soilab-youth.kr" className="hover:text-white transition-colors">
+                www.soilab-youth.kr
+              </a></li>
               <li>📍 대구광역시 북구 대현로 3, 2층(대현동)</li>
             </ul>
           </div>

@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Badge from '@/components/ui/Badge';
+import { pageMetadata } from '@/lib/metadata';
 import { getCardNewsDetail } from '@/lib/notion';
 import { formatDate, getBgColor, getThemeColor, getThumbnailEmoji } from '@/lib/utils';
 
@@ -16,11 +17,17 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const item = await getCardNewsDetail(id);
-  if (!item) return { title: '소식 없음' };
-  return {
+  if (!item) {
+    return {
+      title: '소식 없음',
+      robots: { index: false, follow: false },
+    };
+  }
+  return pageMetadata({
+    path: `/cardnews/${encodeURIComponent(id)}`,
     title: item.title,
-    description: item.summary,
-  };
+    description: item.summary || '협동조합 소이랩의 활동 소식과 카드뉴스입니다.',
+  });
 }
 
 function getBadgeColor(category: string): 'navy' | 'blue' | 'green' {

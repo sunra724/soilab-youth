@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://soilab-youth.kr';
+  const baseUrl = 'https://www.soilab-youth.kr';
 
   return [
     { url: baseUrl, changeFrequency: 'monthly', priority: 1 },

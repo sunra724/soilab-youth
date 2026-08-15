@@ -49,6 +49,13 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - `RESEND_FROM`: 인증된 소이랩 도메인의 발신자 주소. 예: `소이랩 뉴스레터 <youth-news@soilabcoop.kr>`
 - `RESEND_SEGMENT_ID`: 뉴스레터 구독자를 저장할 Resend segment ID
 - `RESEND_AUDIENCE_ID`: 기존 audience를 계속 쓰는 경우의 호환 설정. `RESEND_SEGMENT_ID`가 있으면 segment를 우선 사용합니다.
+- `NEWSLETTER_MAIL_TRANSPORT`: 발송 수단. `smtp` 또는 `resend`. 없으면 `SMTP_HOST`가 있을 때 SMTP, 없으면 Resend를 사용합니다.
+- `NEWSLETTER_FROM`: 공통 발신자 주소. 없으면 `SMTP_FROM`, `MAIL_FROM`, `RESEND_FROM`, `SMTP_USER` 순서로 사용합니다.
+- `SMTP_HOST`: 새 메일 서버의 SMTP 호스트. 예: Hiworks SMTP 호스트.
+- `SMTP_PORT`: SMTP 포트. 없으면 `smtps.*` 호스트는 `465`, 나머지는 `587`을 사용합니다.
+- `SMTP_SECURE`: SSL/TLS 직접 연결 여부. `true` 또는 `false`. 없으면 포트 `465`일 때 `true`입니다.
+- `SMTP_USER`: SMTP 로그인 계정
+- `SMTP_PASS`: SMTP 로그인 비밀번호 또는 앱 비밀번호
 - `NEWSLETTER_TO`: Resend segment/audience가 없을 때 쓰는 테스트/백업 수신자 목록
 - `NEWSLETTER_REPLY_TO`: 답장 받을 주소. 없으면 `NEWSLETTER_UNSUBSCRIBE_EMAIL`을 사용합니다.
 - `NEWSLETTER_UNSUBSCRIBE_EMAIL`: 수신거부 요청을 받을 주소. 없으면 `youth-news@soilabcoop.kr`을 사용합니다.
@@ -69,7 +76,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 발송 전 점검:
 
 ```bash
-curl -s https://soilab-youth.kr/api/send-newsletter \
+curl -s https://www.soilab-youth.kr/api/send-newsletter \
   -H "Authorization: Bearer $CRON_SECRET"
 ```
 

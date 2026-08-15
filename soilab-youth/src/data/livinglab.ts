@@ -459,7 +459,7 @@ export const livingLabData = {
     title: '고립·은둔청년 리빙랩 실증·성과 대시보드 | 협동조합 소이랩',
     description:
       '비대면 발굴부터 단계별 일상회복, 관계회복, 사회참여까지 청년과 지역이 함께 설계하고 실증하는 협동조합 소이랩의 고립·은둔청년 리빙랩 모델입니다.',
-    canonicalUrl: 'https://soilab-youth.kr/livinglab',
+    canonicalUrl: 'https://www.soilab-youth.kr/livinglab',
     updatedAt: '공개 데이터 승인 후 입력',
     dataNote:
       '공개 성과는 내부 원자료 검토와 승인 후 반영합니다. 현재 미승인 수치는 표시하지 않습니다.',

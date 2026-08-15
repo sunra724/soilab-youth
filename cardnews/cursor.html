@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>청년다다름 대구제작소 3월 — Cursor×소이랩</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@400;700&family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  /* Cursor canvas — warm, never pure white/black */
+  --canvas:    #f2f1ed;
+  --surface:   #ebeae5;
+  --surface2:  #e3e2dc;
+  --ink:       #26251e;
+  --ink-mid:   #5a5850;
+  --ink-faint: #9a9890;
+  --border:    rgba(38,37,30,0.10);
+  --border-md: rgba(38,37,30,0.18);
+
+  /* Soilab brand */
+  --green:     #2D6A4F;
+  --green-mid: #40916C;
+  --green-bg:  #dff0e5;
+  --terra:     #B85030;
+  --terra-bg:  #f5e8e3;
+
+  /* Shadow — multi-layer, low opacity */
+  --sh: 0 1px 2px rgba(38,37,30,0.04),
+        0 4px 16px rgba(38,37,30,0.05),
+        0 12px 40px rgba(38,37,30,0.04);
+}
+
+body{
+  background: #dddcd7;
+  font-family: 'Noto Sans KR', system-ui, sans-serif;
+  color: var(--ink);
+  padding: 52px 24px;
+  letter-spacing: -0.15px;
+}
+
+.page-label{
+  text-align: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-faint);
+  letter-spacing: .18em;
+  margin-bottom: 40px;
+  text-transform: uppercase;
+}
+
+.stack{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* ── 공통 카드 ── */
+.card{
+  width: 540px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--sh);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── 카드별 배경 ── */
+.bg-canvas  { background: var(--canvas);  padding: 52px 52px 48px; }
+.bg-surface { background: var(--surface); padding: 48px 52px; }
+.bg-ink     { background: var(--ink);     padding: 52px 52px 48px; }
+.bg-green   { background: var(--green);   padding: 52px 52px 48px; }
+
+/* ── Cursor 타이포: 압축 디스플레이 ── */
+.display{
+  font-family: 'DM Serif Display', 'Noto Serif KR', serif;
+  font-size: 52px;
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -2px;
+  color: var(--ink);
+}
+.display-sm{
+  font-family: 'DM Serif Display', 'Noto Serif KR', serif;
+  font-size: 32px;
+  font-weight: 400;
+  letter-spacing: -1.2px;
+  line-height: 1.12;
+  color: var(--ink);
+}
+.display-white{ color: #fff; }
+.display-green{ color: var(--green); }
+
+/* ── 태그 필 ── */
+.pill{
+  display: inline-block;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 9999px;
+  margin-bottom: 24px;
+}
+.pill-green{ background: var(--green-bg); color: var(--green); }
+.pill-terra{ background: var(--terra-bg); color: var(--terra); }
+.pill-white{ background: rgba(255,255,255,.14); color: rgba(255,255,255,.8); }
+.pill-dim  { background: rgba(38,37,30,.07);  color: var(--ink-mid); }
+
+/* ── 디바이더 ── */
+.rule{ width: 100%; height: 1px; background: var(--border); margin: 24px 0; }
+.rule-white{ background: rgba(255,255,255,.1); }
+
+/* ── 메타 텍스트 ── */
+.meta{
+  font-size: 13px;
+  color: var(--ink-mid);
+  line-height: 2.1;
+  font-weight: 400;
+}
+.meta strong{ color: var(--ink); font-weight: 700; }
+
+.sub{
+  font-size: 14px;
+  color: var(--ink-mid);
+  margin-top: 6px;
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+.sub-white{ color: rgba(255,255,255,.45); }
+
+/* ── 지표 ── */
+.metric-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.m-box{
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 20px 18px;
+}
+.m-box.hero{
+  grid-column: span 2;
+  background: var(--ink);
+  border-color: var(--ink);
+  padding: 24px 20px;
+}
+.m-num{
+  font-family: 'DM Serif Display', serif;
+  font-size: 44px;
+  font-weight: 400;
+  letter-spacing: -2px;
+  line-height: 1;
+  color: var(--green);
+}
+.m-box.hero .m-num{ color: #fff; font-size: 56px; }
+.m-unit{ font-size: 12px; color: var(--green-mid); margin-top: 4px; font-weight: 500; }
+.m-box.hero .m-unit{ color: rgba(255,255,255,.45); }
+.m-label{ font-size: 12px; color: var(--ink-faint); margin-top: 10px; line-height: 1.5; }
+.m-box.hero .m-label{ color: rgba(255,255,255,.5); }
+.m-num-terra{ color: var(--terra); }
+.m-unit-terra{ color: var(--terra); }
+
+/* ── 리스트 ── */
+.item-list{ display: flex; flex-direction: column; }
+.item-row{
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--border);
+}
+.item-row:last-child{ border-bottom: none; }
+.item-dot-w{
+  width: 18px; flex-shrink: 0; margin-top: 5px;
+  display: flex; justify-content: center;
+}
+.dot{ width: 4px; height: 4px; border-radius: 50%; background: var(--terra); }
+.dot-g{ background: var(--green-mid); }
+.item-text{ font-size: 13.5px; color: var(--ink); line-height: 1.6; }
+.item-text strong{ color: var(--terra); font-weight: 700; }
+.item-date{ font-family: 'Space Mono', monospace; font-size: 11px; color: var(--ink-faint); margin-top: 3px; }
+
+/* ── 바 차트 ── */
+.bar-list{ display: flex; flex-direction: column; }
+.bar-row{
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.bar-row:last-child{ border-bottom: none; }
+.bar-date{
+  font-family: 'Space Mono', monospace;
+  font-size: 11px; color: var(--ink-mid);
+  width: 54px; flex-shrink: 0;
+}
+.bar-track{
+  flex: 1; height: 8px;
+  background: var(--surface2);
+  border-radius: 2px; overflow: hidden;
+}
+.bar-fill{ height: 100%; background: var(--terra); border-radius: 2px; }
+.bar-val{
+  font-family: 'Space Mono', monospace;
+  font-size: 11px; font-weight: 700;
+  color: var(--terra); width: 30px; text-align: right;
+}
+.bar-foot{
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 20px; padding-top: 18px;
+  border-top: 1px solid var(--border-md);
+}
+
+/* ── 참여청년 칩 ── */
+.chips{
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 7px;
+}
+.chip{
+  background: var(--green-bg);
+  border: 1px solid rgba(45,106,79,.15);
+  border-radius: 4px;
+  padding: 9px 4px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--green);
+  position: relative;
+}
+.chip::after{
+  content: '✓';
+  position: absolute;
+  top: 2px; right: 3px;
+  font-size: 8px;
+  color: var(--green-mid);
+}
+.complete-box{
+  margin-top: 16px;
+  padding: 14px 16px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--ink-mid);
+  line-height: 1.9;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+/* ── 4월 계획 ── */
+.plan-list{ display: flex; flex-direction: column; }
+.plan-row{
+  display: flex; gap: 20px; align-items: flex-start;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.plan-row:last-child{ border-bottom: none; }
+.plan-idx{
+  font-family: 'Space Mono', monospace;
+  font-size: 11px; font-weight: 700;
+  color: rgba(255,255,255,.18);
+  width: 22px; flex-shrink: 0; margin-top: 2px;
+}
+.plan-t{ font-size: 15px; font-weight: 600; color: rgba(255,255,255,.88); }
+.plan-s{
+  font-family: 'Space Mono', monospace;
+  font-size: 11px; color: rgba(255,255,255,.32); margin-top: 4px;
+}
+.foot-mono{
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .1em;
+}
+</style>
+</head>
+<body>
+
+<div class="page-label">Soilab Cooperative · Daegu Jakso · March 2026 · Monthly Report</div>
+<div class="stack">
+
+<!-- 카드 1: 표지 -->
+<div class="card bg-green">
+  <span class="pill pill-white">2026년 3월 &nbsp;·&nbsp; 월간 활동보고</span>
+  <div class="display display-white" style="margin-bottom:8px">청년다다름사업<br>대구제작소</div>
+  <div style="font-size:13px;color:rgba(255,255,255,.38);font-family:'Space Mono',monospace;letter-spacing:.04em;margin-bottom:32px">Monthly Activity Report</div>
+  <div class="rule rule-white"></div>
+  <div class="meta" style="color:rgba(255,255,255,.55)">
+    <strong style="color:rgba(255,255,255,.85)">운영기관</strong> &nbsp;협동조합 소이랩<br>
+    <strong style="color:rgba(255,255,255,.85)">보고기간</strong> &nbsp;2026년 3월 1일 ~ 31일<br>
+    <strong style="color:rgba(255,255,255,.85)">참여청년</strong> &nbsp;20명
+  </div>
+  <div class="rule rule-white"></div>
+  <div class="foot-mono" style="color:rgba(255,255,255,.2)">SOILAB COOPERATIVE &nbsp;/&nbsp; 01 OF 06</div>
+</div>
+
+<!-- 카드 2: 핵심 지표 -->
+<div class="card bg-canvas">
+  <span class="pill pill-green">이달의 핵심 지표</span>
+  <div class="display-sm display-green">3월, 준비를<br>완성했습니다</div>
+  <div class="sub">사전인터뷰부터 식비카드 발급까지</div>
+  <div class="metric-grid">
+    <div class="m-box hero">
+      <div class="m-num">47</div>
+      <div class="m-unit">건</div>
+      <div class="m-label">청년 사전인터뷰 완료 &nbsp;·&nbsp; 3/23 ~ 3/30, 총 6회 진행</div>
+    </div>
+    <div class="m-box">
+      <div class="m-num m-num-terra">5</div>
+      <div class="m-unit m-unit-terra">개 기관</div>
+      <div class="m-label">홍보 및 자원연계</div>
+    </div>
+    <div class="m-box">
+      <div class="m-num">20</div>
+      <div class="m-unit">명 전원</div>
+      <div class="m-label">식비카드 발급 신청완료</div>
+    </div>
+  </div>
+</div>
+
+<!-- 카드 3: 홍보·자원연계 -->
+<div class="card bg-surface">
+  <span class="pill pill-terra">홍보 · 자원연계</span>
+  <div class="display-sm">5개 기관·채널과<br>사업을 연결했습니다</div>
+  <div class="rule"></div>
+  <div class="item-list">
+    <div class="item-row">
+      <div class="item-dot-w"><div class="dot"></div></div>
+      <div>
+        <div class="item-text">대구자립통합지원센터 — 자립준비청년 추천 요청</div>
+        <div class="item-date">2월 4일</div>
+      </div>
+    </div>
+    <div class="item-row">
+      <div class="item-dot-w"><div class="dot"></div></div>
+      <div>
+        <div class="item-text">공식 인스타그램 · 홈페이지 사업 홍보 시작</div>
+        <div class="item-date">3월 4일</div>
+      </div>
+    </div>
+    <div class="item-row">
+      <div class="item-dot-w"><div class="dot"></div></div>
+      <div>
+        <div class="item-text">남구청년센터 협의체 <strong>26개 기관</strong> 사업 홍보 요청</div>
+        <div class="item-date">3월 5일</div>
+      </div>
+    </div>
+    <div class="item-row">
+      <div class="item-dot-w"><div class="dot"></div></div>
+      <div>
+        <div class="item-text">대구 남구청 인구총괄과 — 각 행정복지센터 홍보 요청</div>
+        <div class="item-date">3월 10일</div>
+      </div>
+    </div>
+    <div class="item-row">
+      <div class="item-dot-w"><div class="dot"></div></div>
+      <div>
+        <div class="item-text">대구시설관리공단 — 기부금 확대 및 니즈 맞춤 프로그램 협의</div>
+        <div class="item-date">3월 12일</div>
+      </div>
+    </div>
+    <div class="item-row">
+      <div class="item-dot-w"><div class="dot dot-g"></div></div>
+      <div>
+        <div class="item-text">국립현대미술관 〈미술관을 즐겁게 헤매는 방법〉 — 참여자 우선선발 협의</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 카드 4: 사전인터뷰 -->
+<div class="card bg-canvas">
+  <span class="pill pill-terra">청년 사전인터뷰</span>
+  <div class="display-sm display-green">총 47건 완료</div>
+  <div class="sub">3월 23일 ~ 30일 &nbsp;·&nbsp; 6회차 진행</div>
+  <div class="bar-list">
+    <div class="bar-row">
+      <div class="bar-date">03.23</div>
+      <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+      <div class="bar-val">17건</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-date">03.25</div>
+      <div class="bar-track"><div class="bar-fill" style="width:53%"></div></div>
+      <div class="bar-val">9건</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-date">03.26</div>
+      <div class="bar-track"><div class="bar-fill" style="width:53%"></div></div>
+      <div class="bar-val">9건</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-date">03.27</div>
+      <div class="bar-track"><div class="bar-fill" style="width:24%"></div></div>
+      <div class="bar-val">4건</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-date">03.28</div>
+      <div class="bar-track"><div class="bar-fill" style="width:12%"></div></div>
+      <div class="bar-val">2건</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-date">03.30</div>
+      <div class="bar-track"><div class="bar-fill" style="width:35%"></div></div>
+      <div class="bar-val">6건</div>
+    </div>
+  </div>
+  <div class="bar-foot">
+    <span class="foot-mono" style="color:var(--ink-faint)">6 sessions &nbsp;/&nbsp; 8 days</span>
+    <span style="font-family:'DM Serif Display',serif;font-size:28px;letter-spacing:-1.2px;color:var(--terra)">총 47건</span>
+  </div>
+</div>
+
+<!-- 카드 5: 참여청년 -->
+<div class="card bg-surface">
+  <span class="pill pill-green">참여청년 현황</span>
+  <div class="display-sm display-green">20명 전원<br>식비카드 발급완료</div>
+  <div class="rule"></div>
+  <div class="chips">
+    <div class="chip">권미정</div><div class="chip">권보경</div><div class="chip">김명완</div><div class="chip">김민서</div><div class="chip">김양우</div>
+    <div class="chip">김예슬</div><div class="chip">나진희</div><div class="chip">박정민</div><div class="chip">석보경</div><div class="chip">성현우</div>
+    <div class="chip">손민영</div><div class="chip">유지영</div><div class="chip">윤주원</div><div class="chip">윤희원</div><div class="chip">이선진</div>
+    <div class="chip">이정하</div><div class="chip">전이래</div><div class="chip">정분도</div><div class="chip">조일현</div><div class="chip">최승혜</div>
+  </div>
+  <div class="complete-box">
+    ✔ 참여청년 전원(20명) 식비 지원카드 신청 완료<br>
+    ✔ 4월 오리엔테이션 준비 완료 (4월 6일 예정)
+  </div>
+</div>
+
+<!-- 카드 6: 4월 계획 -->
+<div class="card bg-ink">
+  <span class="pill pill-white">4월 추진계획</span>
+  <div class="display display-white" style="font-size:40px;letter-spacing:-1.6px;margin-bottom:6px">본 프로그램이<br>시작됩니다</div>
+  <div class="sub sub-white">참여청년과 함께하는 여정의 출발</div>
+  <div class="rule rule-white"></div>
+  <div class="plan-list">
+    <div class="plan-row">
+      <div class="plan-idx">01</div>
+      <div>
+        <div class="plan-t">참여자 오리엔테이션</div>
+        <div class="plan-s">20명 대상 &nbsp;/&nbsp; 4월 6일</div>
+      </div>
+    </div>
+    <div class="plan-row">
+      <div class="plan-idx">02</div>
+      <div>
+        <div class="plan-t">심층면담</div>
+        <div class="plan-s">목표 20명</div>
+      </div>
+    </div>
+    <div class="plan-row">
+      <div class="plan-idx">03</div>
+      <div>
+        <div class="plan-t">역량강화 지원</div>
+        <div class="plan-s">목표 10명 / 지출 10명</div>
+      </div>
+    </div>
+    <div class="plan-row">
+      <div class="plan-idx">04</div>
+      <div>
+        <div class="plan-t">제작자 역량강화 교육</div>
+        <div class="plan-s">청년재단 주관 &nbsp;/&nbsp; 4월 1일</div>
+      </div>
+    </div>
+  </div>
+  <div class="rule rule-white"></div>
+  <div class="foot-mono" style="color:rgba(255,255,255,.18)">SOILAB COOPERATIVE &nbsp;/&nbsp; DAEGU JAKSO &nbsp;/&nbsp; 2026.04</div>
+</div>
+
+</div>
+</body>
+</html>

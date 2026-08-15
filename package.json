@@ -1,0 +1,40 @@
+{
+  "name": "soilab-youth",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit --incremental false",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "0.115.0",
+    "@notionhq/client": "^5.18.0",
+    "date-fns": "^4.1.0",
+    "next": "16.2.12",
+    "notion-to-md": "^3.1.9",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "resend": "6.18.0",
+    "rss-parser": "^3.13.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.2.12",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "overrides": {
+    "next": {
+      "postcss": "8.5.23",
+      "sharp": "0.35.3"
+    }
+  }
+}

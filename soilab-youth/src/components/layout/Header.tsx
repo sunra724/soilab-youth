@@ -12,12 +12,24 @@ const NAV_ITEMS = [
   { label: '소식', href: '/cardnews' },
   { label: '뉴스레터', href: '/newsletter' },
   { label: '문의', href: '/#contact' },
+  {
+    label: 'CSR',
+    href: 'https://csr.soilab-youth.kr',
+    accent: true,
+    external: true,
+  },
 ];
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
+  const isNewsletterRoute = pathname.startsWith('/newsletter')
+    || pathname === '/unsubscribe';
+  const contactHref = isNewsletterRoute
+    ? 'mailto:youth-news@soilabcoop.kr'
+    : '/#contact';
+  const contactLabel = isNewsletterRoute ? '뉴스레터 문의' : '사업·협력 문의';
 
   const isCurrent = (href: string) => {
     if (href === '/livinglab') return pathname === '/livinglab';
@@ -59,31 +71,41 @@ export default function Header() {
         </Link>
 
         {/* 데스크탑 Nav */}
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden lg:flex items-center gap-5">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
+              target={item.external ? '_blank' : undefined}
+              rel={item.external ? 'noopener noreferrer' : undefined}
               aria-current={isCurrent(item.href) ? 'page' : undefined}
-              className={`text-sm hover:text-navy font-medium transition-colors ${
-                isCurrent(item.href) ? 'text-navy' : 'text-gray-700'
-              }`}
+              className={
+                item.accent
+                  ? `rounded-full border px-3 py-1.5 text-sm font-bold transition-colors ${
+                      isCurrent(item.href)
+                        ? 'border-navy bg-navy text-white'
+                        : 'border-navy/25 bg-navy/5 text-navy hover:bg-navy hover:text-white'
+                    }`
+                  : `text-sm hover:text-navy font-medium transition-colors ${
+                      isCurrent(item.href) ? 'text-navy' : 'text-gray-700'
+                    }`
+              }
             >
               {item.label}
             </Link>
           ))}
           <a
-            href="tel:0539419003"
+            href={contactHref}
             className="ml-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
             style={{ background: '#46549C' }}
           >
-            참여 문의
+            {contactLabel}
           </a>
         </nav>
 
         {/* 모바일 햄버거 */}
         <button
-          className="md:hidden p-2 rounded-lg text-gray-700"
+          className="lg:hidden p-2 rounded-lg text-gray-700"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label={menuOpen ? '메뉴 닫기' : '메뉴 열기'}
         >
@@ -101,26 +123,32 @@ export default function Header() {
 
       {/* 모바일 메뉴 */}
       {menuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 px-4 pb-4">
+        <div className="lg:hidden bg-white border-t border-gray-100 px-4 pb-4">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
+              target={item.external ? '_blank' : undefined}
+              rel={item.external ? 'noopener noreferrer' : undefined}
               aria-current={isCurrent(item.href) ? 'page' : undefined}
               className={`block py-3 text-sm border-b border-gray-50 font-medium ${
-                isCurrent(item.href) ? 'text-navy' : 'text-gray-700'
+                item.accent
+                  ? 'text-navy font-bold'
+                  : isCurrent(item.href)
+                    ? 'text-navy'
+                    : 'text-gray-700'
               }`}
               onClick={() => setMenuOpen(false)}
             >
-              {item.label}
+              {item.accent ? 'CSR 전용 홈페이지 ↗' : item.label}
             </Link>
           ))}
           <a
-            href="tel:0539419003"
+            href={contactHref}
             className="mt-3 block w-full text-center py-3 rounded-lg text-sm font-semibold text-white"
             style={{ background: '#46549C' }}
           >
-            참여 문의
+            {contactLabel}
           </a>
         </div>
       )}

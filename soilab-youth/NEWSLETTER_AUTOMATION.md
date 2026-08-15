@@ -1,6 +1,6 @@
 # 소이랩 뉴스레터 자동화 작업 메모
 
-마지막 정리일: 2026-04-24
+마지막 정리일: 2026-07-28
 
 이 문서는 `다시봄 뉴스클리핑` 자동 발송과 `기관 소식` 뉴스레터 구분 작업을 다음 작업 때 빠르게 이어가기 위한 운영 메모입니다. 비밀키와 실제 토큰은 문서에 남기지 않습니다.
 
@@ -83,9 +83,12 @@ Vercel Cron은 UTC 기준입니다.
 - `src/app/api/collect-news/route.ts`: Google News RSS와 YouTube Data API 수집, 요약 생성, Notion 후보 DB 저장
 - `src/app/api/send-newsletter/route.ts`: 드라이런, 테스트 발송, 정식 발송, 자동선택, 발송완료 처리, 아카이브 생성
 - `src/app/api/send-newsletter/cron/route.ts`: Vercel Cron용 GET 경로. Vercel Cron은 GET만 보내기 때문에 실제 발송용 POST 핸들러를 GET으로 재사용합니다.
+- `src/app/api/newsletter/backfill/route.ts`: 과거 날짜를 새 공개 기준으로 다시 검색해 웹 아카이브만 생성합니다. 메일 발송과 후보 DB 저장은 하지 않습니다.
 - `src/app/api/subscribe-newsletter/route.ts`: 구독 폼에서 Resend 연락처 등록
 - `src/app/api/unsubscribe-newsletter/route.ts`: 개인별 수신거부 링크 처리
 - `src/lib/emailTemplate.ts`: HTML/text 이메일 템플릿
+- `src/lib/newsletterMailer.ts`: SMTP/Resend 발송 수단 선택과 SMTP 연결 설정
+- `src/lib/newsletterSuppression.ts`: 과거 bounce 뒤 정상 배달 이력이 있는 오래된 Resend suppression만 안전하게 복구
 - `src/lib/resendContacts.ts`: Resend segment/audience 연락처 조회/생성/수신거부
 - `src/lib/newsletterToken.ts`: 수신거부 링크 서명/검증
 - `src/lib/notionSchema.ts`: Notion DB 속성명과 후보 카테고리 상수
@@ -97,9 +100,16 @@ Vercel Cron은 UTC 기준입니다.
 
 Vercel Production 환경변수 기준입니다. 값은 Vercel 대시보드에서 관리하고, 문서나 커밋에 남기지 않습니다.
 
-- `RESEND_API_KEY`: Resend API 키
-- `RESEND_FROM`: 인증된 소이랩 도메인의 발신자 주소. 예: `소이랩 뉴스레터 <youth-news@soilabcoop.kr>`
-- `RESEND_SEGMENT_ID`: 뉴스레터 구독자를 저장할 Resend segment ID
+- `NEWSLETTER_MAIL_TRANSPORT`: 발송 수단. `smtp` 또는 `resend`. 기본값은 Resend이며, SMTP는 `smtp`를 명시한 경우에만 사용합니다.
+- `NEWSLETTER_FROM`: 공통 발신자 주소. 없으면 `SMTP_FROM`, `MAIL_FROM`, `RESEND_FROM`, `SMTP_USER` 순서로 사용합니다.
+- `SMTP_HOST`: 새 메일 서버의 SMTP 호스트
+- `SMTP_PORT`: SMTP 포트. 없으면 `smtps.*` 호스트는 `465`, 나머지는 `587`을 사용합니다.
+- `SMTP_SECURE`: SSL/TLS 직접 연결 여부. `true` 또는 `false`. 없으면 포트 `465`일 때 `true`입니다.
+- `SMTP_USER`: SMTP 로그인 계정
+- `SMTP_PASS`: SMTP 로그인 비밀번호 또는 앱 비밀번호
+- `RESEND_API_KEY`: Resend API 키. Resend로 발송하거나 Resend segment/audience에서 수신자 목록을 읽을 때 필요합니다.
+- `RESEND_FROM`: Resend 발송용 인증 도메인의 발신자 주소. 예: `소이랩 뉴스레터 <youth-news@soilabcoop.kr>`
+- `RESEND_SEGMENT_ID`: 뉴스레터 구독자를 저장할 Resend segment ID. SMTP 발송으로 전환해도 이 값이 있으면 수신자 목록은 Resend에서 읽습니다.
 - `RESEND_AUDIENCE_ID`: 기존 audience 호환용. `RESEND_SEGMENT_ID`가 있으면 segment를 우선 사용합니다.
 - `NEWSLETTER_TO`: Resend segment/audience가 없을 때 쓰는 테스트/백업 수신자 목록
 - `NEWSLETTER_TEST_TO`: 테스트 발송 전용 수신자. 없으면 실제 구독자 목록을 테스트 수신자로 사용합니다.
@@ -112,6 +122,9 @@ Vercel Production 환경변수 기준입니다. 값은 Vercel 대시보드에서
 - `CRON_SECRET`: cron/API 보호용 bearer token
 - `ANTHROPIC_API_KEY`: 기사 요약 생성용
 - `YOUTUBE_API_KEY`: 유튜브 영상 수집용 YouTube Data API 키. 없으면 영상 수집만 건너뜁니다.
+- `ONTONG_YOUTH_POLICY_API_KEY`: 온통청년 청년정책 API 인증키. `/newsletter`의 정책 카드에 사용합니다.
+- `ONTONG_YOUTH_CONTENT_API_KEY`: 온통청년 청년콘텐츠 API 인증키. `/newsletter`의 최신 콘텐츠에 사용합니다.
+- `ONTONG_YOUTH_CENTER_API_KEY`: 온통청년 청년센터 API 인증키. `/newsletter`의 대구 청년센터 목록에 사용합니다.
 - `NEWS_ITEM_LIMIT_PER_QUERY`: Google News RSS 키워드별 기사 검토 개수. 기본값 `10`, 최대 `20`
 - `YOUTUBE_VIDEO_LIMIT_PER_QUERY`: 유튜브 키워드별 수집 개수. 기본값 `1`, 최대 `5`
 - `YOUTUBE_VIDEO_SEARCH_POOL_PER_QUERY`: 유튜브 키워드별 검토 후보 개수. 기본값 `10`, 최대 `25`
@@ -124,7 +137,9 @@ Vercel Production 환경변수 기준입니다. 값은 Vercel 대시보드에서
 - `NOTION_CANDIDATES_COLLECTION`: 뉴스 후보 data source ID
 - `NOTION_NEWSLETTER_DB`: 뉴스레터 아카이브 DB ID
 - `NOTION_NEWSLETTER_COLLECTION`: 뉴스레터 아카이브 data source ID
-- `NEXT_PUBLIC_SITE_URL`: 수신거부 링크 생성에 사용할 사이트 URL. 없으면 `https://soilab-youth.kr`를 기본값으로 사용합니다.
+- `NEXT_PUBLIC_SITE_URL`: 수신거부 링크 생성에 사용할 사이트 URL. `https://www.soilab-youth.kr`로 설정합니다.
+
+온통청년 인증키 3개는 서버에서만 읽습니다. 변수명에 `NEXT_PUBLIC_`을 붙이지 말고, 화면·로그·문서·커밋에 실제 값을 남기지 않습니다. API 호출 결과는 6시간 동안 재사용하며 한 API가 일시적으로 실패해도 나머지 두 영역은 계속 표시합니다.
 
 ## Notion 데이터 구조
 
@@ -173,28 +188,47 @@ Vercel Production 환경변수 기준입니다. 값은 Vercel 대시보드에서
 
 ```powershell
 $headers = @{ Authorization = "Bearer $env:CRON_SECRET" }
-Invoke-RestMethod -Uri "https://soilab-youth.kr/api/send-newsletter" -Headers $headers -Method Get
+Invoke-RestMethod -Uri "https://www.soilab-youth.kr/api/send-newsletter" -Headers $headers -Method Get
 ```
 
 오늘 뉴스 수집만 실행합니다. 이 작업은 Notion 후보 DB에 새 기사를 실제로 저장합니다.
 
 ```powershell
 $headers = @{ Authorization = "Bearer $env:CRON_SECRET" }
-Invoke-RestMethod -Uri "https://soilab-youth.kr/api/collect-news" -Headers $headers -Method Get
+Invoke-RestMethod -Uri "https://www.soilab-youth.kr/api/collect-news" -Headers $headers -Method Get
+```
+
+과거 회차는 기존 발송물을 복구하지 않고 Google News를 날짜별로 다시 검색해 신규 생성합니다. 먼저 읽기 전용 드라이런을 확인합니다.
+
+```powershell
+$headers = @{ Authorization = "Bearer $env:CRON_SECRET" }
+Invoke-RestMethod `
+  -Uri "https://www.soilab-youth.kr/api/newsletter/backfill?from=2026-07-01&to=2026-07-28" `
+  -Headers $headers `
+  -Method Get
+```
+
+결과를 검토한 뒤 웹 아카이브만 생성합니다. 이 POST는 Resend·SMTP·구독자 목록을 사용하지 않으며, 기준 통과 기사가 없는 날짜에는 빈 회차를 만들지 않습니다.
+
+```powershell
+Invoke-RestMethod `
+  -Uri "https://www.soilab-youth.kr/api/newsletter/backfill?from=2026-07-01&to=2026-07-28" `
+  -Headers $headers `
+  -Method Post
 ```
 
 테스트 메일을 보냅니다. `test=1`은 발송완료/아카이브 처리를 하지 않습니다.
 
 ```powershell
 $headers = @{ Authorization = "Bearer $env:CRON_SECRET" }
-Invoke-RestMethod -Uri "https://soilab-youth.kr/api/send-newsletter?test=1" -Headers $headers -Method Post
+Invoke-RestMethod -Uri "https://www.soilab-youth.kr/api/send-newsletter?test=1" -Headers $headers -Method Post
 ```
 
 정식 발송입니다. 운영자가 명시적으로 요청했을 때만 실행합니다.
 
 ```powershell
 $headers = @{ Authorization = "Bearer $env:CRON_SECRET" }
-Invoke-RestMethod -Uri "https://soilab-youth.kr/api/send-newsletter" -Headers $headers -Method Post
+Invoke-RestMethod -Uri "https://www.soilab-youth.kr/api/send-newsletter" -Headers $headers -Method Post
 ```
 
 Resend 발송 상태 확인 예시입니다.
@@ -203,6 +237,10 @@ Resend 발송 상태 확인 예시입니다.
 $headers = @{ Authorization = "Bearer $env:RESEND_API_KEY" }
 Invoke-RestMethod -Uri "https://api.resend.com/emails/<EMAIL_ID>" -Headers $headers -Method Get
 ```
+
+`last_event`가 `suppressed`이면 메일 요청은 생성됐지만 Resend가 실제 배달을 막은 상태입니다. 보통 과거 hard bounce 또는 spam complaint 이력 때문이며, 메일 서버를 고친 뒤에도 Resend suppression list에서 해당 수신자를 해제해야 Resend 발송이 다시 됩니다. 새 메일 서버를 직접 쓰려면 Vercel Production에 `NEWSLETTER_MAIL_TRANSPORT=smtp`, `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `NEWSLETTER_FROM`을 설정한 뒤 재배포합니다.
+
+Resend 발송 전에는 현재 수신자 중 active suppression을 확인합니다. 사유가 `bounce`이고 suppression 생성 뒤 같은 주소로 `delivered`, `opened`, `clicked`된 기록이 있을 때만 오래된 suppression으로 판단해 자동 해제합니다. `complaint`, `manual` suppression이나 정상 배달 근거가 없는 bounce는 자동 해제하지 않습니다.
 
 ## 메일 디자인 메모
 
@@ -233,12 +271,17 @@ Invoke-RestMethod -Uri "https://api.resend.com/emails/<EMAIL_ID>" -Headers $head
 
 ## 현재 확인된 운영 상태
 
-2026-04-24 기준으로 확인한 내용입니다.
+2026-07-28 기준으로 확인한 내용입니다.
 
 - 운영 드라이런에서 `ready: true`
 - 환경변수 누락 없음
 - Resend 리스트 사용 중
-- 테스트 메일은 `delivered` 상태 확인
+- `soilabcoop.kr` MX/SPF는 Hiworks 메일 서버 기준으로 변경됨
+- 2026-06-10 뉴스클리핑의 hard bounce로 2026-06-11 `goo@soilabcoop.kr` suppression이 처음 생성됨
+- 2026-06-16 해제 후 2026-07-23까지 정상 배달됐으나, 2026-07-24부터 같은 오래된 suppression이 다시 적용됨
+- 2026-07-28 suppression 해제 및 당일 뉴스클리핑 복구 발송 후 `delivered` 확인
+- 과거 bounce 뒤 정상 배달 증거가 있는 오래된 suppression만 발송 직전에 자동 복구하도록 운영 배포 완료
+- SMTP 환경변수를 설정하면 `/api/send-newsletter`가 Resend 대신 새 SMTP 서버로 직접 발송하도록 코드 반영
 - 발신 주소는 `youth-news@soilabcoop.kr`
 - 메일 푸터 주소는 `대구광역시 북구 대현로 3, 2층(대현동)`
 

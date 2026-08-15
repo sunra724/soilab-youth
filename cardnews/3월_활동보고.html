@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>청년다다름 대구제작소 3월 카드뉴스</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#2D6A4F;--gl:#52B788;--gb:#D8F3DC;
+  --t:#C75B3A;--tl:#E07A5F;--tb:#FAECE7;
+  --cream:#FAFAF7;
+}
+body{background:#f0f0ee;padding:40px 20px;font-family:'Noto Sans KR',sans-serif}
+.page-title{text-align:center;font-size:14px;color:#888;margin-bottom:32px;letter-spacing:.05em}
+.card-wrap{display:flex;flex-direction:column;align-items:center;gap:24px}
+.cn-card{
+  width:480px;height:480px;
+  display:flex;flex-direction:column;
+  padding:40px;border-radius:16px;
+  overflow:hidden;position:relative;
+  page-break-inside:avoid;
+}
+
+/* 카드 1 - 표지 */
+.c1{background:var(--g);color:#fff}
+/* 카드 2 - 지표 */
+.c2{background:var(--cream);border:1.5px solid #dde8e1}
+/* 카드 3 - 홍보 */
+.c3{background:#fff;border:1.5px solid #dde8e1}
+/* 카드 4 - 인터뷰 */
+.c4{background:var(--tb);border:1.5px solid #f5cdc0}
+/* 카드 5 - 참여청년 */
+.c5{background:#fff;border:1.5px solid #dde8e1}
+/* 카드 6 - 4월계획 */
+.c6{background:var(--g);color:#fff}
+
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.07em;padding:5px 12px;border-radius:20px;margin-bottom:18px;width:fit-content}
+.tag-w{background:rgba(255,255,255,.2);color:#fff}
+.tag-g{background:var(--gb);color:var(--g)}
+.tag-t{background:var(--tb);color:var(--t)}
+
+/* 카드1 */
+.c1-main-title{font-family:'Noto Serif KR',serif;font-size:32px;font-weight:700;line-height:1.35;color:#fff}
+.c1-sub{font-size:13px;color:rgba(255,255,255,.6);margin-top:8px}
+.divider-w{width:40px;height:3px;background:rgba(255,255,255,.35);margin:22px 0;border-radius:2px}
+.c1-info{font-size:13px;color:rgba(255,255,255,.7);line-height:2}
+.corner{position:absolute;border-radius:50%;background:rgba(255,255,255,.06)}
+.corner1{bottom:-24px;right:-24px;width:120px;height:120px}
+.corner2{top:-36px;right:-12px;width:96px;height:96px}
+.corner3{top:160px;right:-50px;width:130px;height:130px}
+.c1-num{font-size:11px;color:rgba(255,255,255,.35);margin-top:auto}
+
+/* 카드2 */
+.c2-head-title{font-family:'Noto Serif KR',serif;font-size:20px;font-weight:700;color:#1a3a2a;margin-bottom:4px}
+.c2-head-sub{font-size:12px;color:#888;margin-bottom:18px}
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1}
+.metric-box{background:#fff;border-radius:10px;padding:18px 14px;border:1px solid #e0ede5}
+.metric-box.accent{background:var(--g);border-color:var(--g);grid-column:span 2}
+.metric-num{font-family:'Noto Serif KR',serif;font-size:36px;font-weight:700;color:var(--g);line-height:1}
+.metric-box.accent .metric-num{color:#fff;font-size:42px}
+.metric-unit{font-size:12px;color:var(--g);margin-top:3px}
+.metric-box.accent .metric-unit{color:rgba(255,255,255,.65)}
+.metric-label{font-size:12px;color:#777;margin-top:8px;line-height:1.5}
+.metric-box.accent .metric-label{color:rgba(255,255,255,.75)}
+.m-t .metric-num{color:var(--t)}
+.m-t .metric-unit{color:var(--t)}
+
+/* 카드3 */
+.section-head{font-size:13px;font-weight:700;color:var(--g);letter-spacing:.04em;margin-bottom:16px}
+.item-list{display:flex;flex-direction:column;gap:11px;flex:1}
+.item{display:flex;gap:10px;align-items:flex-start}
+.item-dot{width:6px;height:6px;border-radius:50%;background:var(--t);margin-top:7px;flex-shrink:0}
+.item-dot-g{background:var(--gl)}
+.item-text{font-size:13px;color:#2a2a2a;line-height:1.55}
+.item-date{font-size:11px;color:#aaa;margin-top:2px}
+
+/* 카드4 */
+.c4-section-head{font-size:13px;font-weight:700;color:var(--t);letter-spacing:.04em;margin-bottom:14px}
+.bar-wrap{display:flex;flex-direction:column;gap:10px;flex:1}
+.bar-row{display:flex;align-items:center;gap:10px}
+.bar-date{font-size:11px;color:#777;width:42px;flex-shrink:0;font-variant-numeric:tabular-nums}
+.bar-track{flex:1;height:24px;background:#f5e8e4;border-radius:5px;overflow:hidden}
+.bar-fill{height:100%;background:var(--t);border-radius:5px;display:flex;align-items:center;padding-left:10px}
+.bar-val{font-size:11px;font-weight:700;color:#fff}
+.bar-total{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid #f0c4b8}
+
+/* 카드5 */
+.c5-section-head{font-size:13px;font-weight:700;color:var(--g);letter-spacing:.04em;margin-bottom:14px}
+.participants-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;flex:1;align-content:start}
+.p-chip{background:var(--gb);border-radius:7px;padding:8px 4px;text-align:center;font-size:12px;color:var(--g);font-weight:500;line-height:1.3;position:relative}
+.p-chip::after{content:'✓';position:absolute;top:3px;right:4px;font-size:8px;color:var(--gl)}
+.complete-note{margin-top:14px;padding:12px 14px;background:var(--gb);border-radius:9px;font-size:12px;color:var(--g);line-height:1.8}
+
+/* 카드6 */
+.plan-list{display:flex;flex-direction:column;gap:14px;flex:1}
+.plan-item{display:flex;gap:14px;align-items:center}
+.plan-icon{width:40px;height:40px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
+.plan-t{font-size:14px;font-weight:500;color:#fff}
+.plan-s{font-size:12px;color:rgba(255,255,255,.6);margin-top:2px}
+.c6-foot{font-size:11px;color:rgba(255,255,255,.3);margin-top:auto}
+</style>
+</head>
+<body>
+<div class="page-title">청년다다름사업 대구제작소 · 2026년 3월 월간 카드뉴스 · 협동조합 소이랩</div>
+<div class="card-wrap">
+
+<!-- 카드 1: 표지 -->
+<div class="cn-card c1">
+  <div class="corner corner1"></div>
+  <div class="corner corner2"></div>
+  <div class="corner corner3"></div>
+  <span class="tag tag-w">2026년 3월</span>
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+    <div class="c1-main-title">청년다다름사업<br>대구제작소</div>
+    <div class="c1-sub">월간 활동보고</div>
+    <div class="divider-w"></div>
+    <div class="c1-info">
+      운영기관 &nbsp;|&nbsp; 협동조합 소이랩<br>
+      보고기간 &nbsp;|&nbsp; 2026년 3월 1일 ~ 31일<br>
+      참여청년 &nbsp;|&nbsp; 20명
+    </div>
+  </div>
+  <div class="c1-num">1 / 5</div>
+</div>
+
+<!-- 카드 2: 핵심 지표 -->
+<div class="cn-card c2">
+  <span class="tag tag-g">이달의 핵심 지표</span>
+  <div class="c2-head-title">3월, 준비를 완성했습니다</div>
+  <div class="c2-head-sub">사전인터뷰부터 식비카드 발급까지</div>
+  <div class="metrics-grid">
+    <div class="metric-box accent">
+      <div class="metric-num">47</div>
+      <div class="metric-unit">건</div>
+      <div class="metric-label">청년 사전인터뷰 완료&nbsp;&nbsp;(3/23 ~ 3/30, 총 6회 진행)</div>
+    </div>
+    <div class="metric-box m-t">
+      <div class="metric-num">5</div>
+      <div class="metric-unit">개 기관</div>
+      <div class="metric-label">홍보 및<br>자원연계</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num">20</div>
+      <div class="metric-unit">명 전원</div>
+      <div class="metric-label">식비카드<br>발급 신청완료</div>
+    </div>
+  </div>
+</div>
+
+<!-- 카드 3: 홍보·자원연계 -->
+<div class="cn-card c3">
+  <span class="tag tag-g">홍보 · 자원연계</span>
+  <div class="section-head">5개 기관·채널과 사업을 연결했습니다</div>
+  <div class="item-list">
+    <div class="item"><div class="item-dot"></div><div><div class="item-text">대구자립통합지원센터 — 자립준비청년 추천 요청</div><div class="item-date">2월 4일</div></div></div>
+    <div class="item"><div class="item-dot"></div><div><div class="item-text">공식 인스타그램 · 홈페이지 사업 홍보 시작</div><div class="item-date">3월 4일</div></div></div>
+    <div class="item"><div class="item-dot"></div><div><div class="item-text">남구청년센터 협의체 <strong style="color:var(--t)">26개 기관</strong> 사업 홍보 요청</div><div class="item-date">3월 5일</div></div></div>
+    <div class="item"><div class="item-dot"></div><div><div class="item-text">대구 남구청 인구총괄과 — 각 행정복지센터 홍보 요청</div><div class="item-date">3월 10일</div></div></div>
+    <div class="item"><div class="item-dot"></div><div><div class="item-text">대구시설관리공단 — 기부금 확대 및 니즈 맞춤 프로그램 협의</div><div class="item-date">3월 12일</div></div></div>
+    <div class="item"><div class="item-dot item-dot-g"></div><div><div class="item-text">국립현대미술관 〈미술관을 즐겁게 헤매는 방법〉 — 참여자 우선선발 내부 협의</div></div></div>
+  </div>
+</div>
+
+<!-- 카드 4: 사전인터뷰 -->
+<div class="cn-card c4">
+  <span class="tag tag-t">청년 사전인터뷰</span>
+  <div class="c4-section-head">총 47건 완료 (3월 23일 ~ 30일)</div>
+  <div class="bar-wrap">
+    <div class="bar-row">
+      <div class="bar-date">3월 23일</div>
+      <div class="bar-track"><div class="bar-fill" style="width:100%"><div class="bar-val">17건</div></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-date">3월 25일</div>
+      <div class="bar-track"><div class="bar-fill" style="width:53%"><div class="bar-val">9건</div></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-date">3월 26일</div>
+      <div class="bar-track"><div class="bar-fill" style="width:53%"><div class="bar-val">9건</div></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-date">3월 27일</div>
+      <div class="bar-track"><div class="bar-fill" style="width:24%"><div class="bar-val">4건</div></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-date">3월 28일</div>
+      <div class="bar-track"><div class="bar-fill" style="width:12%"><div class="bar-val">2건</div></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-date">3월 30일</div>
+      <div class="bar-track"><div class="bar-fill" style="width:35%"><div class="bar-val">6건</div></div></div>
+    </div>
+  </div>
+  <div class="bar-total">
+    <span style="font-size:12px;color:#999">6회차 · 일정별 진행</span>
+    <span style="font-size:17px;font-weight:700;color:var(--t)">총 47건 완료</span>
+  </div>
+</div>
+
+<!-- 카드 6: 4월 추진계획 -->
+<div class="cn-card c6">
+  <div class="corner corner1"></div>
+  <div class="corner corner2"></div>
+  <div class="corner corner3"></div>
+  <span class="tag tag-w">4월 추진계획</span>
+  <div style="font-family:'Noto Serif KR',serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:4px">본 프로그램이 시작됩니다</div>
+  <div style="font-size:12px;color:rgba(255,255,255,.55);margin-bottom:22px">참여청년과 함께하는 여정의 출발</div>
+  <div class="plan-list">
+    <div class="plan-item">
+      <div class="plan-icon">🎯</div>
+      <div><div class="plan-t">참여자 오리엔테이션</div><div class="plan-s">20명 대상 · 4월 6일</div></div>
+    </div>
+    <div class="plan-item">
+      <div class="plan-icon">💬</div>
+      <div><div class="plan-t">심층면담</div><div class="plan-s">목표 20명</div></div>
+    </div>
+    <div class="plan-item">
+      <div class="plan-icon">📚</div>
+      <div><div class="plan-t">역량강화 지원</div><div class="plan-s">목표 10명 / 지출 10명</div></div>
+    </div>
+    <div class="plan-item">
+      <div class="plan-icon">🤝</div>
+      <div><div class="plan-t">제작자 역량강화 교육</div><div class="plan-s">청년재단 주관 · 4월 1일</div></div>
+    </div>
+  </div>
+  <div class="c6-foot">협동조합 소이랩 · 청년다다름사업 대구제작소 · 2026년 4월</div>
+</div>
+
+</div>
+</body>
+</html>

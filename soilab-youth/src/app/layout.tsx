@@ -18,6 +18,11 @@ const notoSansKR = Noto_Sans_KR({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.soilab-youth.kr"),
+  verification: {
+    other: {
+      "naver-site-verification": "b5902b63d89aa606c9d9bb25361ad43110e2bbe1",
+    },
+  },
   title: {
     default: SITE_NAME,
     template: "%s | 소이랩 청년지원센터",

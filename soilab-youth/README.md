@@ -37,9 +37,11 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## 뉴스레터 자동화
 
+웹사이트의 독자별 홍보 경로, 소개문, 첫 4주 운영안은 [웹사이트 홍보 운영안](./docs/website-promotion-plan.md)을 참고하세요.
+
 상세 작업 메모와 운영 절차는 [NEWSLETTER_AUTOMATION.md](./NEWSLETTER_AUTOMATION.md)를 참고하세요.
 
-`/api/collect-news`와 `/api/send-newsletter`는 매일 발송되는 `다시봄 뉴스클리핑` 자동화입니다. 고립은둔·사회적가치·청년지원 키워드로 뉴스와 유튜브 영상을 수집하고, 매일 오전 8시(KST)에 자동 발송합니다. 소이랩 고립·은둔 청년 지원센터의 활동보고·행사 안내 같은 비정기 소식은 뉴스레터 페이지의 `기관 소식`으로 별도 구분합니다.
+`/api/collect-news`와 `/api/send-newsletter`는 매일 발송되는 `다시봄 뉴스클리핑` 자동화입니다. 고립은둔·사회적가치·청년지원 키워드로 뉴스와 유튜브 영상을 수집하고, 매일 오전 8시(KST)에 이메일로 자동 발송합니다. 텔레그램 환경변수를 활성화하면 같은 뉴스 목록을 텔레그램 채널에도 함께 발송합니다. 소이랩 고립·은둔 청년 지원센터의 활동보고·행사 안내 같은 비정기 소식은 뉴스레터 페이지의 `기관 소식`으로 별도 구분합니다.
 
 뉴스 수집은 매일 오전 7시 50분(KST)에 `/api/collect-news`로 실행되고, 발송은 매일 오전 8시(KST)에 `/api/send-newsletter/cron`으로 실행됩니다. Vercel cron은 UTC 기준이라 각각 `50 22 * * *`, `0 23 * * *`로 설정되어 있습니다. 발송 대상은 노션 후보 DB에서 `발송선택=true`, `발송완료=false`인 기사이며, 선택된 기사가 없으면 `NEWSLETTER_AUTO_SELECT_COUNT`만큼 최신 미발송 후보를 기사 70%, 영상 30% 목표로 자동 선택합니다. 사회적가치·임팩트 관련 후보는 보조 관점으로만 포함되도록 자동선택에서 기본 1~2건으로 제한합니다.
 
@@ -49,6 +51,13 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - `RESEND_FROM`: 인증된 소이랩 도메인의 발신자 주소. 예: `소이랩 뉴스레터 <youth-news@soilabcoop.kr>`
 - `RESEND_SEGMENT_ID`: 뉴스레터 구독자를 저장할 Resend segment ID
 - `RESEND_AUDIENCE_ID`: 기존 audience를 계속 쓰는 경우의 호환 설정. `RESEND_SEGMENT_ID`가 있으면 segment를 우선 사용합니다.
+- `NEWSLETTER_MAIL_TRANSPORT`: 발송 수단. `smtp` 또는 `resend`. 없으면 `SMTP_HOST`가 있을 때 SMTP, 없으면 Resend를 사용합니다.
+- `NEWSLETTER_FROM`: 공통 발신자 주소. 없으면 `SMTP_FROM`, `MAIL_FROM`, `RESEND_FROM`, `SMTP_USER` 순서로 사용합니다.
+- `SMTP_HOST`: 새 메일 서버의 SMTP 호스트. 예: Hiworks SMTP 호스트.
+- `SMTP_PORT`: SMTP 포트. 없으면 `smtps.*` 호스트는 `465`, 나머지는 `587`을 사용합니다.
+- `SMTP_SECURE`: SSL/TLS 직접 연결 여부. `true` 또는 `false`. 없으면 포트 `465`일 때 `true`입니다.
+- `SMTP_USER`: SMTP 로그인 계정
+- `SMTP_PASS`: SMTP 로그인 비밀번호 또는 앱 비밀번호
 - `NEWSLETTER_TO`: Resend segment/audience가 없을 때 쓰는 테스트/백업 수신자 목록
 - `NEWSLETTER_REPLY_TO`: 답장 받을 주소. 없으면 `NEWSLETTER_UNSUBSCRIBE_EMAIL`을 사용합니다.
 - `NEWSLETTER_UNSUBSCRIBE_EMAIL`: 수신거부 요청을 받을 주소. 없으면 `youth-news@soilabcoop.kr`을 사용합니다.
@@ -56,6 +65,11 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - `NEWSLETTER_AUTO_SELECT_COUNT`: 발송선택된 기사가 없을 때 최신 미발송 후보를 자동 선택할 개수. 예: `5`
 - `NEWSLETTER_AUTO_SELECT_ARTICLE_RATIO`: 자동선택 시 뉴스 기사 목표 비율. 기본값 `0.7`
 - `NEWSLETTER_AUTO_SELECT_IMPACT_LIMIT`: 자동선택 시 `사회적가치`/`사회적경제` 카테고리 최대 포함 개수. 기본값은 발송 건수의 20%, 최소 `1`, 최대 `2`
+- `TELEGRAM_ENABLED`: `true`일 때 텔레그램 동시 발송 활성화
+- `TELEGRAM_BOT_TOKEN`: BotFather에서 발급받은 봇 토큰. 저장소에 커밋하지 않습니다.
+- `TELEGRAM_CHAT_ID`: 정식 발송 대상 채널의 `@username` 또는 숫자 chat ID. 공개 `@username`이면 웹 구독 버튼 링크에도 사용합니다.
+- `TELEGRAM_TEST_CHAT_ID`: `test=1` 전용 테스트 채널 ID. 없으면 테스트 텔레그램 발송을 건너뛰며 운영 채널로 대체하지 않습니다.
+- `TELEGRAM_CHANNEL_URL`: 선택 설정. 비공개 초대 링크처럼 `TELEGRAM_CHAT_ID`로 웹 링크를 만들 수 없을 때 사용할 `https://t.me/...` 주소
 - `CRON_SECRET`: cron/API 보호용 bearer token
 - `YOUTUBE_API_KEY`: 유튜브 영상 수집용 YouTube Data API 키. 없으면 영상 수집만 건너뜁니다.
 - `NEWS_ITEM_LIMIT_PER_QUERY`: Google News RSS 키워드별 기사 검토 개수. 기본값 `10`, 최대 `20`
@@ -69,7 +83,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 발송 전 점검:
 
 ```bash
-curl -s https://soilab-youth.kr/api/send-newsletter \
+curl -s https://www.soilab-youth.kr/api/send-newsletter \
   -H "Authorization: Bearer $CRON_SECRET"
 ```
 

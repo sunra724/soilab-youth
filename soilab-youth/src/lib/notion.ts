@@ -1,6 +1,13 @@
 import { Client } from '@notionhq/client';
 import { unstable_cache } from 'next/cache';
-import type { CardNews, Newsletter, StatItem } from '@/types/notion';
+import { cache } from 'react';
+import type {
+  CardNews,
+  Newsletter,
+  NewsletterArticle,
+  NewsletterDetail,
+  StatItem,
+} from '@/types/notion';
 import {
   CARDNEWS_PROPS,
   NEWSLETTER_PROPS,
@@ -47,14 +54,22 @@ function numberProp(props: any, key: string): number {
 export const getCardNewsList = unstable_cache(
   async (): Promise<CardNews[]> => {
     try {
-      const res = await notion.dataSources.query({
-        data_source_id: process.env.NOTION_CARDNEWS_COLLECTION!,
-        filter: { property: CARDNEWS_PROPS.isPublic, checkbox: { equals: true } },
-        sorts: [{ property: CARDNEWS_PROPS.publishedAt, direction: 'descending' }],
-      });
+      const pages = [];
+      let startCursor: string | undefined;
+      do {
+        const res = await notion.dataSources.query({
+          data_source_id: process.env.NOTION_CARDNEWS_COLLECTION!,
+          page_size: 100,
+          filter: { property: CARDNEWS_PROPS.isPublic, checkbox: { equals: true } },
+          sorts: [{ property: CARDNEWS_PROPS.publishedAt, direction: 'descending' }],
+          ...(startCursor ? { start_cursor: startCursor } : {}),
+        });
+        pages.push(...res.results);
+        startCursor = res.has_more && res.next_cursor ? res.next_cursor : undefined;
+      } while (startCursor);
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return res.results.map((page: any) => ({
+      return pages.map((page: any) => ({
         id: page.id,
         title: titleProp(page.properties, CARDNEWS_PROPS.title),
         category: selectProp(page.properties, CARDNEWS_PROPS.category),
@@ -101,28 +116,160 @@ export const getCardNewsDetail = unstable_cache(
 export const getNewsletterList = unstable_cache(
   async (): Promise<Newsletter[]> => {
     try {
-      const res = await notion.dataSources.query({
-        data_source_id: process.env.NOTION_NEWSLETTER_COLLECTION!,
-        filter: { property: NEWSLETTER_PROPS.isPublic, checkbox: { equals: true } },
-        sorts: [{ property: NEWSLETTER_PROPS.issueNumber, direction: 'descending' }],
-      });
+      const pages = [];
+      let startCursor: string | undefined;
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return res.results.map((page: any) => ({
-        id: page.id,
-        title: titleProp(page.properties, NEWSLETTER_PROPS.title),
-        issueNumber: numberProp(page.properties, NEWSLETTER_PROPS.issueNumber),
-        publishedAt: dateProp(page.properties, NEWSLETTER_PROPS.publishedAt),
-        summary: richTextProp(page.properties, NEWSLETTER_PROPS.summary),
-        pdfUrl: urlProp(page.properties, NEWSLETTER_PROPS.pdfUrl),
-      }));
+      do {
+        const res = await notion.dataSources.query({
+          data_source_id: process.env.NOTION_NEWSLETTER_COLLECTION!,
+          page_size: 100,
+          filter: { property: NEWSLETTER_PROPS.isPublic, checkbox: { equals: true } },
+          sorts: [{ property: NEWSLETTER_PROPS.publishedAt, direction: 'descending' }],
+          ...(startCursor ? { start_cursor: startCursor } : {}),
+        });
+        pages.push(...res.results);
+        startCursor = res.has_more && res.next_cursor
+          ? res.next_cursor
+          : undefined;
+      } while (startCursor);
+
+      const seen = new Set<string>();
+      return pages
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .map((page: any): Newsletter => ({
+          id: page.id,
+          title: titleProp(page.properties, NEWSLETTER_PROPS.title),
+          issueNumber: numberProp(page.properties, NEWSLETTER_PROPS.issueNumber),
+          publishedAt: dateProp(page.properties, NEWSLETTER_PROPS.publishedAt),
+          summary: richTextProp(page.properties, NEWSLETTER_PROPS.summary),
+          pdfUrl: urlProp(page.properties, NEWSLETTER_PROPS.pdfUrl),
+        }))
+        .filter((item) => {
+          if (!item.publishedAt) return false;
+          const key = `${item.title}\u0000${item.publishedAt}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
     } catch (e) {
       console.error('[Notion] getNewsletterList:', e);
       return [];
     }
   },
   ['newsletter-list'],
-  { revalidate: 3600, tags: ['newsletter'] }
+  { revalidate: 600, tags: ['newsletter'] }
+);
+
+function blockText(block: unknown, type: string) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const richText = (block as any)?.[type]?.rich_text;
+  if (!Array.isArray(richText)) return '';
+  return richText.map((text) => text?.plain_text ?? '').join('');
+}
+
+function blockLink(block: unknown, type: string) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const richText = (block as any)?.[type]?.rich_text;
+  if (!Array.isArray(richText)) return '';
+  return richText.find((text) => text?.href)?.href ?? '';
+}
+
+export const getNewsletterDetail = cache(
+  async (slug: string): Promise<NewsletterDetail | null> => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let page: any;
+
+      if (/^\d{4}-\d{2}-\d{2}$/u.test(slug)) {
+        const response = await notion.dataSources.query({
+          data_source_id: process.env.NOTION_NEWSLETTER_COLLECTION!,
+          page_size: 10,
+          filter: {
+            and: [
+              {
+                property: NEWSLETTER_PROPS.publishedAt,
+                date: { equals: slug },
+              },
+              {
+                property: NEWSLETTER_PROPS.isPublic,
+                checkbox: { equals: true },
+              },
+            ],
+          },
+          sorts: [{ property: NEWSLETTER_PROPS.issueNumber, direction: 'descending' }],
+        });
+        page = response.results.find(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (result: any) => titleProp(
+            result.properties,
+            NEWSLETTER_PROPS.title,
+          ).includes('뉴스클리핑'),
+        );
+      } else {
+        page = await notion.pages.retrieve({ page_id: slug });
+      }
+
+      if (
+        !page
+        || page.archived
+        || !page.properties?.[NEWSLETTER_PROPS.isPublic]?.checkbox
+      ) {
+        return null;
+      }
+
+      const articles: NewsletterArticle[] = [];
+      let startCursor: string | undefined;
+      let pendingArticle: NewsletterArticle | null = null;
+
+      do {
+        const blocks = await notion.blocks.children.list({
+          block_id: page.id,
+          page_size: 100,
+          ...(startCursor ? { start_cursor: startCursor } : {}),
+        });
+
+        for (const block of blocks.results) {
+          if (!('type' in block)) continue;
+
+          if (block.type === 'bulleted_list_item') {
+            if (pendingArticle) articles.push(pendingArticle);
+            pendingArticle = {
+              title: blockText(block, 'bulleted_list_item'),
+              url: blockLink(block, 'bulleted_list_item'),
+              source: '',
+              publishedAt: '',
+            };
+          } else if (block.type === 'paragraph' && pendingArticle) {
+            const metadata = blockText(block, 'paragraph');
+            const [source = '', publishedAt = ''] = metadata.split(' · ');
+            pendingArticle.source = source;
+            pendingArticle.publishedAt = publishedAt;
+            articles.push(pendingArticle);
+            pendingArticle = null;
+          }
+        }
+
+        startCursor = blocks.has_more && blocks.next_cursor
+          ? blocks.next_cursor
+          : undefined;
+      } while (startCursor);
+
+      if (pendingArticle) articles.push(pendingArticle);
+
+      return {
+        id: page.id,
+        title: titleProp(page.properties, NEWSLETTER_PROPS.title),
+        issueNumber: numberProp(page.properties, NEWSLETTER_PROPS.issueNumber),
+        publishedAt: dateProp(page.properties, NEWSLETTER_PROPS.publishedAt),
+        summary: richTextProp(page.properties, NEWSLETTER_PROPS.summary),
+        pdfUrl: urlProp(page.properties, NEWSLETTER_PROPS.pdfUrl),
+        articles: articles.filter((article) => article.title && article.url),
+      };
+    } catch (e) {
+      console.error('[Notion] getNewsletterDetail:', e);
+      return null;
+    }
+  },
 );
 
 export const getStatsList = unstable_cache(

@@ -4,20 +4,17 @@ import Footer from '@/components/layout/Footer';
 import LivingLabHero from '@/components/livinglab/LivingLabHero';
 import LivingLabAnchorNav from '@/components/livinglab/LivingLabAnchorNav';
 import OverviewCards from '@/components/livinglab/OverviewCards';
-import KpiDashboard from '@/components/livinglab/KpiDashboard';
 import ProblemBank from '@/components/livinglab/ProblemBank';
 import LivingLabProcess from '@/components/livinglab/LivingLabProcess';
 import RecoveryJourney from '@/components/livinglab/RecoveryJourney';
 import ExperimentCases from '@/components/livinglab/ExperimentCases';
 import PartnerEcosystem from '@/components/livinglab/PartnerEcosystem';
-import ServicePackages from '@/components/livinglab/ServicePackages';
 import LivingLabFaq from '@/components/livinglab/LivingLabFaq';
 import LivingLabCta from '@/components/livinglab/LivingLabCta';
 import {
   livingLabData,
   problemCategories,
   publicExperiments,
-  publicKpis,
   publicProblems,
 } from '@/data/livinglab';
 
@@ -43,27 +40,15 @@ export default function LivingLabPage() {
   return (
     <>
       <Header />
-      <main>
-        <LivingLabHero {...livingLabData.hero} inquiryHref={institutionInquiryHref} />
+      <main id="livinglab-main" className="[&_h1]:break-keep [&_h2]:break-keep [&_h3]:break-keep [&_p]:break-keep [&_dd]:break-keep">
+        <LivingLabHero {...livingLabData.hero} />
         <LivingLabAnchorNav items={livingLabData.anchorItems} />
         <OverviewCards items={livingLabData.overview} />
-        <KpiDashboard
-          publicKpis={publicKpis}
-          pendingKpis={livingLabData.kpis}
-          stages={livingLabData.outcomeStages}
-          dataNote={livingLabData.meta.dataNote}
-          updatedAt={livingLabData.meta.updatedAt}
-        />
         <ProblemBank categories={problemCategories} problems={publicProblems} />
         <LivingLabProcess steps={livingLabData.livingLabSteps} />
         <RecoveryJourney steps={livingLabData.recoverySteps} />
         <ExperimentCases cases={publicExperiments} />
         <PartnerEcosystem partners={livingLabData.partners} />
-        <ServicePackages
-          packages={livingLabData.packages}
-          inquiryEmail={livingLabData.inquiry.institutionEmail}
-          inquirySubject={livingLabData.inquiry.institutionSubject}
-        />
         <LivingLabFaq items={livingLabData.faqs} />
         <LivingLabCta
           inquiryHref={institutionInquiryHref}

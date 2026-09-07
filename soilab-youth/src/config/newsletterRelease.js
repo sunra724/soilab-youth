@@ -1,0 +1,1 @@
+export const NEWSLETTER_PUBLIC_RELEASE = '2026-07-29-r9';

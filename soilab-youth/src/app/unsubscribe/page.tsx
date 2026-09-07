@@ -1,11 +1,19 @@
 import type { Metadata } from 'next';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import { pageMetadata } from '@/lib/metadata';
 import UnsubscribeForm from './UnsubscribeForm';
 
 export const metadata: Metadata = {
-  title: '뉴스레터 수신거부',
-  description: '소이랩 뉴스레터 수신거부를 처리합니다.',
+  ...pageMetadata({
+    path: '/unsubscribe',
+    title: '뉴스레터 수신거부',
+    description: '소이랩 뉴스레터 수신거부를 처리합니다.',
+    siteName: '다시봄 뉴스클리핑',
+    image: '/newsletter/opengraph-image',
+  }),
+  robots: { index: false, follow: false },
+  referrer: 'no-referrer',
 };
 
 interface Props {
@@ -40,7 +48,7 @@ export default async function UnsubscribePage({ searchParams }: Props) {
           </div>
         </div>
       </main>
-      <Footer />
+      <Footer newsletterContact />
     </>
   );
 }

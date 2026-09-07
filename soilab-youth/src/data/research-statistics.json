@@ -1,0 +1,210 @@
+{
+  "period": "2025",
+  "checkedAt": "2026-09-07",
+  "fetchedAt": "2026-09-07T05:41:57.021Z",
+  "tables": [
+    {
+      "id": "DT_1SSSP041R",
+      "title": "사회적 관계망",
+      "survey": "사회조사",
+      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1SSSP041R",
+      "note": "집안일 도움 문항은 19세 이상, 이야기 상대 문항은 13세 이상입니다. 전국 연령대별 값과 전체 연령 값의 모집단을 구분해 읽습니다. 서로 다른 문항의 비율을 더해 고립률을 만들지 않습니다.",
+      "rows": [
+        {
+          "region": "전국",
+          "population": "전체 · 19세 이상",
+          "metric": "몸이 아파 집안일을 부탁할 사람이 없음",
+          "value": "24.86",
+          "unit": "%",
+          "updatedAt": "2025-11-07"
+        },
+        {
+          "region": "전국",
+          "population": "전체 · 13세 이상",
+          "metric": "낙심하거나 우울해서 이야기할 상대가 없음",
+          "value": "21.205",
+          "unit": "%",
+          "updatedAt": "2025-11-07"
+        },
+        {
+          "region": "전국",
+          "population": "19~29세",
+          "metric": "몸이 아파 집안일을 부탁할 사람이 없음",
+          "value": "19.651",
+          "unit": "%",
+          "updatedAt": "2025-11-07"
+        },
+        {
+          "region": "전국",
+          "population": "19~29세",
+          "metric": "낙심하거나 우울해서 이야기할 상대가 없음",
+          "value": "15.172",
+          "unit": "%",
+          "updatedAt": "2025-11-07"
+        },
+        {
+          "region": "전국",
+          "population": "30~39세",
+          "metric": "몸이 아파 집안일을 부탁할 사람이 없음",
+          "value": "20.372",
+          "unit": "%",
+          "updatedAt": "2025-11-07"
+        },
+        {
+          "region": "전국",
+          "population": "30~39세",
+          "metric": "낙심하거나 우울해서 이야기할 상대가 없음",
+          "value": "16.713",
+          "unit": "%",
+          "updatedAt": "2025-11-07"
+        },
+        {
+          "region": "대구",
+          "population": "전체 · 19세 이상",
+          "metric": "몸이 아파 집안일을 부탁할 사람이 없음",
+          "value": "19.738",
+          "unit": "%",
+          "updatedAt": "2025-11-07"
+        },
+        {
+          "region": "대구",
+          "population": "전체 · 13세 이상",
+          "metric": "낙심하거나 우울해서 이야기할 상대가 없음",
+          "value": "20.276",
+          "unit": "%",
+          "updatedAt": "2025-11-07"
+        }
+      ]
+    },
+    {
+      "id": "DT_1SSSP050R",
+      "title": "외로움",
+      "survey": "사회조사",
+      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1SSSP050R",
+      "note": "13세 이상 인구의 외로움 응답입니다. 전국 연령 구간은 20~29세·30~39세로 관계망 표와 다릅니다. 이번 확인 범위는 2025년이며, 이전 연도 추세를 이 표에서 추정하지 않습니다.",
+      "rows": [
+        {
+          "region": "전국",
+          "population": "전체 · 13세 이상",
+          "metric": "외로움을 자주 느낌",
+          "value": "4.711",
+          "unit": "%",
+          "updatedAt": "2025-11-10"
+        },
+        {
+          "region": "전국",
+          "population": "전체 · 13세 이상",
+          "metric": "외로움을 가끔 느낌",
+          "value": "33.507",
+          "unit": "%",
+          "updatedAt": "2025-11-10"
+        },
+        {
+          "region": "전국",
+          "population": "20~29세",
+          "metric": "외로움을 자주 느낌",
+          "value": "3.475",
+          "unit": "%",
+          "updatedAt": "2025-11-10"
+        },
+        {
+          "region": "전국",
+          "population": "20~29세",
+          "metric": "외로움을 가끔 느낌",
+          "value": "28.764",
+          "unit": "%",
+          "updatedAt": "2025-11-10"
+        },
+        {
+          "region": "전국",
+          "population": "30~39세",
+          "metric": "외로움을 자주 느낌",
+          "value": "4.311",
+          "unit": "%",
+          "updatedAt": "2025-11-10"
+        },
+        {
+          "region": "전국",
+          "population": "30~39세",
+          "metric": "외로움을 가끔 느낌",
+          "value": "29.49",
+          "unit": "%",
+          "updatedAt": "2025-11-10"
+        },
+        {
+          "region": "대구",
+          "population": "전체 · 13세 이상",
+          "metric": "외로움을 자주 느낌",
+          "value": "3.743",
+          "unit": "%",
+          "updatedAt": "2025-11-10"
+        },
+        {
+          "region": "대구",
+          "population": "전체 · 13세 이상",
+          "metric": "외로움을 가끔 느낌",
+          "value": "28.486",
+          "unit": "%",
+          "updatedAt": "2025-11-10"
+        }
+      ]
+    },
+    {
+      "id": "DT_417001_0035",
+      "title": "사회적 고립감",
+      "survey": "사회통합실태조사",
+      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=417&tblId=DT_417001_0035",
+      "note": "19세 이상 인구의 문항별 평균입니다. 1~4점 척도이며 높을수록 해당 느낌이 큽니다. 인구 비율이나 진단 기준이 아니며, 두 문항을 합산한 점수가 아닙니다. 이 통계표에는 대구 지역 구분이 없습니다.",
+      "rows": [
+        {
+          "region": "전국",
+          "population": "전체 · 19세 이상",
+          "metric": "외롭다고 느끼는 정도",
+          "value": "1.7",
+          "unit": "점",
+          "updatedAt": "2026-03-03"
+        },
+        {
+          "region": "전국",
+          "population": "전체 · 19세 이상",
+          "metric": "아무도 자신을 잘 알지 못한다고 느끼는 정도",
+          "value": "1.7",
+          "unit": "점",
+          "updatedAt": "2026-03-03"
+        },
+        {
+          "region": "전국",
+          "population": "19~29세",
+          "metric": "외롭다고 느끼는 정도",
+          "value": "1.6",
+          "unit": "점",
+          "updatedAt": "2026-03-03"
+        },
+        {
+          "region": "전국",
+          "population": "19~29세",
+          "metric": "아무도 자신을 잘 알지 못한다고 느끼는 정도",
+          "value": "1.7",
+          "unit": "점",
+          "updatedAt": "2026-03-03"
+        },
+        {
+          "region": "전국",
+          "population": "30~39세",
+          "metric": "외롭다고 느끼는 정도",
+          "value": "1.6",
+          "unit": "점",
+          "updatedAt": "2026-03-03"
+        },
+        {
+          "region": "전국",
+          "population": "30~39세",
+          "metric": "아무도 자신을 잘 알지 못한다고 느끼는 정도",
+          "value": "1.6",
+          "unit": "점",
+          "updatedAt": "2026-03-03"
+        }
+      ]
+    }
+  ]
+}

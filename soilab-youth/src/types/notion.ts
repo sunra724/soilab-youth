@@ -18,6 +18,17 @@ export interface Newsletter {
   pdfUrl: string;
 }
 
+export interface NewsletterArticle {
+  title: string;
+  url: string;
+  source: string;
+  publishedAt: string;
+}
+
+export interface NewsletterDetail extends Newsletter {
+  articles: NewsletterArticle[];
+}
+
 export interface StatItem {
   id: string;
   name: string;

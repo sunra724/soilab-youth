@@ -1,6 +1,33 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: process.cwd(),
+  },
+  async redirects() {
+    return [
+      {
+        source: '/csr',
+        destination: 'https://csr.soilab-youth.kr',
+        permanent: true,
+      },
+      {
+        source: '/csr/:path*',
+        destination: 'https://csr.soilab-youth.kr/:path*',
+        permanent: true,
+      },
+      {
+        source: '/morning/:path*',
+        destination: 'https://csr.soilab-youth.kr/morning/:path*',
+        permanent: true,
+      },
+      {
+        source: '/impact/:path*',
+        destination: 'https://csr.soilab-youth.kr/impact/:path*',
+        permanent: true,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "www.notion.so" },

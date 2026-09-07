@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { label: '소개', href: '/#about' },
   { label: '사업', href: '/#programs' },
   { label: '리빙랩', href: '/livinglab' },
+  { label: '정책·연구', href: '/research' },
   { label: '성과', href: '/#stats' },
   { label: '소식', href: '/cardnews' },
   { label: '뉴스레터', href: '/newsletter' },
@@ -32,6 +33,7 @@ export default function Header() {
   const contactLabel = isNewsletterRoute ? '뉴스레터 문의' : '사업·협력 문의';
 
   const isCurrent = (href: string) => {
+    if (href === '/research') return pathname.startsWith('/research');
     if (href === '/livinglab') return pathname === '/livinglab';
     if (href === '/cardnews') return pathname.startsWith('/cardnews');
     if (href === '/newsletter') return pathname.startsWith('/newsletter');

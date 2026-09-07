@@ -28,6 +28,7 @@ export interface ProblemCard {
   nextAction?: string;
   evidenceLevel: EvidenceLevel;
   status: PublicationStatus;
+  reading?: { title: string; href: string };
 }
 
 export interface LivingLabStep {
@@ -177,22 +178,23 @@ const kpis: KpiItem[] = [
 const problems: ProblemCard[] = [
   {
     id: 'low-contact-entry',
-    title: '상담 신청 자체가 높은 진입장벽이다',
+    title: '첫 문의를 더 편하게 시작하려면?',
     category: '비대면 초기접촉',
-    barrier: '전화통화, 방문상담, 긴 신청서와 즉시 신분 공개가 첫 접촉을 어렵게 만듭니다.',
+    barrier: '전화통화, 방문상담, 긴 신청서와 신분 공개가 첫 접촉에 부담이 될 수 있습니다.',
     userNeed: '별칭·문자·온라인 등 부담이 낮은 방식으로 시작할 선택권이 필요합니다.',
     hypothesis: '접촉 방식 선택권을 제공하면 초기상담 전환이 높아질 수 있습니다.',
     prototype: '간편 문의, 응답방식 선택, 기관 추천경로',
     metrics: ['문의 수', '첫 응답률', '상담 전환율', '재접촉률'],
     nextAction: '기관별 초기응대 시간과 채널 선택 범위를 함께 정의합니다.',
+    reading: { title: '첫 연결을 이어가는 연구노트', href: '/research/notes/outreach-to-first-connection' },
     evidenceLevel: 'hypothesis',
     status: 'approved',
   },
   {
     id: 'daily-life-foundation',
-    title: '프로그램 참여 이전에 일상 기반이 무너져 있다',
+    title: '일상의 작은 활동부터 시작할 수 있을까?',
     category: '일상생활 회복',
-    barrier: '불규칙한 수면·식사·위생·외출로 정해진 프로그램 참여가 어렵습니다.',
+    barrier: '수면·식사·외출 등 일상의 어려움이 정해진 시간의 프로그램 참여에 부담이 될 수 있습니다.',
     userNeed: '취업교육보다 먼저 선택할 수 있는 작은 일상활동이 필요합니다.',
     hypothesis: '저강도 개인활동이 참여 지속에 도움을 줄 수 있습니다.',
     prototype: '오늘의 체크인, 선택형 활동카드',
@@ -203,7 +205,7 @@ const problems: ProblemCard[] = [
   },
   {
     id: 'consistent-contact-person',
-    title: '여러 담당자와 반복적으로 관계를 맺는 것이 어렵다',
+    title: '믿고 연락할 담당자를 꾸준히 만날 수 있을까?',
     category: '사회적 관계',
     barrier: '기관마다 초기상담을 반복하고 담당자가 바뀌면서 관계 형성의 부담이 커집니다.',
     userNeed: '믿고 연락할 수 있는 한 명의 지속적인 접점이 필요합니다.',
@@ -211,12 +213,12 @@ const problems: ProblemCard[] = [
     prototype: '전담매니저, 선호 연락방식·빈도 기록',
     metrics: ['첫 연결 유지율', '중도이탈률', '도움 요청 가능 여부'],
     nextAction: '기관 간 인계 시 접점 연속성을 지키는 최소 절차를 정리합니다.',
-    evidenceLevel: 'observed',
+    evidenceLevel: 'hypothesis',
     status: 'approved',
   },
   {
     id: 'family-guidance',
-    title: '가족도 어떻게 도와야 할지 알기 어렵다',
+    title: '가족이 도움을 구할 경로는 충분할까?',
     category: '가족관계',
     barrier: '과잉개입, 갈등, 소진과 정보 부족이 당사자와 가족 모두의 부담을 키웁니다.',
     userNeed: '당사자 지원과 구분되는 가족 안내와 상담이 필요합니다.',
@@ -224,12 +226,13 @@ const problems: ProblemCard[] = [
     prototype: '가족교육, 별도상담, 행동 가이드',
     metrics: ['가족 프로그램 참여', '갈등 체감 변화', '서비스 연계'],
     nextAction: '당사자의 선택과 개인정보를 보호하는 가족지원 원칙을 구체화합니다.',
+    reading: { title: '가족의 첫 문의를 다룬 연구노트', href: '/research/notes/family-first-inquiry' },
     evidenceLevel: 'hypothesis',
     status: 'approved',
   },
   {
     id: 'fragmented-services',
-    title: '서비스가 기관별로 분절되어 있다',
+    title: '기관을 옮겨도 지원이 이어지려면?',
     category: '기관 간 연계',
     barrier: '심리·주거·채무·고용 서비스를 각각 찾아야 하고 연계 이후 상태 확인이 어렵습니다.',
     userNeed: '한 번의 초기접촉 뒤 필요한 기관으로 끊김 없이 연결되어야 합니다.',
@@ -237,12 +240,12 @@ const problems: ProblemCard[] = [
     prototype: '지역자원표, 표준 의뢰서, 회송 상태관리',
     metrics: ['의뢰 건수', '접수율', '실제 이용률', '회송 완료율'],
     nextAction: '개인정보를 최소화한 기관 간 의뢰·회송 항목을 합의합니다.',
-    evidenceLevel: 'observed',
+    evidenceLevel: 'hypothesis',
     status: 'approved',
   },
   {
     id: 'housing-and-finance',
-    title: '주거와 경제 문제가 회복 참여를 방해한다',
+    title: '생활의 어려움과 회복 지원을 함께 살피려면?',
     category: '주거·경제',
     barrier: '임시거처, 주소 불일치, 채무와 생계 불안이 참여를 지속하기 어렵게 합니다.',
     userNeed: '회복 프로그램과 기본생활 지원이 함께 연결되어야 합니다.',
@@ -255,7 +258,7 @@ const problems: ProblemCard[] = [
   },
   {
     id: 'first-step-outside',
-    title: '집 밖 활동의 첫 단계가 너무 크다',
+    title: '집 밖 첫 활동의 부담을 낮추려면?',
     category: '사회적 관계',
     barrier: '단체 프로그램, 낯선 장소와 장시간 활동이 첫 외출의 부담을 높입니다.',
     userNeed: '짧고 반복 가능하며 선택할 수 있는 외부활동이 필요합니다.',
@@ -268,7 +271,7 @@ const problems: ProblemCard[] = [
   },
   {
     id: 'multidimensional-outcomes',
-    title: '회복의 성과를 취업 여부 하나로 판단하기 어렵다',
+    title: '일상과 관계의 변화를 어떻게 기록할까?',
     category: '교육·일경험',
     barrier: '취업 중심 평가는 일상과 관계에서 생긴 작은 변화를 누락합니다.',
     userNeed: '일상·신뢰·도움요청·참여의 변화도 성과로 인정되어야 합니다.',
@@ -276,6 +279,7 @@ const problems: ProblemCard[] = [
     prototype: '다차원 성과지표와 변화기록',
     metrics: ['일상회복', '관계회복', '서비스 이용', '교육·일경험 전환'],
     nextAction: '성과 정의와 측정 시점을 당사자·기관과 공동설계합니다.',
+    reading: { title: '회복 기록을 검토하는 연구노트', href: '/research/notes/everyday-recovery-outcomes' },
     evidenceLevel: 'hypothesis',
     status: 'approved',
   },
@@ -285,50 +289,50 @@ const livingLabSteps: LivingLabStep[] = [
   {
     id: 'discover',
     order: 1,
-    title: '발견',
-    description: '기다리는 상담을 넘어 청년이 선택할 수 있는 낮은 부담의 접점을 만듭니다.',
-    activities: ['온라인 접점', '가족·기관 추천', '지역거점 발굴'],
-    deliverables: ['발굴경로 분석'],
+    title: '경험 듣기',
+    description: '청년이 편한 방식으로 필요한 도움과 일상에서 겪는 어려움을 이야기할 수 있게 합니다.',
+    activities: ['편한 대화 방식 정하기', '청년·가족·실무자의 경험 듣기'],
+    deliverables: ['경험과 접점 기록'],
   },
   {
     id: 'define',
     order: 2,
-    title: '문제 정의',
-    description: '개인보다 지원체계의 장벽을 먼저 살피고 해결할 문제를 구조화합니다.',
-    activities: ['청년·가족·실무자 인터뷰', '서비스 여정 분석'],
-    deliverables: ['지역 문제은행'],
+    title: '질문 정리하기',
+    description: '도움을 구하고 이용하는 과정에서 어디가 어려웠는지 함께 살펴봅니다.',
+    activities: ['지원 이용 과정 살펴보기', '먼저 바꾸고 싶은 일 찾기'],
+    deliverables: ['함께 해결할 질문'],
   },
   {
     id: 'codesign',
     order: 3,
-    title: '공동설계',
-    description: '당사자와 현장기관이 함께 우선과제와 검증 방법을 정합니다.',
-    activities: ['당사자 참여 워크숍', '우선과제 선정'],
-    deliverables: ['실증 가설'],
+    title: '함께 설계하기',
+    description: '무엇을 시도할지, 어떤 변화를 살펴볼지 청년과 현장기관이 함께 정합니다.',
+    activities: ['참여 방식과 범위 정하기', '예상 변화와 확인 방법 정하기'],
+    deliverables: ['함께 정한 실험 계획'],
   },
   {
     id: 'prototype',
     order: 4,
-    title: '프로토타입',
-    description: '가장 작은 실행 단위로 접점과 활동을 빠르게 만들어 봅니다.',
-    activities: ['비대면 접촉', '활동카드', '담당자 연결'],
-    deliverables: ['최소기능 서비스'],
+    title: '작게 시도하기',
+    description: '연락 방법이나 짧은 활동처럼 부담이 적은 시도부터 시작합니다.',
+    activities: ['작은 활동·서비스 시안 만들기', '참여자의 경험 듣기'],
+    deliverables: ['시도한 방법과 참여 경험'],
   },
   {
     id: 'field-test',
     order: 5,
-    title: '현장 실증',
-    description: '현장 운영 중에도 관찰하고 배우며 실행 방식을 조정합니다.',
-    activities: ['6~12주 운영', '참여관찰', '중간개선'],
-    deliverables: ['실증 데이터'],
+    title: '함께 살펴보기',
+    description: '편해진 점과 어려웠던 점을 듣고, 계속할지 바꿀지 함께 판단합니다.',
+    activities: ['정한 기간 동안 변화 기록', '중간에 돌아보고 방법 조정'],
+    deliverables: ['변화와 개선 기록'],
   },
   {
     id: 'evaluate',
     order: 6,
-    title: '평가·확산',
-    description: '변화와 한계를 함께 기록해 다음 지역에서 활용할 수 있는 모델로 정리합니다.',
-    activities: ['변화측정', '정책과제 도출', '지역 적용안 설계'],
-    deliverables: ['성과보고서', '확산모델'],
+    title: '배운 점 나누기',
+    description: '확인한 변화와 한계를 정리하고 다음에 시도할 방법을 남깁니다.',
+    activities: ['청년·실무자와 함께 돌아보기', '다음 실험과 지역 적용 검토'],
+    deliverables: ['배운 점', '다음 시도'],
   },
 ];
 
@@ -456,9 +460,9 @@ const packages: ServicePackage[] = [
 
 export const livingLabData = {
   meta: {
-    title: '고립·은둔청년 리빙랩 실증·성과 대시보드 | 협동조합 소이랩',
+    title: '청년과 함께 일상회복의 방법을 찾는 리빙랩 | 협동조합 소이랩',
     description:
-      '비대면 발굴부터 단계별 일상회복, 관계회복, 사회참여까지 청년과 지역이 함께 설계하고 실증하는 협동조합 소이랩의 고립·은둔청년 리빙랩 모델입니다.',
+      '청년의 경험과 현장의 질문에서 시작해 작은 실험을 함께 설계하고, 일상과 관계의 변화에서 배운 점을 기록하는 소이랩의 리빙랩을 소개합니다.',
     canonicalUrl: 'https://www.soilab-youth.kr/livinglab',
     updatedAt: '공개 데이터 승인 후 입력',
     dataNote:
@@ -466,25 +470,24 @@ export const livingLabData = {
   },
   hero: {
     eyebrow: 'SOILAB YOUTH LIVING LAB',
-    title: '고립·은둔청년을 기다리지 않고 발견합니다',
+    title: '청년과 함께,\n일상회복의 방법을\n찾고 실험합니다',
     description:
-      '비대면 접점에서 시작해 당사자와 함께 문제를 정의하고, 일상회복·관계회복·사회참여까지 지역 안에서 실증합니다.',
-    audience: '지자체·공공기관·복지기관·기업을 위한 실증사업 안내 페이지입니다.',
+      '처음 도움을 구하는 순간부터 일상의 작은 변화까지. 청년이 겪는 어려움을 함께 듣고, 부담이 적은 시도를 통해 지원 방법을 다듬습니다.',
+    audience: '청년의 경험에서 질문을 찾고, 현장과 함께 방법을 만듭니다.',
   },
   overview: [
-    { label: '대상', text: '고립·은둔 상태에 있거나 사회적 연결이 약화된 청년' },
-    { label: '방식', text: '비대면 발굴 + 당사자 공동설계 + 단계별 현장 실증' },
-    { label: '지역', text: '지자체·지역기관과 협력하는 지역 맞춤형 모델' },
-    { label: '산출물', text: '문제지도·실증모델·성과대시보드·정책 및 확산안' },
+    { label: '함께하는 사람', text: '청년·가족·현장 실무자와 지역기관' },
+    { label: '출발점', text: '청년이 경험한 어려움과 바꾸고 싶은 일' },
+    { label: '진행 방식', text: '경험 듣기 → 공동설계 → 작은 시도 → 돌아보기' },
+    { label: '남기는 기록', text: '시도한 방법, 확인한 변화, 배운 점과 다음 질문' },
   ],
   anchorItems: [
-    { label: '성과', href: '#outcomes' },
-    { label: '문제은행', href: '#problem-bank' },
-    { label: '방법론', href: '#method' },
-    { label: '회복모델', href: '#recovery' },
-    { label: '실증사례', href: '#experiments' },
-    { label: '도입패키지', href: '#packages' },
-    { label: '문의', href: '#contact' },
+    { label: '리빙랩 소개', href: '#overview' },
+    { label: '현장의 질문', href: '#problem-bank' },
+    { label: '함께하는 과정', href: '#method' },
+    { label: '회복의 변화', href: '#recovery' },
+    { label: '기록과 배움', href: '#experiments' },
+    { label: '연결·문의', href: '#contact' },
   ],
   kpis,
   outcomeStages: ['발굴', '등록', '지속참여', '서비스 연계', '사회참여'],
@@ -506,25 +509,25 @@ export const livingLabData = {
   faqs: [
     {
       id: 'counseling-treatment',
-      question: '이 사업은 상담·치료사업인가요?',
+      question: '리빙랩에서는 무엇을 하나요?',
       answer:
-        '소이랩의 역할은 발굴, 관계형성, 일상회복 활동, 지역자원 연계와 리빙랩 운영입니다. 전문적인 심리·의료 지원이 필요한 경우 해당 기관과 연계합니다.',
+        '청년이 지원을 이용하며 겪는 어려움을 듣고, 청년·가족·실무자가 함께 개선할 방법을 설계합니다. 작은 시도를 통해 확인한 변화와 참여 경험을 다음 지원 방식에 반영하는 과정입니다.',
     },
     {
       id: 'regional-context',
-      question: '지역마다 다른 여건을 반영할 수 있나요?',
+      question: '청년은 어떤 방식으로 함께하나요?',
       answer:
-        '지역 자원, 청년 특성, 기존 전달체계를 먼저 진단하고 당사자·기관과 함께 실증과제를 설계합니다.',
+        '경험을 이야기하거나 아이디어를 나누고, 직접 시도한 방법을 평가하는 등 여러 참여 방식을 검토할 수 있습니다. 실제 참여 방식·기간·모집 여부는 개별 실험을 안내할 때 확인합니다.',
     },
     {
       id: 'privacy',
-      question: '개인정보는 공개 대시보드에 표시되나요?',
-      answer: '공개 페이지에는 개인을 식별할 수 없는 승인된 집계자료만 표시합니다.',
+      question: '어떤 내용을 기록하고 공개하나요?',
+      answer: '함께 정한 질문, 시도한 방법, 확인한 변화와 배운 점을 기록합니다. 개인을 알아볼 수 있는 상담 내용은 공개하지 않고, 동의와 공개 범위를 확인한 기록을 공유합니다.',
     },
     {
       id: 'duration',
-      question: '실증기간은 얼마나 필요한가요?',
-      answer: '문제진단은 4~8주, 현장 실증은 통상 8~12주를 기본으로 하되 사업범위에 따라 조정합니다.',
+      question: '지원 프로그램이나 상담은 어디서 알아보나요?',
+      answer: '이 페이지는 리빙랩의 진행 방식을 소개합니다. 지원 프로그램은 상단 사업 메뉴에서, 대구 지역의 상담 문의처와 신청 전 확인사항은 정책·연구의 지원 안내에서 볼 수 있습니다.',
     },
     {
       id: 'corporate-participation',
@@ -535,7 +538,7 @@ export const livingLabData = {
   inquiry: {
     institutionEmail: 'soilabcoop@gmail.com',
     institutionSubject: '[리빙랩 실증사업 문의]',
-    supportHref: '/#contact',
+    supportHref: '/research/support',
     phone: '053-941-9003',
   },
 };

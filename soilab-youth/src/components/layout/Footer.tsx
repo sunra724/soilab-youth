@@ -30,6 +30,7 @@ export default function Footer({
             <ul className="space-y-2 text-sm">
               <li><Link href="/#about" className="hover:text-white transition-colors">소이랩 소개</Link></li>
               <li><Link href="/#programs" className="hover:text-white transition-colors">주요 사업</Link></li>
+              <li><Link href="/research" className="hover:text-white transition-colors">청년 정책·연구</Link></li>
               <li>
                 <a
                   href="https://csr.soilab-youth.kr"

@@ -1,6 +1,18 @@
 {
   "crons": [
     {
+      "path": "/api/research/daily",
+      "schedule": "0 22 * * *"
+    },
+    {
+      "path": "/api/research/sync?provider=law",
+      "schedule": "0 21 * * *"
+    },
+    {
+      "path": "/api/research/sync?provider=nkis",
+      "schedule": "15 21 * * 0"
+    },
+    {
       "path": "/api/collect-news",
       "schedule": "50 22 * * *"
     },

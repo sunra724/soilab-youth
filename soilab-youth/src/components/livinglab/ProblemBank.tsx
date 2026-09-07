@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import type { EvidenceLevel, ProblemCard } from '@/data/livinglab';
 import SectionHeading from './SectionHeading';
 
@@ -31,12 +32,12 @@ export default function ProblemBank({ categories, problems }: ProblemBankProps) 
         <SectionHeading
           id="problem-bank-title"
           eyebrow="PROBLEM BANK"
-          title="고립·은둔청년 문제은행"
-          description="개인의 문제가 아니라, 지원에 도달하기 어렵게 만드는 지역의 장벽을 찾습니다. 상담기록이나 개인 사례가 아닌 서비스 장벽·실증 가설·개선 방향을 구조화한 데이터입니다."
+          title="지금 살펴보는 현장의 질문"
+          description="처음 도움을 구하는 순간부터 일상과 관계의 변화까지, 함께 검토할 질문을 모았습니다. 아래의 가설과 활동은 실험을 설계하기 위한 제안입니다. 실제 운영 결과가 쌓이면 배운 점을 함께 기록합니다."
         />
 
-        <div className="mt-8 flex flex-wrap gap-2" role="group" aria-label="문제은행 분류 필터">
-          {categories.map((category) => {
+        <div className="mt-8 flex flex-wrap gap-2" role="group" aria-label="현장 질문 분류 필터">
+          {categories.filter(category => category === '전체' || problems.some(problem => problem.category === category)).map((category) => {
             const selected = category === selectedCategory;
             return (
               <button
@@ -62,7 +63,7 @@ export default function ProblemBank({ categories, problems }: ProblemBankProps) 
 
         {filteredProblems.length === 0 ? (
           <div className="mt-6 rounded-2xl border border-dashed border-gray-300 bg-cream px-6 py-12 text-center">
-            <p className="font-semibold text-gray-700">이 분류의 공개 승인 문제카드가 아직 없습니다.</p>
+            <p className="font-semibold text-gray-700">이 주제의 질문을 준비하고 있습니다.</p>
             <p className="mt-2 text-sm text-gray-500">다른 분류를 선택해 주세요.</p>
           </div>
         ) : (
@@ -80,17 +81,17 @@ export default function ProblemBank({ categories, problems }: ProblemBankProps) 
                 <h3 className="mt-4 text-lg font-bold leading-7 text-gray-950">{problem.title}</h3>
                 <dl className="mt-5 space-y-4 text-sm">
                   <div>
-                    <dt className="font-bold text-gray-800">발견한 장벽</dt>
+                    <dt className="font-bold text-gray-800">살펴볼 어려움</dt>
                     <dd className="mt-1 leading-6 text-gray-600">{problem.barrier}</dd>
                   </div>
                   <div>
-                    <dt className="font-bold text-gray-800">당사자 관점의 요구</dt>
+                    <dt className="font-bold text-gray-800">함께 확인할 필요</dt>
                     <dd className="mt-1 leading-6 text-gray-600">{problem.userNeed}</dd>
                   </div>
                 </dl>
                 <details className="mt-5 border-t border-gray-100 pt-3">
                   <summary className="min-h-11 cursor-pointer py-2 text-sm font-bold text-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy">
-                    가설과 측정 방법 보기
+                    시도할 방법과 기록 보기
                   </summary>
                   <dl className="space-y-4 pb-1 pt-3 text-sm">
                     <div>
@@ -98,11 +99,11 @@ export default function ProblemBank({ categories, problems }: ProblemBankProps) 
                       <dd className="mt-1 leading-6 text-gray-600">{problem.hypothesis}</dd>
                     </div>
                     <div>
-                      <dt className="font-bold text-gray-800">프로토타입</dt>
+                      <dt className="font-bold text-gray-800">작게 시도할 방법</dt>
                       <dd className="mt-1 leading-6 text-gray-600">{problem.prototype}</dd>
                     </div>
                     <div>
-                      <dt className="font-bold text-gray-800">측정지표</dt>
+                      <dt className="font-bold text-gray-800">기록해 볼 내용</dt>
                       <dd className="mt-2 flex flex-wrap gap-2">
                         {problem.metrics.map((metric) => (
                           <span key={metric} className="rounded-md bg-cream px-2 py-1 text-xs text-gray-600">
@@ -119,6 +120,7 @@ export default function ProblemBank({ categories, problems }: ProblemBankProps) 
                     )}
                   </dl>
                 </details>
+                {problem.reading && <Link href={problem.reading.href} className="mt-5 text-sm leading-6 font-semibold text-navy underline underline-offset-4">{problem.reading.title} →</Link>}
               </article>
             ))}
           </div>

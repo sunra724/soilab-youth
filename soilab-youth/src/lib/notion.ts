@@ -54,14 +54,22 @@ function numberProp(props: any, key: string): number {
 export const getCardNewsList = unstable_cache(
   async (): Promise<CardNews[]> => {
     try {
-      const res = await notion.dataSources.query({
-        data_source_id: process.env.NOTION_CARDNEWS_COLLECTION!,
-        filter: { property: CARDNEWS_PROPS.isPublic, checkbox: { equals: true } },
-        sorts: [{ property: CARDNEWS_PROPS.publishedAt, direction: 'descending' }],
-      });
+      const pages = [];
+      let startCursor: string | undefined;
+      do {
+        const res = await notion.dataSources.query({
+          data_source_id: process.env.NOTION_CARDNEWS_COLLECTION!,
+          page_size: 100,
+          filter: { property: CARDNEWS_PROPS.isPublic, checkbox: { equals: true } },
+          sorts: [{ property: CARDNEWS_PROPS.publishedAt, direction: 'descending' }],
+          ...(startCursor ? { start_cursor: startCursor } : {}),
+        });
+        pages.push(...res.results);
+        startCursor = res.has_more && res.next_cursor ? res.next_cursor : undefined;
+      } while (startCursor);
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return res.results.map((page: any) => ({
+      return pages.map((page: any) => ({
         id: page.id,
         title: titleProp(page.properties, CARDNEWS_PROPS.title),
         category: selectProp(page.properties, CARDNEWS_PROPS.category),

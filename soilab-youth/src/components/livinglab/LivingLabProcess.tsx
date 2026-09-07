@@ -8,8 +8,8 @@ export default function LivingLabProcess({ steps }: { steps: LivingLabStep[] }) 
         <SectionHeading
           id="method-title"
           eyebrow="METHOD"
-          title="소이랩형 리빙랩 6단계"
-          description="발견한 장벽을 당사자·가족·지역기관과 함께 정의하고, 작은 실험에서 지역 확산안까지 이어갑니다."
+          title="질문을 함께 실험하는 과정"
+          description="청년의 경험을 듣고, 시도할 방법과 살펴볼 변화를 함께 정합니다. 실행하면서 알게 된 점에 따라 앞의 질문으로 돌아가거나 방법을 바꿀 수 있습니다."
           centered
         />
 
@@ -34,7 +34,7 @@ export default function LivingLabProcess({ steps }: { steps: LivingLabStep[] }) 
                   <ul className="mt-2 list-disc space-y-1 pl-5 text-gray-600">
                     {step.activities.map((activity) => <li key={activity}>{activity}</li>)}
                   </ul>
-                  <p className="mt-4 font-bold text-gray-800">대표 산출물</p>
+                  <p className="mt-4 font-bold text-gray-800">함께 남길 기록</p>
                   <p className="mt-2 text-gray-600">{step.deliverables.join(' · ')}</p>
                 </div>
               </details>

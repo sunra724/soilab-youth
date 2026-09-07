@@ -14,7 +14,7 @@ export default function LivingLabFaq({ items }: { items: FaqItem[] }) {
           id="faq-title"
           eyebrow="FAQ"
           title="자주 묻는 질문"
-          description="지역 실증사업을 협의하기 전에 많이 확인하는 내용을 정리했습니다."
+          description="함께하는 방식과 기록, 지원 문의에 관한 질문을 정리했습니다."
           centered
         />
 

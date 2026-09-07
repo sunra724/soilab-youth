@@ -1,0 +1,44 @@
+{
+  "checkedAt": "2026-09-07",
+  "status": "preview-only",
+  "period": "2025",
+  "tables": [
+    {
+      "orgId": "101",
+      "tblId": "DT_1SSSP041R",
+      "name": "사회적 관계망 (13세 이상 인구)",
+      "survey": "사회조사",
+      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1SSSP041R",
+      "query": {"objL1": "00+22", "objL2": "000+1929+3039", "itmId": "T12+T32", "prdSe": "F"},
+      "minimumObservedRows": 8,
+      "nationalAgeCodes": ["1929", "3039"],
+      "daeguCode": "22",
+      "totalCode": "000",
+      "note": "전국 19~29세·30~39세와 전국/대구 계를 조회. 집안일 도움 문항은 2011년부터 19세 이상, 이야기 상대 문항은 표의 13세 이상 범위. 대구의 요청 연령별 행은 2025년 응답에 없음. 두 문항의 응답 비율을 더해 고립률을 만들지 않음."
+    },
+    {
+      "orgId": "101",
+      "tblId": "DT_1SSSP050R",
+      "name": "외로움(13세 이상 인구)",
+      "survey": "사회조사",
+      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1SSSP050R",
+      "query": {"objL1": "00+22", "objL2": "000+2029+3039", "itmId": "T20+T30", "prdSe": "F"},
+      "minimumObservedRows": 8,
+      "nationalAgeCodes": ["2029", "3039"],
+      "daeguCode": "22",
+      "totalCode": "000",
+      "note": "전국 20~29세·30~39세와 전국/대구 13세 이상 계를 조회. 대구의 요청 연령별 행은 2025년 응답에 없음. 현재 수록기간 2025년만 확인되어 이 표로 이전 연도 추세를 생성하지 않음."
+    },
+    {
+      "orgId": "417",
+      "tblId": "DT_417001_0035",
+      "name": "사회적 고립감",
+      "survey": "사회통합실태조사",
+      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=417&tblId=DT_417001_0035",
+      "query": {"objL1": "10+4001+4002", "objL2": "A+C", "objL3": "05", "itmId": "T1", "prdSe": "Y"},
+      "minimumObservedRows": 6,
+      "nationalAgeCodes": ["4001", "4002"],
+      "note": "전국 전체·19~29세·30~39세의 외로움/아무도 자신을 잘 알지 못한다는 느낌을 문항별 평균(1~4점)으로 조회. 2020년부터 19세 이상, 2019년까지 19~69세. 선택 표에는 대구 시도 분류가 없음. 평균 점수를 인구 비율이나 하나의 고립 척도로 바꾸지 않음."
+    }
+  ]
+}

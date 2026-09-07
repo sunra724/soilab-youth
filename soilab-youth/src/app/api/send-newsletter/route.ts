@@ -1,12 +1,27 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { Client } from '@notionhq/client';
-import { revalidateTag } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
+import { assessNewsPolicy } from '@/config/keywords';
 import { buildEmailHtml, buildEmailText } from '@/lib/emailTemplate';
-import { createUnsubscribeUrl } from '@/lib/newsletterToken';
-import { listNewsletterRecipients } from '@/lib/resendContacts';
+import { collapseRelatedNews } from '@/lib/newsletterDedupe';
 import {
-  CANDIDATE_CATEGORIES,
+  createSmtpTransporter,
+  mailerMissingConfig,
+  newsletterFrom,
+  newsletterMailTransport,
+  smtpHost,
+  smtpPort,
+  smtpSecure,
+} from '@/lib/newsletterMailer';
+import { recoverResolvedBounceSuppressions } from '@/lib/newsletterSuppression';
+import {
+  createOneClickUnsubscribeUrl,
+  createUnsubscribeUrl,
+} from '@/lib/newsletterToken';
+import { listNewsletterRecipients } from '@/lib/resendContacts';
+import { sendTelegramDigest } from '@/lib/telegram';
+import {
   CANDIDATE_PROPS,
   NEWSLETTER_PROPS,
 } from '@/lib/notionSchema';
@@ -17,7 +32,24 @@ interface SelectedNewsItem {
   url: string;
   source: string;
   summary: string;
+  publishedAt: string;
   category: string;
+}
+
+interface RecentNewsletterEmail {
+  id?: string;
+  createdAt?: string;
+  recipientPreview: string;
+  subject?: string;
+  lastEvent?: string;
+}
+
+interface ResendEmailListItem {
+  id?: string;
+  created_at?: string;
+  to?: string | string[];
+  subject?: string;
+  last_event?: string;
 }
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
@@ -25,6 +57,14 @@ const CANDIDATES_COLLECTION_ID = process.env.NOTION_CANDIDATES_COLLECTION!;
 const NEWSLETTER_DB_ID = process.env.NOTION_NEWSLETTER_DB!;
 const NEWSLETTER_COLLECTION_ID = process.env.NOTION_NEWSLETTER_COLLECTION!;
 const NEWSLETTER_TIME_ZONE = 'Asia/Seoul';
+
+function usesResendContactList() {
+  return Boolean(process.env.RESEND_SEGMENT_ID || process.env.RESEND_AUDIENCE_ID);
+}
+
+function createResendClient() {
+  return process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : undefined;
+}
 
 async function getSelectedItems() {
   const res = await notion.dataSources.query({
@@ -45,6 +85,7 @@ async function getSelectedItems() {
     url: page.properties[CANDIDATE_PROPS.url]?.url ?? '',
     source: page.properties[CANDIDATE_PROPS.source]?.rich_text?.[0]?.plain_text ?? '',
     summary: page.properties[CANDIDATE_PROPS.summary]?.rich_text?.[0]?.plain_text ?? '',
+    publishedAt: page.properties[CANDIDATE_PROPS.collectedAt]?.date?.start ?? '',
     category: page.properties[CANDIDATE_PROPS.category]?.select?.name ?? '기타',
   }));
 }
@@ -56,7 +97,7 @@ async function getAutoSelectableItems(limit: number) {
 
   const res = await notion.dataSources.query({
     data_source_id: CANDIDATES_COLLECTION_ID,
-    page_size: Math.min(limit * 10, 100),
+    page_size: 100,
     filter: {
       and: [
         { property: CANDIDATE_PROPS.isSent, checkbox: { equals: false } },
@@ -74,10 +115,54 @@ async function getAutoSelectableItems(limit: number) {
       url: page.properties[CANDIDATE_PROPS.url]?.url ?? '',
       source: page.properties[CANDIDATE_PROPS.source]?.rich_text?.[0]?.plain_text ?? '',
       summary: page.properties[CANDIDATE_PROPS.summary]?.rich_text?.[0]?.plain_text ?? '',
+      publishedAt: page.properties[CANDIDATE_PROPS.collectedAt]?.date?.start ?? '',
       category: page.properties[CANDIDATE_PROPS.category]?.select?.name ?? '기타',
     }));
 
-  return prioritizeAutoSelectableItems(candidates, limit);
+  const publishedUrls = await getPublishedArchiveUrls();
+  return prioritizeAutoSelectableItems(
+    candidates.filter((candidate) => !publishedUrls.has(candidate.url)),
+    limit,
+  );
+}
+
+async function getPublishedArchiveUrls() {
+  const urls = new Set<string>();
+  const archives = await notion.dataSources.query({
+    data_source_id: NEWSLETTER_COLLECTION_ID,
+    page_size: 30,
+    filter: {
+      property: NEWSLETTER_PROPS.isPublic,
+      checkbox: { equals: true },
+    },
+    sorts: [{ property: NEWSLETTER_PROPS.publishedAt, direction: 'descending' }],
+  });
+
+  await Promise.all(archives.results.map(async (archive) => {
+    let startCursor: string | undefined;
+
+    do {
+      const blocks = await notion.blocks.children.list({
+        block_id: archive.id,
+        page_size: 100,
+        ...(startCursor ? { start_cursor: startCursor } : {}),
+      });
+
+      for (const block of blocks.results) {
+        if (!('type' in block) || block.type !== 'bulleted_list_item') continue;
+        const href = block.bulleted_list_item.rich_text.find(
+          (text) => text.href,
+        )?.href;
+        if (href) urls.add(href);
+      }
+
+      startCursor = blocks.has_more && blocks.next_cursor
+        ? blocks.next_cursor
+        : undefined;
+    } while (startCursor);
+  }));
+
+  return urls;
 }
 
 async function markAsSelected(pageIds: string[]) {
@@ -145,15 +230,10 @@ function issueDateKey(date = new Date()) {
 
 function buildArchiveSummary(items: SelectedNewsItem[]) {
   const categories = Array.from(new Set(items.map((item) => item.category)));
-  const headlinePreview = items
-    .slice(0, 3)
-    .map((item) => item.title)
-    .join(' / ');
 
   return [
-    `고립은둔·사회적가치·청년지원 관련 주요 뉴스 ${items.length}건을 묶었습니다.`,
+    `고립·은둔 청년과 회복 지원 현장의 등록 언론사 기사 ${items.length}건을 안내합니다.`,
     categories.length > 0 ? `주요 카테고리: ${categories.join(', ')}` : '',
-    headlinePreview ? `대표 기사: ${headlinePreview}` : '',
   ]
     .filter(Boolean)
     .join(' ');
@@ -175,6 +255,54 @@ async function archiveNewsletter(issueNumber: number, label: string, items: Sele
       },
       [NEWSLETTER_PROPS.isPublic]: { checkbox: true },
     },
+    children: [
+      {
+        object: 'block',
+        type: 'heading_2',
+        heading_2: {
+          rich_text: [{ type: 'text', text: { content: '기사 원문' } }],
+        },
+      },
+      ...items.flatMap((item) => [
+        {
+          object: 'block' as const,
+          type: 'bulleted_list_item' as const,
+          bulleted_list_item: {
+            rich_text: [{
+              type: 'text' as const,
+              text: {
+                content: item.title,
+                link: { url: item.url },
+              },
+            }],
+          },
+        },
+        {
+          object: 'block' as const,
+          type: 'paragraph' as const,
+          paragraph: {
+            rich_text: [{
+              type: 'text' as const,
+              text: {
+                content: [item.source, item.publishedAt].filter(Boolean).join(' · '),
+              },
+            }],
+          },
+        },
+      ]),
+      {
+        object: 'block',
+        type: 'paragraph',
+        paragraph: {
+          rich_text: [{
+            type: 'text',
+            text: {
+              content: '본 클리핑은 각 언론사가 공개한 기사의 제목과 원문 링크만을 안내합니다. 기사의 저작권은 각 언론사에 있으며, 본문은 원문 링크에서 확인해 주세요.',
+            },
+          }],
+        },
+      },
+    ],
   });
 }
 
@@ -186,12 +314,27 @@ function chunk<T>(items: T[], size: number) {
   return chunks;
 }
 
-async function getRecipients(resend: Resend) {
-  const recipients = await listNewsletterRecipients(resend);
-  return recipients.map((recipient) => recipient.email);
+function fallbackRecipientEmails() {
+  return (process.env.NEWSLETTER_TO ?? 'soilabcoop@gmail.com')
+    .split(',')
+    .map((email) => email.trim())
+    .filter(Boolean);
 }
 
-async function getTestRecipients(resend: Resend) {
+async function getRecipients(resend?: Resend) {
+  if (usesResendContactList()) {
+    if (!resend) {
+      throw new Error('RESEND_API_KEY is required to read the Resend newsletter list.');
+    }
+
+    const recipients = await listNewsletterRecipients(resend);
+    return recipients.map((recipient) => recipient.email);
+  }
+
+  return fallbackRecipientEmails();
+}
+
+async function getTestRecipients(resend?: Resend) {
   const testRecipients = process.env.NEWSLETTER_TEST_TO
     ?.split(',')
     .map((email) => email.trim())
@@ -213,148 +356,114 @@ function maskEmail(email: string) {
   return `${name.slice(0, 2)}***@${domain}`;
 }
 
+function firstRecipientPreview(to?: string | string[]) {
+  const value = Array.isArray(to) ? to[0] : to;
+  return value ? maskEmail(value) : '';
+}
+
+async function listRecentNewsletterEmails(resend: Resend): Promise<{
+  items: RecentNewsletterEmail[];
+  error?: string;
+}> {
+  try {
+    const { data, error } = await resend.emails.list({ limit: 20 });
+
+    if (error) {
+      return { items: [], error: JSON.stringify(error) };
+    }
+
+    const emails = ((data as { data?: ResendEmailListItem[] } | null)?.data ?? [])
+      .filter((email) => email.subject?.includes('[다시봄 뉴스클리핑]'))
+      .slice(0, 10)
+      .map((email) => ({
+        id: email.id,
+        createdAt: email.created_at,
+        recipientPreview: firstRecipientPreview(email.to),
+        subject: email.subject,
+        lastEvent: email.last_event,
+      }));
+
+    return { items: emails };
+  } catch (error) {
+    return {
+      items: [],
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
 function missingConfig() {
-  return [
-    !process.env.RESEND_API_KEY ? 'RESEND_API_KEY' : '',
-    !process.env.RESEND_FROM ? 'RESEND_FROM' : '',
-    !process.env.CRON_SECRET ? 'CRON_SECRET' : '',
-  ].filter(Boolean);
+  return Array.from(new Set([
+    ...mailerMissingConfig(),
+    usesResendContactList() && !process.env.RESEND_API_KEY ? 'RESEND_API_KEY' : '',
+  ].filter(Boolean)));
 }
 
 function autoSelectLimit() {
   const value = Number(process.env.NEWSLETTER_AUTO_SELECT_COUNT ?? 0);
-  return Number.isFinite(value) && value > 0 ? Math.floor(value) : 0;
+  return Number.isFinite(value) && value > 0
+    ? Math.min(7, Math.floor(value))
+    : 0;
 }
 
-function autoSelectArticleRatio() {
-  const value = Number(process.env.NEWSLETTER_AUTO_SELECT_ARTICLE_RATIO ?? 0.7);
-  if (!Number.isFinite(value)) {
-    return 0.7;
-  }
-
-  return Math.min(Math.max(value, 0), 1);
-}
-
-function autoSelectArticleTarget(limit: number) {
-  return Math.min(limit, Math.ceil(limit * autoSelectArticleRatio()));
-}
-
-function autoSelectImpactLimit(limit: number) {
-  const fallback = Math.min(2, Math.max(1, Math.floor(limit * 0.2)));
-  const value = Number(process.env.NEWSLETTER_AUTO_SELECT_IMPACT_LIMIT ?? fallback);
-  if (!Number.isFinite(value)) {
-    return fallback;
-  }
-
-  return Math.min(limit, Math.max(0, Math.floor(value)));
-}
-
-function numberEnv(name: string, fallback: number) {
-  const value = Number(process.env[name] ?? fallback);
-  return Number.isFinite(value) && value >= 0 ? Math.floor(value) : fallback;
-}
-
-function isVideoItem(item: SelectedNewsItem) {
-  return item.title.startsWith('[영상]');
-}
-
-function parseMetric(text: string, pattern: RegExp) {
-  const match = text.match(pattern);
-  if (!match?.[1]) {
-    return null;
-  }
-
-  const value = Number(match[1].replaceAll(',', ''));
-  return Number.isFinite(value) ? value : null;
-}
-
-function isQualifiedAutoSelectableItem(item: SelectedNewsItem) {
-  if (!isVideoItem(item)) {
-    return true;
-  }
-
-  const metricText = `${item.source} ${item.summary}`;
-  const viewCount = parseMetric(metricText, /조회수\s*([\d,]+)회/);
-  const subscriberCount = parseMetric(metricText, /구독자\s*([\d,]+)명/);
-  const hiddenSubscriberCount = metricText.includes('구독자 비공개');
-
-  if (viewCount === null) {
+function isSendableItem(item: SelectedNewsItem, allowReviewedSensitive: boolean) {
+  if (item.category === '검수대기') {
     return false;
   }
 
-  if (viewCount < numberEnv('YOUTUBE_MIN_VIEW_COUNT', 1000)) {
-    return false;
-  }
-
-  return hiddenSubscriberCount
-    || (subscriberCount !== null && subscriberCount >= numberEnv('YOUTUBE_MIN_CHANNEL_SUBSCRIBERS', 1000));
-}
-
-function isImpactItem(item: SelectedNewsItem) {
-  return item.category === CANDIDATE_CATEGORIES.socialValue
-    || item.category === CANDIDATE_CATEGORIES.socialEconomy;
-}
-
-function limitImpactItems(items: SelectedNewsItem[], limit: number) {
-  const impactLimit = autoSelectImpactLimit(limit);
-  let impactCount = 0;
-
-  return items.filter((item) => {
-    if (!isImpactItem(item)) {
-      return true;
-    }
-
-    if (impactCount >= impactLimit) {
-      return false;
-    }
-
-    impactCount += 1;
-    return true;
-  });
+  return assessNewsPolicy({
+    title: item.title,
+    description: item.summary,
+    source: item.source,
+    url: item.url,
+    requirePublisher: true,
+    allowReviewedSensitive,
+  }).status === 'accepted';
 }
 
 function prioritizeAutoSelectableItems(items: SelectedNewsItem[], limit: number) {
-  const qualifiedItems = limitImpactItems(items.filter(isQualifiedAutoSelectableItem), limit);
-  const articles = qualifiedItems.filter((item) => !isVideoItem(item));
-  const videos = qualifiedItems.filter(isVideoItem);
-  const articleTarget = autoSelectArticleTarget(limit);
-  const videoTarget = limit - articleTarget;
-  const selected = [
-    ...articles.slice(0, articleTarget),
-    ...videos.slice(0, videoTarget),
-  ];
-  const selectedIds = new Set(selected.map((item) => item.id));
-  const fillers = [
-    ...articles.slice(articleTarget),
-    ...videos.slice(videoTarget),
-  ];
-
-  for (const item of fillers) {
-    if (selected.length >= limit) {
-      break;
-    }
-
-    if (!selectedIds.has(item.id)) {
-      selected.push(item);
-      selectedIds.add(item.id);
-    }
-  }
-
-  return selected;
+  return collapseRelatedNews(
+    items.filter((item) => isSendableItem(item, false)),
+  )
+    .slice(0, Math.min(7, limit));
 }
 
 function itemMix(items: SelectedNewsItem[]) {
-  const videos = items.filter(isVideoItem).length;
-  const impact = items.filter(isImpactItem).length;
   return {
-    articles: items.length - videos,
-    videos,
-    impact,
+    articles: items.length,
+    videos: 0,
+    impact: 0,
   };
 }
 
-async function buildDryRunPayload(resend: Resend) {
-  const items = await getSelectedItems();
+async function getReviewPendingCount() {
+  let count = 0;
+  let startCursor: string | undefined;
+
+  do {
+    const res = await notion.dataSources.query({
+      data_source_id: CANDIDATES_COLLECTION_ID,
+      page_size: 100,
+      filter: {
+        and: [
+          { property: CANDIDATE_PROPS.category, select: { equals: '검수대기' } },
+          { property: CANDIDATE_PROPS.isSent, checkbox: { equals: false } },
+        ],
+      },
+      ...(startCursor ? { start_cursor: startCursor } : {}),
+    });
+    count += res.results.length;
+    startCursor = res.has_more && res.next_cursor
+      ? res.next_cursor
+      : undefined;
+  } while (startCursor);
+
+  return count;
+}
+
+async function buildDryRunPayload(resend?: Resend) {
+  const selectedItems = await getSelectedItems();
+  const items = selectedItems.filter((item) => isSendableItem(item, true));
   const autoSelectableItems = items.length === 0
     ? await getAutoSelectableItems(autoSelectLimit())
     : [];
@@ -362,6 +471,10 @@ async function buildDryRunPayload(resend: Resend) {
   const autoSelectableMix = itemMix(autoSelectableItems);
   const recipients = await getRecipients(resend);
   const testRecipients = await getTestRecipients(resend);
+  const recentNewsletterEmails = resend
+    ? await listRecentNewsletterEmails(resend)
+    : { items: [] };
+  const transport = newsletterMailTransport();
 
   return {
     ready: missingConfig().length === 0
@@ -369,13 +482,15 @@ async function buildDryRunPayload(resend: Resend) {
       && recipients.length > 0,
     missingEnv: missingConfig(),
     selectedItems: items.length,
+    selectedRejectedItems: selectedItems.length - items.length,
+    reviewPendingItems: await getReviewPendingCount(),
     selectedArticleItems: selectedMix.articles,
     selectedVideoItems: selectedMix.videos,
     selectedImpactItems: selectedMix.impact,
     autoSelectLimit: autoSelectLimit(),
-    autoSelectArticleRatio: autoSelectArticleRatio(),
-    autoSelectArticleTarget: autoSelectArticleTarget(autoSelectLimit()),
-    autoSelectImpactLimit: autoSelectImpactLimit(autoSelectLimit()),
+    autoSelectArticleRatio: 1,
+    autoSelectArticleTarget: autoSelectLimit(),
+    autoSelectImpactLimit: 0,
     autoSelectableItems: autoSelectableItems.length,
     autoSelectableArticleItems: autoSelectableMix.articles,
     autoSelectableVideoItems: autoSelectableMix.videos,
@@ -388,7 +503,14 @@ async function buildDryRunPayload(resend: Resend) {
     sampleTitles: (items.length > 0 ? items : autoSelectableItems)
       .slice(0, 5)
       .map((item) => item.title),
-    usesResendList: Boolean(process.env.RESEND_SEGMENT_ID || process.env.RESEND_AUDIENCE_ID),
+    recentNewsletterEmails: recentNewsletterEmails.items,
+    recentNewsletterEmailError: recentNewsletterEmails.error,
+    mailTransport: transport,
+    smtpHost: transport === 'smtp' ? smtpHost() : undefined,
+    smtpPort: transport === 'smtp' ? smtpPort() : undefined,
+    smtpSecure: transport === 'smtp' ? smtpSecure() : undefined,
+    fromConfigured: Boolean(newsletterFrom()),
+    usesResendList: usesResendContactList(),
     issueLabel: issueLabel(),
   };
 }
@@ -400,7 +522,7 @@ export async function GET(req: Request) {
   }
 
   try {
-    const resend = new Resend(process.env.RESEND_API_KEY);
+    const resend = createResendClient();
     return NextResponse.json(await buildDryRunPayload(resend));
   } catch (e) {
     return NextResponse.json({ error: String(e), missingEnv: missingConfig() }, { status: 500 });
@@ -417,24 +539,33 @@ export async function POST(req: Request) {
   const testMode = new URL(req.url).searchParams.get('test') === '1';
   if (dryRun) {
     try {
-      const resend = new Resend(process.env.RESEND_API_KEY);
+      const resend = createResendClient();
       return NextResponse.json(await buildDryRunPayload(resend));
     } catch (e) {
       return NextResponse.json({ error: String(e), missingEnv: missingConfig() }, { status: 500 });
     }
   }
 
-  const from = process.env.RESEND_FROM;
+  const configErrors = missingConfig();
+  if (configErrors.length > 0) {
+    return NextResponse.json(
+      { error: '뉴스레터 발송 환경변수가 설정되지 않았습니다.', missingEnv: configErrors },
+      { status: 500 }
+    );
+  }
+
+  const from = newsletterFrom();
   if (!from) {
     return NextResponse.json(
-      { error: 'RESEND_FROM 환경변수가 설정되지 않았습니다.' },
+      { error: 'NEWSLETTER_FROM 또는 SMTP_FROM/RESEND_FROM 환경변수가 설정되지 않았습니다.' },
       { status: 500 }
     );
   }
 
   try {
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    let items = await getSelectedItems();
+    const resend = createResendClient();
+    const manuallySelected = await getSelectedItems();
+    let items = manuallySelected.filter((item) => isSendableItem(item, true));
 
     if (items.length === 0 || testMode) {
       const autoItems = await getAutoSelectableItems(autoSelectLimit());
@@ -465,13 +596,50 @@ export async function POST(req: Request) {
     const emailIds: string[] = [];
     const unsubscribeEmail = process.env.NEWSLETTER_UNSUBSCRIBE_EMAIL ?? 'youth-news@soilabcoop.kr';
     const unsubscribeMailto = `mailto:${unsubscribeEmail}?subject=${encodeURIComponent('뉴스레터 수신거부')}`;
-    const hasResendList = Boolean(process.env.RESEND_SEGMENT_ID || process.env.RESEND_AUDIENCE_ID);
+    const mailTransport = newsletterMailTransport();
+    const hasResendList = usesResendContactList();
+    const recoveredSuppressions = mailTransport === 'resend' && resend
+      ? await recoverResolvedBounceSuppressions(resend, recipients)
+      : [];
 
-    if (hasResendList) {
+    if (recoveredSuppressions.length > 0) {
+      console.info(
+        '[send-newsletter] Recovered stale bounce suppressions:',
+        recoveredSuppressions.map((suppression) => maskEmail(suppression.email))
+      );
+    }
+
+    if (mailTransport === 'smtp') {
+      const transporter = createSmtpTransporter();
+
+      for (const recipient of recipients) {
+        const unsubscribeUrl = createUnsubscribeUrl(recipient);
+        const oneClickUrl = createOneClickUnsubscribeUrl(recipient);
+        const info = await transporter.sendMail({
+          from,
+          to: recipient,
+          replyTo: process.env.NEWSLETTER_REPLY_TO ?? unsubscribeEmail,
+          subject: `${testMode ? '[테스트] ' : ''}[다시봄 뉴스클리핑] ${label} - 오늘의 주요 뉴스`,
+          headers: {
+            'List-Unsubscribe': `<${oneClickUrl}>, <${unsubscribeMailto}>`,
+            'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          },
+          html: buildEmailHtml({ issueLabel: label, items, unsubscribeUrl }),
+          text: buildEmailText({ issueLabel: label, items, unsubscribeUrl }),
+        });
+
+        emailIds.push(info.messageId ?? info.response ?? recipient);
+      }
+    } else if (hasResendList) {
+      if (!resend) {
+        throw new Error('RESEND_API_KEY is required for Resend newsletter sending.');
+      }
+
       for (const recipientChunk of chunk(recipients, 50)) {
         const { data, error } = await resend.batch.send(
           recipientChunk.map((recipient) => {
             const unsubscribeUrl = createUnsubscribeUrl(recipient);
+            const oneClickUrl = createOneClickUnsubscribeUrl(recipient);
 
             return {
               from,
@@ -479,7 +647,8 @@ export async function POST(req: Request) {
               replyTo: process.env.NEWSLETTER_REPLY_TO ?? unsubscribeEmail,
               subject: `${testMode ? '[테스트] ' : ''}[다시봄 뉴스클리핑] ${label} - 오늘의 주요 뉴스`,
               headers: {
-                'List-Unsubscribe': `<${unsubscribeUrl}>, <${unsubscribeMailto}>`,
+                'List-Unsubscribe': `<${oneClickUrl}>, <${unsubscribeMailto}>`,
+                'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
               },
               html: buildEmailHtml({ issueLabel: label, items, unsubscribeUrl }),
               text: buildEmailText({ issueLabel: label, items, unsubscribeUrl }),
@@ -499,6 +668,10 @@ export async function POST(req: Request) {
         emailIds.push(...batchIds);
       }
     } else {
+      if (!resend) {
+        throw new Error('RESEND_API_KEY is required for Resend newsletter sending.');
+      }
+
       for (const recipientChunk of chunk(recipients, 50)) {
         const { data, error } = await resend.emails.send({
           from,
@@ -526,7 +699,29 @@ export async function POST(req: Request) {
     if (!testMode) {
       await markAsSent(items.map((item) => item.id));
       await archiveNewsletter(issueNumber, label, items);
-      revalidateTag('newsletter', {});
+      revalidateTag('newsletter', { expire: 0 });
+      revalidatePath('/newsletter');
+      revalidatePath('/newsletter/[id]', 'page');
+    }
+
+    let telegramSkipped = true;
+    let telegramSkipReason: string | undefined;
+    let telegramMessageIds: number[] = [];
+    let telegramError: string | undefined;
+
+    try {
+      const telegramResult = await sendTelegramDigest({
+        issueLabel: label,
+        items,
+        testMode,
+      });
+      telegramSkipped = telegramResult.skipped;
+      telegramSkipReason = telegramResult.reason;
+      telegramMessageIds = telegramResult.messageIds;
+    } catch (error) {
+      telegramSkipped = false;
+      telegramError = error instanceof Error ? error.message : String(error);
+      console.error('[send-newsletter] Telegram error:', error);
     }
 
     const sentMix = itemMix(items);
@@ -540,9 +735,18 @@ export async function POST(req: Request) {
       sentImpactItems: sentMix.impact,
       recipients: recipients.length,
       recipientPreview: recipients.slice(0, 5).map(maskEmail),
+      mailTransport,
+      recoveredSuppressions: recoveredSuppressions.length,
+      recoveredSuppressionPreview: recoveredSuppressions.map((suppression) =>
+        maskEmail(suppression.email)
+      ),
       label,
       issueNumber,
       testMode,
+      telegramSkipped,
+      telegramSkipReason,
+      telegramMessageIds,
+      telegramError,
     });
   } catch (e) {
     console.error('[send-newsletter]', e);

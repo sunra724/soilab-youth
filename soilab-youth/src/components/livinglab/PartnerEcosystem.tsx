@@ -8,12 +8,14 @@ export default function PartnerEcosystem({ partners }: { partners: PartnerType[]
         <SectionHeading
           id="ecosystem-title"
           eyebrow="LOCAL ECOSYSTEM"
-          title="지역 협력 생태계"
-          description="특정 기관과의 협력을 과장하지 않고, 지역에서 필요한 역할과 연결 구조를 먼저 보여줍니다. 실제 로고는 사용승인을 마친 뒤 등록합니다."
+          title="지역에서 함께할 수 있는 역할"
+          description="상담, 생활, 주거, 일경험 등 청년에게 필요한 도움을 지역 안에서 연결하기 위한 역할 예시입니다. 실제 협력 범위는 각 실험의 질문과 지역 여건에 맞춰 정합니다."
           centered
         />
 
-        <div className="relative mt-10">
+        <details className="mt-8 rounded-2xl border border-gray-100 p-6">
+          <summary className="cursor-pointer text-sm font-bold text-navy">기관별로 함께할 수 있는 일 살펴보기</summary>
+        <div className="relative mt-6">
           <div aria-hidden="true" className="absolute inset-x-24 top-1/2 hidden h-px bg-navy/10 lg:block" />
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {partners.map((partner, index) => (
@@ -27,6 +29,7 @@ export default function PartnerEcosystem({ partners }: { partners: PartnerType[]
             ))}
           </div>
         </div>
+        </details>
       </div>
     </section>
   );

@@ -12,8 +12,8 @@ export default function OverviewCards({ items }: { items: OverviewItem[] }) {
         <SectionHeading
           id="overview-title"
           eyebrow="AT A GLANCE"
-          title="사업 한눈에 보기"
-          description="발견에서 끝나지 않고, 연결을 넘어 회복까지 실증합니다. 현장의 변화와 학습을 데이터와 사례로 기록합니다."
+          title="리빙랩은 일상에서 함께 방법을 찾는 과정입니다"
+          description="청년이 겪는 불편과 원하는 변화를 듣고, 청년·가족·실무자가 함께 작은 시도를 설계합니다. 시도해 본 경험을 나누며 지원 방식을 다듬는 것이 소이랩이 지향하는 리빙랩입니다."
           centered
         />
         <dl className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

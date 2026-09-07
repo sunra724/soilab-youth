@@ -3,7 +3,6 @@ interface LivingLabHeroProps {
   title: string;
   description: string;
   audience: string;
-  inquiryHref: string;
 }
 
 export default function LivingLabHero({
@@ -11,13 +10,12 @@ export default function LivingLabHero({
   title,
   description,
   audience,
-  inquiryHref,
 }: LivingLabHeroProps) {
   return (
     <section
       id="hero"
       aria-labelledby="livinglab-title"
-      className="relative isolate flex min-h-[calc(100svh-4rem)] items-center overflow-hidden bg-navy text-white"
+      className="relative isolate flex items-center overflow-hidden bg-navy text-white"
     >
       <div
         aria-hidden="true"
@@ -43,10 +41,10 @@ export default function LivingLabHero({
         </svg>
       </div>
 
-      <div className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6 sm:py-32">
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
         <div className="max-w-3xl">
           <p className="text-xs font-bold tracking-[0.22em] text-white/75 sm:text-sm">{eyebrow}</p>
-          <h1 id="livinglab-title" className="mt-5 text-4xl font-bold leading-[1.16] sm:text-5xl lg:text-6xl">
+          <h1 id="livinglab-title" className="mt-5 whitespace-pre-line text-4xl font-bold leading-[1.3] sm:text-5xl lg:text-6xl">
             {title}
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-8 text-white/80 sm:text-xl">{description}</p>
@@ -55,16 +53,16 @@ export default function LivingLabHero({
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <a
-              href={inquiryHref}
+              href="#method"
               className="inline-flex min-h-11 items-center justify-center rounded-lg bg-white px-6 py-3 text-sm font-bold text-navy transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             >
-              지역 실증사업 협의하기
+              함께 실험하는 과정
             </a>
             <a
-              href="#outcomes"
+              href="#problem-bank"
               className="inline-flex min-h-11 items-center justify-center rounded-lg border border-white/70 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             >
-              실증·성과 보기
+              지금 살펴보는 질문
             </a>
           </div>
         </div>

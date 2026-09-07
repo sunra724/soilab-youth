@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-export const alt = '소이랩 고립·은둔청년 리빙랩 실증·성과 대시보드';
+export const alt = '청년과 함께 일상회복의 방법을 찾고 실험하는 소이랩 리빙랩';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -24,11 +24,13 @@ export default function OpenGraphImage() {
           SOILAB YOUTH LIVING LAB
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', maxWidth: 920 }}>
-          <div style={{ display: 'flex', fontSize: 64, fontWeight: 700, lineHeight: 1.2 }}>
-            고립·은둔청년을 기다리지 않고 발견합니다
+          <div style={{ display: 'flex', flexDirection: 'column', fontSize: 64, fontWeight: 700, lineHeight: 1.2 }}>
+            <span>청년과 함께,</span>
+            <span>일상회복의 방법을</span>
+            <span>찾고 실험합니다</span>
           </div>
           <div style={{ display: 'flex', marginTop: 28, fontSize: 28, lineHeight: 1.45, opacity: 0.82 }}>
-            비대면 발굴부터 일상회복·관계회복·사회참여까지 지역 안에서 함께 설계하고 실증합니다.
+            현장의 질문 · 함께하는 과정 · 기록과 배움
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 24, fontWeight: 700 }}>

@@ -3,12 +3,14 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CardNewsCard from '@/components/ui/CardNewsCard';
 import CardNewsFilter from './CardNewsFilter';
+import { pageMetadata } from '@/lib/metadata';
 import { getCardNewsList } from '@/lib/notion';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: '/cardnews',
   title: '소식 & 카드뉴스',
   description: '청년 다다름 사업의 최신 카드뉴스와 소이랩 활동 소식입니다.',
-};
+});
 
 export default async function CardNewsPage({
   searchParams,

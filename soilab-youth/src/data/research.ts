@@ -5,7 +5,7 @@ export type Evidence = {
   title: string;
   publisher: string;
   country: '한국' | '일본' | '영국';
-  kind: '법령' | '정책·조사' | '연구' | '실무 지침' | '정책체계';
+  kind: '법령' | '정책·조사' | '연구' | '실무 지침' | '정책체계' | '보도자료';
   year: string;
   url: string;
   summary: string;
@@ -29,6 +29,18 @@ export const researchTopics = [
 ] as const;
 
 export const evidenceLibrary: Evidence[] = [
+  {
+    id: 'fki-2026-youth-connection-seminar',
+    title: '(내 일이 있는 청년 시리즈 ③) 「고립·은둔 청년, 우리 사회에 연결을 묻다 : 고립·은둔 청년을 위한 과제」 세미나 개최',
+    publisher: '한국경제인협회', country: '한국', kind: '보도자료', year: '2026',
+    url: 'https://www.fki.or.kr/kor/news/statement_detail.do?bbs_id=00037396&category=ST',
+    publishedAt: '2026-09-14', reviewedAt: '2026-09-15', scope: 'youth',
+    summary: '2026년 9월 14일 열린 세미나의 발제와 토론을 전한 보도자료입니다. 조기 지원부터 회복과 자립까지 이어지는 지원체계, 이해하기 쉬운 지원 안내, 안전한 관계망, 부담이 적은 일 경험, 회복 경험을 활용한 동료지원과 민관협력이 논의됐습니다. 행사일과 온라인 게시일은 9월 14일이며, 첨부 HWP에 적힌 9월 15일은 조간 보도일입니다.',
+    application: '청년이 처음 문의하는 경로, 활동 중단 후 다시 연결되는 방법, 일 경험의 참여 시간과 부담을 조정할 조건을 검토합니다. 동료지원 활동은 참여자의 선택, 교육, 보상과 활동 중 지원체계를 함께 논의할 과제로 활용합니다.',
+    limitation: '세미나에서 나온 의견과 정책 제안을 정리한 자료이며, 개별 지원 방식의 효과를 검증한 연구나 현재 모집 중인 사업 공고가 아닙니다. 약 53.8만 명과 연간 약 5.3조 원은 보도자료가 인용한 한경협의 2026년 2월 연구에 제시된 2024년 기준 추정치입니다. 해당 연구의 전문·추정 방법은 이번에 검토하지 않았으므로 새로운 실태조사 결과나 대구의 규모로 해석하지 않습니다.',
+    reviewScope: '공식 보도자료 본문·주석과 사용자 제공 첨부 HWP 본문·세미나 개요 확인. 발표자료 전문 및 인용 연구 전체는 미검토. HWP는 텍스트로 추출해 확인했으며 쪽수는 대조하지 않았습니다.',
+    topics: ['outreach', 'recovery', 'work', 'policy'],
+  },
   {
     id: 'youth-crisis-support-act', title: '가족돌봄 등 위기아동·청년 지원에 관한 법률', publisher: '국가법령정보센터', country: '한국', kind: '법령', year: '2026',
     url: 'https://www.law.go.kr/LSW/lsInfoP.do?ancYnChk=&chrClsCd=010202&efYd=20260326&lsiSeq=270215&urlMode=lsInfoP',

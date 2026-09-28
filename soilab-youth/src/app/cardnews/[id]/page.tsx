@@ -8,7 +8,12 @@ import { pageMetadata } from '@/lib/metadata';
 import { getCardNewsDetail } from '@/lib/notion';
 import { formatDate, getBgColor, getThemeColor, getThumbnailEmoji } from '@/lib/utils';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
+
+// Generate only requested public details, then reuse their HTML between updates.
+export function generateStaticParams() {
+  return [];
+}
 
 export async function generateMetadata({
   params,

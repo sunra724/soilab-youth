@@ -11,6 +11,13 @@ import { pageMetadata } from '@/lib/metadata';
 import { getNewsletterDetail } from '@/lib/notion';
 import { formatDate } from '@/lib/utils';
 
+export const revalidate = 600;
+
+// New issues become available on their first visit without rebuilding the site.
+export function generateStaticParams() {
+  return [];
+}
+
 export async function generateMetadata({
   params,
 }: {

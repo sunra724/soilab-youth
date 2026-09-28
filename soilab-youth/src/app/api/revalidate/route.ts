@@ -13,6 +13,8 @@ export async function GET(req: Request) {
   revalidateTag('ontong-youth-policies', { expire: 0 });
   revalidateTag('ontong-youth-content', { expire: 0 });
   revalidateTag('ontong-youth-centers', { expire: 0 });
+  revalidatePath('/cardnews');
+  revalidatePath('/cardnews/[id]', 'page');
   revalidatePath('/newsletter');
   revalidatePath('/newsletter/[id]', 'page');
 

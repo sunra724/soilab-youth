@@ -5,14 +5,81 @@ export type ResearchNote = {
   publishedAt: string;
   topics: string[];
   introduction: string;
+  highlights?: string[];
+  context?: string;
+  relatedLinks?: { title: string; href: string }[];
   recordTitle?: string;
   sections: { title: string; evidence: string; references: number[]; proposal: string }[];
   steps: { stage: string; record: string; question: string }[];
   limitation: string;
-  sources: { evidenceId: string; title: string; authors: string; year: string; url: string; pages: string; scope: string }[];
+  sources: { evidenceId: string; title: string; authors: string; year: string; url: string; pages: string; scope: string; linkLabel?: string }[];
 };
 
 export const researchNotes: ResearchNote[] = [
+  {
+    id: 'recovery-to-independence',
+    title: '고립·은둔 청년의 회복이 자립으로 이어지려면 무엇이 필요할까',
+    summary: '한경협 9월 14일 세미나에서 살펴본 안전한 관계망, 단계적인 일 경험, 동료지원과 현장에서 검토할 질문을 정리합니다.',
+    publishedAt: '2026-09-15',
+    topics: ['outreach', 'recovery', 'work', 'policy'],
+    introduction: '고립·은둔 청년이 다시 사회와 연결되려면 어떤 지원이 필요할까요? 한국경제인협회가 2026년 9월 14일 개최한 세미나에서는 조기 지원부터 관계 회복, 일 경험과 자립까지 이어지는 지원체계가 논의됐습니다. 청년이 도움을 쉽게 찾고 자신의 속도로 사회참여를 넓혀갈 수 있는 조건을 보도자료를 통해 살펴봅니다.',
+    highlights: [
+      '지원 정보를 이해하고 처음 문의하는 과정부터 접근성을 살펴야 합니다.',
+      '안전한 관계망과 부담을 조절할 수 있는 일 경험을 함께 마련하는 방향이 제안됐습니다.',
+      '회복 경험을 동료지원으로 연결하는 가능성과 이를 뒷받침할 민관협력이 논의됐습니다.',
+    ],
+    sections: [
+      {
+        title: '1. 도움을 받고 싶을 때, 지원에 닿기 쉬워야 합니다',
+        evidence: '김성아 한국보건사회연구원 연구위원은 고립·은둔이 장기화되기 전 조기에 개입하고 회복 이후 자립까지 지원을 이어갈 필요성을 설명했습니다. 청년 패널 이시현 나와, 나왕 운영자는 지원 의사가 있어도 정보와 신청 방법을 몰라 실제 도움으로 연결되지 못하는 경우를 짚으며 쉬운 안내와 맞춤형 지원의 필요성을 제기했습니다.',
+        references: [1],
+        proposal: '첫 화면에서 누구에게 어떤 방법으로 문의하면 되는지 찾을 수 있는지 점검합니다. 신청 자격과 준비할 내용을 쉬운 말로 설명하고, 문의 이후의 과정을 미리 안내하는 방안을 검토합니다.',
+      },
+      {
+        title: '2. 안전하게 관계를 맺고 다시 돌아올 수 있어야 합니다',
+        evidence: '청년 패널 신현재 안무서운회사 디렉터는 안전한 관계망이 마련되기 전에 성급하게 취업하면 조기 퇴사와 재고립으로 이어질 수 있다고 지적했습니다. 공동생활형 주거 공간 등을 통해 안정적인 관계를 형성하고 장기적으로 사회 복귀를 지원하자는 의견을 제시했습니다.',
+        references: [1],
+        proposal: '활동을 잠시 쉬거나 연락이 끊겨도 다시 문의할 수 있는 경로를 안내합니다. 청년이 편하게 도움을 청할 사람이나 공간이 있는지, 기관의 참여 조건이 부담을 높이지 않는지 함께 살펴봅니다.',
+      },
+      {
+        title: '3. 부담이 적은 일 경험으로 사회와의 접점을 넓힙니다',
+        evidence: '김주희 서울청년기지개센터 센터장은 일반 노동시장 진입에 앞서 부담이 적은 일 경험과 직무 체험 등 단계적인 사회진입 과정이 필요하다고 말했습니다. 유진성 한국경제연구원 수석연구위원은 노동시장 구조와 청년에게 적합한 일자리의 연결 기회를 개선할 필요성을 제기했습니다.',
+        references: [1],
+        proposal: '청년이 참여 시간과 업무 부담을 조절할 수 있는지 확인합니다. 시작 전에는 원하는 활동과 필요한 도움을 듣고, 참여 중에는 속도를 바꾸거나 잠시 멈추는 선택과 이후의 연락 방법을 함께 검토합니다.',
+      },
+      {
+        title: '4. 회복 경험을 동료지원의 기회로 연결할 수 있습니다',
+        evidence: '유승규 안무서운회사 대표는 회복 경험을 비슷한 어려움을 겪는 청년을 이해하고 지원하는 자원으로 바라보자고 제안했습니다. 회복한 청년이 동료지원가로 활동하는 일을 일자리로 발전시킬 가능성과 정부·기업 등이 함께하는 협력 기반의 필요성을 설명했습니다.',
+        references: [1],
+        proposal: '동료지원 활동을 원하는 청년의 선택을 출발점으로 삼습니다. 활동 범위, 교육, 보상과 어려움이 생겼을 때 도움을 받을 체계를 함께 마련하는 방안을 논의합니다. 자신의 경험을 어디까지 나눌지도 참여자가 정할 수 있어야 합니다.',
+      },
+    ],
+    recordTitle: '소이랩이 현장에서 검토할 질문',
+    steps: [
+      { stage: '지원 접근성', record: '첫 문의 경로, 신청 안내, 다음 단계', question: '처음 방문한 청년이 어디에, 어떻게 문의할지 쉽게 찾을 수 있는가?' },
+      { stage: '관계 회복', record: '도움을 청할 관계, 활동 중단 후 연락 방법', question: '활동을 잠시 쉬어도 다시 연락하고 참여할 경로가 있는가?' },
+      { stage: '단계적 일 경험', record: '원하는 활동, 참여 시간, 업무 부담과 조정', question: '청년이 참여 속도를 바꾸거나 잠시 멈출 수 있는가?' },
+      { stage: '동료지원', record: '참여 의사, 역할, 교육, 보상, 활동 중 지원', question: '참여자의 선택과 지속적인 활동을 뒷받침할 조건이 마련되어 있는가?' },
+    ],
+    context: '보도자료는 고립·은둔 청년 약 53.8만 명과 연간 사회·경제적 비용 약 5.3조 원을 소개합니다. 두 수치는 한경협이 2026년 2월 발표한 「청년층 은둔의 결정요인 및 사회·경제적 비용 추정」의 2024년 기준 추정치를 인용한 것입니다. 이번 세미나에서 새로 조사한 수치가 아니며, 해당 연구의 전문과 추정 방법은 이번 글에서 검토하지 않았습니다.',
+    limitation: '이 글은 한경협 공식 보도자료 본문·주석과 첨부 HWP의 본문·세미나 개요를 읽고 작성했습니다. 현장 참석기나 발표자료 전문 검토가 아닙니다. 발제자·토론자의 의견과 정책 제안을 전한 자료이므로 개별 지원 방식의 효과나 인과관계를 입증한 것으로 해석하지 않습니다. 셰어하우스와 동료지원 일자리는 세미나에서 제시한 제안이며 현재 신청 가능한 사업을 뜻하지 않습니다. 각 절의 센터 검토 제안과 질문 표는 소이랩의 운영 검토안으로, 이미 시행 중인 서비스나 확정된 사업계획의 설명이 아닙니다.',
+    sources: [
+      {
+        evidenceId: 'fki-2026-youth-connection-seminar',
+        title: '(내 일이 있는 청년 시리즈 ③) 「고립·은둔 청년, 우리 사회에 연결을 묻다 : 고립·은둔 청년을 위한 과제」 세미나 개최',
+        authors: '한국경제인협회', year: '2026',
+        url: 'https://www.fki.or.kr/kor/news/statement_detail.do?bbs_id=00037396&category=ST',
+        pages: '웹 본문·주석 및 첨부 HWP 본문·별첨 세미나 개요 (쪽수 미대조)',
+        scope: '행사·온라인 게시: 2026년 9월 14일. 조간 보도: 9월 15일. 소이랩 확인: 9월 15일. HWP를 텍스트로 추출해 대조했으며 발표자료 전문과 인용 연구 전체는 검토하지 않았습니다.',
+        linkLabel: '보도자료 원문',
+      },
+    ],
+    relatedLinks: [
+      { title: '도움이 필요할 때, 지원 문의 안내', href: '/research/support' },
+      { title: '고립·은둔청년을 발견한 뒤, 첫 연결을 어떻게 이어갈까', href: '/research/notes/outreach-to-first-connection' },
+      { title: '회복의 변화를 기록할 때, 일상과 관계를 어떻게 살필까', href: '/research/notes/everyday-recovery-outcomes' },
+    ],
+  },
   {
     id: 'family-first-inquiry',
     title: '가족이 먼저 문의했을 때, 누구의 이야기를 어떻게 들을까',

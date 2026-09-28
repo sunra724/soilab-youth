@@ -88,29 +88,14 @@ export const getCardNewsList = unstable_cache(
   { revalidate: 3600, tags: ['cardnews'] }
 );
 
-export const getCardNewsDetail = unstable_cache(
+export const getCardNewsDetail = cache(
   async (id: string): Promise<CardNews | null> => {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const page = (await notion.pages.retrieve({ page_id: id })) as any;
-
-      return {
-        id: page.id,
-        title: titleProp(page.properties, CARDNEWS_PROPS.title),
-        category: selectProp(page.properties, CARDNEWS_PROPS.category),
-        project: selectProp(page.properties, CARDNEWS_PROPS.project),
-        publishedAt: dateProp(page.properties, CARDNEWS_PROPS.publishedAt),
-        thumbnailColor: selectProp(page.properties, CARDNEWS_PROPS.thumbnailColor),
-        summary: richTextProp(page.properties, CARDNEWS_PROPS.summary),
-        externalUrl: urlProp(page.properties, CARDNEWS_PROPS.externalUrl),
-      };
-    } catch (e) {
-      console.error('[Notion] getCardNewsDetail:', e);
-      return null;
-    }
+    // Reuse the collection's tagged public list instead of querying arbitrary
+    // Notion page IDs. Hidden cards must never enter the shared route cache.
+    const items = await getCardNewsList();
+    const normalizedId = id.replace(/-/g, '').toLowerCase();
+    return items.find((item) => item.id.replace(/-/g, '').toLowerCase() === normalizedId) ?? null;
   },
-  ['cardnews-detail'],
-  { revalidate: 3600, tags: ['cardnews'] }
 );
 
 export const getNewsletterList = unstable_cache(

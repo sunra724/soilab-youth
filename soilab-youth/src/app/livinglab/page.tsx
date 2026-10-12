@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import LivingLabHero from '@/components/livinglab/LivingLabHero';
+import FamilyLivingLabPreview from '@/components/livinglab/FamilyLivingLabPreview';
 import LivingLabAnchorNav from '@/components/livinglab/LivingLabAnchorNav';
 import OverviewCards from '@/components/livinglab/OverviewCards';
 import ProblemBank from '@/components/livinglab/ProblemBank';
@@ -44,6 +45,7 @@ export default function LivingLabPage() {
         <LivingLabHero {...livingLabData.hero} />
         <LivingLabAnchorNav items={livingLabData.anchorItems} />
         <OverviewCards items={livingLabData.overview} />
+        <FamilyLivingLabPreview />
         <ProblemBank categories={problemCategories} problems={publicProblems} />
         <LivingLabProcess steps={livingLabData.livingLabSteps} />
         <RecoveryJourney steps={livingLabData.recoverySteps} />

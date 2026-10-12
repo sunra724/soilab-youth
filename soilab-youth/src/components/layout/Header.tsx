@@ -34,7 +34,7 @@ export default function Header() {
 
   const isCurrent = (href: string) => {
     if (href === '/research') return pathname.startsWith('/research');
-    if (href === '/livinglab') return pathname === '/livinglab';
+    if (href === '/livinglab') return pathname === '/livinglab' || pathname.startsWith('/livinglab/');
     if (href === '/cardnews') return pathname.startsWith('/cardnews');
     if (href === '/newsletter') return pathname.startsWith('/newsletter');
     return false;

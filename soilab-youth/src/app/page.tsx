@@ -3,6 +3,7 @@ import Footer from '@/components/layout/Footer';
 import HeroSection from '@/components/sections/HeroSection';
 import AboutSection from '@/components/sections/AboutSection';
 import ProgramsSection from '@/components/sections/ProgramsSection';
+import FamilyLivingLabPreview from '@/components/livinglab/FamilyLivingLabPreview';
 import CsrPreviewSection from '@/components/csr/CsrPreviewSection';
 import StatsSection from '@/components/sections/StatsSection';
 import CardNewsPreviewSection from '@/components/sections/CardNewsPreviewSection';
@@ -17,6 +18,7 @@ export default function Home() {
         <HeroSection />
         <AboutSection />
         <ProgramsSection />
+        <FamilyLivingLabPreview />
         <CsrPreviewSection />
         <StatsSection />
         <CardNewsPreviewSection />

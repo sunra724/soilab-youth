@@ -64,7 +64,15 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ko" className={`${notoSansKR.variable} h-full`}>
-      <body className="min-h-full flex flex-col antialiased">{children}</body>
+      <body className="min-h-full flex flex-col antialiased">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org', '@graph': [
+            { '@type': 'Organization', '@id': 'https://www.soilabcoop.kr/#organization', name: '협동조합 소이랩', url: 'https://www.soilabcoop.kr/', email: 'soilabcoop@gmail.com', sameAs: ['https://blog.naver.com/ggoom1room', 'https://www.facebook.com/coopsoilab/', 'https://www.instagram.com/coopsoilab/'] },
+            { '@type': 'WebSite', '@id': 'https://www.soilab-youth.kr/#website', name: SITE_NAME, url: 'https://www.soilab-youth.kr/', inLanguage: 'ko-KR', publisher: { '@id': 'https://www.soilabcoop.kr/#organization' } },
+          ],
+        }).replace(/</g, '\\u003c') }} />
+        {children}
+      </body>
       <Script
         src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`}
         strategy="afterInteractive"

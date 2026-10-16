@@ -1,3 +1,6 @@
+import { youthBusinessInquiryHref } from '@/data/institution-inquiry';
+import { familyInquiryHref } from '@/data/family-livinglab';
+
 export default function ContactSection() {
   return (
     <section id="contact" className="py-20" style={{ background: '#46549C' }}>
@@ -14,12 +17,13 @@ export default function ContactSection() {
             </p>
             <div className="flex flex-wrap gap-3">
               <a
-                href="mailto:soilabcoop@gmail.com"
+                href={youthBusinessInquiryHref()}
                 className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-opacity hover:opacity-90"
                 style={{ background: '#fff', color: '#46549C' }}
               >
-                📧 사업·협력 이메일 보내기
+                청년지원 사업 운영 문의
               </a>
+              <a href={familyInquiryHref()} className="rounded-lg border border-white/50 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/10">가족지원 리빙랩 도입 문의</a>
             </div>
           </div>
 
@@ -27,6 +31,7 @@ export default function ContactSection() {
           <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.12)' }}>
             <ul className="space-y-3 text-sm text-white">
               <li>📧 <a href="mailto:soilabcoop@gmail.com" className="hover:underline">soilabcoop@gmail.com</a></li>
+              <li>☎ <a href="tel:053-941-9003" className="hover:underline">053-941-9003</a></li>
               <li>🌐 <a href="https://www.soilab-youth.kr" className="hover:underline">
                 www.soilab-youth.kr
               </a></li>

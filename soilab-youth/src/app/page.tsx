@@ -9,6 +9,7 @@ import StatsSection from '@/components/sections/StatsSection';
 import CardNewsPreviewSection from '@/components/sections/CardNewsPreviewSection';
 import NewsletterPreviewSection from '@/components/sections/NewsletterPreviewSection';
 import ContactSection from '@/components/sections/ContactSection';
+import InstitutionServicesSection from '@/components/sections/InstitutionServicesSection';
 
 export default function Home() {
   return (
@@ -16,6 +17,7 @@ export default function Home() {
       <Header />
       <main>
         <HeroSection />
+        <InstitutionServicesSection />
         <AboutSection />
         <ProgramsSection />
         <FamilyLivingLabPreview />

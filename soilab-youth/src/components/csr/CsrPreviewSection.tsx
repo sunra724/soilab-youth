@@ -18,16 +18,16 @@ export default function CsrPreviewSection() {
               기업과 함께 설계합니다
             </h2>
             <p className="mt-5 max-w-lg text-[15px] leading-7 text-gray-600">
-              후원 규모보다 청년에게 실제로 닿는 방식을 먼저 고민합니다. 일상회복, 지역상생,
+              지역기업과 청년지원 프로그램을 함께 기획하고 운영합니다. 일상회복, 지역상생,
               사회참여를 잇는 소이랩의 CSR 제안 프로그램을 확인해 보세요.
             </p>
             <a
-              href="https://csr.soilab-youth.kr"
+              href="https://csr.soilab-youth.kr/#regional-pilot"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-7 inline-flex items-center gap-2 rounded-xl bg-[#2F6B57] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#245343]"
             >
-              CSR 전용 홈페이지 보기 <span aria-hidden="true">↗</span>
+              지역기업 CSR 공동운영안 보기 <span aria-hidden="true">↗</span>
             </a>
           </div>
 

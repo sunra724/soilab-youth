@@ -39,6 +39,9 @@ export default function HeroSection() {
             >
               사업 소개 보기
             </a>
+            <a href="#institution-services" className="rounded-lg border border-white px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10">
+              기관 사업·협력 문의
+            </a>
             <a
               href="https://forms.gle/ADcNkuMBENKfyuEi8"
               target="_blank"

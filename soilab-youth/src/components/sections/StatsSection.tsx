@@ -2,10 +2,10 @@ import { getStatsList } from '@/lib/notion';
 import type { StatItem } from '@/types/notion';
 
 const DEFAULT_STATS: StatItem[] = [
-  { id: '1', name: '총 발굴 쉼청년', value: 132, unit: '명',  description: '2025년 기준' },
-  { id: '2', name: '프로그램 이수율', value: 100, unit: '%',  description: '전원 완료' },
+  { id: '1', name: '총 발굴 쉼청년', value: 132, unit: '명',  description: '2025년 발굴 인원 · 등록 인원과 구분' },
+  { id: '2', name: '프로그램 이수율', value: 100, unit: '%',  description: '2025년 등록자 125명 전원 이수' },
   { id: '3', name: '협력 유관기관',  value: 25,  unit: '개',  description: '지역 네트워크' },
-  { id: '4', name: '사회 진입 성공률', value: 52, unit: '%', description: '취업·복학 등' },
+  { id: '4', name: '사회 진입 연계 비율', value: 52, unit: '%', description: '취업 20명 · 창업 2명 · 직업훈련 연계 43명 포함' },
 ];
 
 export default async function StatsSection() {
@@ -50,6 +50,7 @@ export default async function StatsSection() {
             </div>
           ))}
         </div>
+        <p className="mt-7 text-center text-xs leading-6 text-white/80">발굴 인원과 등록 인원을 구분해 확인해 주세요. <a href="https://forms.gle/ADcNkuMBENKfyuEi8" target="_blank" rel="noopener noreferrer" className="font-semibold underline underline-offset-4">2025년 성과 사례집 열람 안내 ↗</a></p>
       </div>
     </section>
   );

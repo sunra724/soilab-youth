@@ -32,7 +32,7 @@ const PROGRAMS: Program[] = [
     description:
       '방 안에 머무는 청년들을 발견하고, 자신의 속도로 회복할 수 있도록 단계적으로 지원합니다. 심리 안정부터 사회 복귀까지 함께합니다.',
     tags: ['#발굴', '#심리상담', '#일상회복', '#부모교육', '#사회복귀'],
-    note: '2025년 132명 발굴 · 이수율 100% · 25개 기관 연계',
+    note: '2025년 발굴 132명 · 등록자 125명 전원 이수 · 25개 기관 연계',
     color: '#46549C',
     tagBg: '#ECEEF8',
     actions: [
@@ -41,11 +41,6 @@ const PROGRAMS: Program[] = [
         href: 'https://forms.gle/ADcNkuMBENKfyuEi8',
         external: true,
         primary: true,
-      },
-      {
-        label: 'PDF 다운로드',
-        href: '/소이랩_고립은둔청년지원사업_성과사례집.pdf',
-        download: true,
       },
     ],
   },

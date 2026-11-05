@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 export default function HeroSection() {
   return (
     <section
@@ -39,9 +41,9 @@ export default function HeroSection() {
             >
               사업 소개 보기
             </a>
-            <a href="#institution-services" className="rounded-lg border border-white px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10">
-              기관 사업·협력 문의
-            </a>
+            <Link href="/partnership" className="rounded-lg border border-white px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10">
+              기관 사업·협력 안내
+            </Link>
             <a
               href="https://forms.gle/ADcNkuMBENKfyuEi8"
               target="_blank"

@@ -12,7 +12,7 @@ const NAV_ITEMS = [
   { label: '성과', href: '/#stats' },
   { label: '소식', href: '/cardnews' },
   { label: '뉴스레터', href: '/newsletter' },
-  { label: '문의', href: '/#contact' },
+  { label: '기관협력', href: '/partnership' },
   {
     label: 'CSR',
     href: 'https://csr.soilab-youth.kr',
@@ -37,6 +37,7 @@ export default function Header() {
     if (href === '/livinglab') return pathname === '/livinglab' || pathname.startsWith('/livinglab/');
     if (href === '/cardnews') return pathname.startsWith('/cardnews');
     if (href === '/newsletter') return pathname.startsWith('/newsletter');
+    if (href === '/partnership') return pathname === '/partnership';
     return false;
   };
 
@@ -53,10 +54,10 @@ export default function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
+      className={`sticky top-0 z-50 bg-white transition-all duration-300 ${
         scrolled || menuOpen
-          ? 'bg-white shadow-md'
-          : 'bg-transparent'
+          ? 'shadow-md'
+          : ''
       }`}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">

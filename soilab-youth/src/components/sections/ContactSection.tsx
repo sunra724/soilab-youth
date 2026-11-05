@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { youthBusinessInquiryHref } from '@/data/institution-inquiry';
 import { familyInquiryHref } from '@/data/family-livinglab';
 
@@ -13,7 +14,7 @@ export default function ContactSection() {
             </h2>
             <p className="text-sm leading-relaxed mb-6" style={{ color: 'rgba(255,255,255,0.7)' }}>
               기관·기업·재단의 사업 제안과 지역 협력 문의를 이메일로 받고 있습니다.
-              상담이나 치료가 필요한 경우에는 지역 전문기관을 이용해 주세요.
+              필요한 활동과 운영 기간, 예산에 맞춰 수행 범위를 협의합니다.
             </p>
             <div className="flex flex-wrap gap-3">
               <a
@@ -25,6 +26,8 @@ export default function ContactSection() {
               </a>
               <a href={familyInquiryHref()} className="rounded-lg border border-white/50 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/10">가족지원 리빙랩 도입 문의</a>
             </div>
+            <Link href="/partnership" className="mt-5 inline-flex min-h-11 items-center text-sm font-semibold text-white underline underline-offset-4">기관 협력 범위와 절차 보기 →</Link>
+            <p className="mt-5 text-xs leading-6 text-white/85">청년·가족의 참여 문의는 <a href="https://bridge.soilab-youth.kr/#youth-projects" target="_blank" rel="noopener noreferrer" className="font-semibold underline underline-offset-4">현재 사업 운영 안내</a>에서 대상과 모집 여부를 확인해 주세요.</p>
           </div>
 
           {/* 오른쪽 연락처 카드 */}

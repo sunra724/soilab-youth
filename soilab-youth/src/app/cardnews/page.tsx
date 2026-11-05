@@ -9,7 +9,7 @@ import { getCardNewsList } from '@/lib/notion';
 export const metadata: Metadata = pageMetadata({
   path: '/cardnews',
   title: '소식 & 카드뉴스',
-  description: '청년 다다름 사업의 최신 카드뉴스와 소이랩 활동 소식입니다.',
+  description: '소이랩의 청년지원 사업 소식과 고립·은둔 청년을 이해하는 정보를 전합니다.',
 });
 
 export default async function CardNewsPage({
@@ -35,7 +35,7 @@ export default async function CardNewsPage({
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
             <h1 className="text-3xl font-bold text-white mb-2">소식 &amp; 카드뉴스</h1>
             <p className="text-sm" style={{ color: 'rgba(255,255,255,0.7)' }}>
-              청년 다다름 사업의 카드뉴스와 소이랩 활동 소식입니다.
+              소이랩의 청년지원 사업 소식과 고립·은둔 청년을 이해하는 정보를 전합니다.
             </p>
           </div>
         </div>

@@ -7,7 +7,8 @@ export default function InstitutionServicesSection() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <p className="text-xs font-bold tracking-wide text-navy">지자체 · 청년센터 · 복지기관의 사업 담당자에게</p>
         <h2 id="institution-services-title" className="mt-4 break-keep text-2xl font-bold text-gray-950 sm:text-3xl">지역의 청년지원 사업을 함께 설계하고 운영합니다</h2>
-        <p className="mt-4 max-w-3xl text-sm leading-7 text-gray-600">청년을 만나는 과정부터 활동 운영과 지역 자원 연결까지, 기관이 필요한 수행 범위를 함께 정합니다. 현재 사업 단계에 맞는 경로를 골라주세요.</p>
+        <p className="mt-4 max-w-3xl text-sm leading-7 text-gray-600">청년을 만나는 과정부터 활동 운영과 지역 자원 연결까지, 기관이 필요한 수행 범위를 함께 정합니다. 참여자가 활동을 시작하고 이어갈 수 있는 작은 과정과 현장 운영을 구체화합니다.</p>
+        <Link href="/partnership" className="mt-4 inline-flex min-h-11 items-center text-sm font-bold text-navy underline underline-offset-4">수행 범위 · 기관과의 역할 분담 · 협의 절차 보기 →</Link>
         <div className="mt-8 grid gap-5 md:grid-cols-2">
           <article className="flex min-w-0 flex-col rounded-2xl border border-gray-200 bg-white p-6 sm:p-8">
             <p className="text-xs font-bold text-forest">기존 청년지원 수행 경험을 바탕으로 협의</p>

@@ -26,9 +26,9 @@ type Program = {
 
 const PROGRAMS: Program[] = [
   {
-    badge: '고립·은둔 청년',
+    badge: '2025년 공개 실적',
     badgeColor: 'navy',
-    title: '고립·은둔 청년 지원사업',
+    title: '2025 고립·은둔 청년 지원사업',
     description:
       '방 안에 머무는 청년들을 발견하고, 자신의 속도로 회복할 수 있도록 단계적으로 지원합니다. 심리 안정부터 사회 복귀까지 함께합니다.',
     tags: ['#발굴', '#심리상담', '#일상회복', '#부모교육', '#사회복귀'],
@@ -45,31 +45,32 @@ const PROGRAMS: Program[] = [
     ],
   },
   {
-    badge: '청년 연결',
+    badge: '2026년 운영 중',
     badgeColor: 'blue',
-    title: '청년 다다름 사업',
+    title: '청년다다름사업 대구제작소',
     description:
-      '청년의 다양한 삶의 방식을 인정하고 연결합니다. 카드뉴스 발행, 활동 홍보, 지역 청년 네트워크를 통해 청년이 서로를 발견합니다.',
-    tags: ['#카드뉴스', '#청년네트워크', '#활동홍보', '#커뮤니티'],
+      '청년재단의 맞춤형 자립 지원사업입니다. 담당매니저가 청년의 상황과 속도에 맞춰 개인별 참여계획을 세우고, 일상회복·자기성장·진로 탐색과 지역 자원 연계를 함께합니다.',
+    tags: ['#맞춤형자립지원', '#일상회복', '#자기성장', '#진로탐색'],
+    note: '2026년 모집 마감·운영 중 · 대구제작소 실적은 종료 후 정리해 공개합니다.',
     color: '#248DAC',
     tagBg: '#E8F4FD',
     actions: [
       {
-        label: '최신 카드뉴스 보기',
-        href: '/cardnews',
+        label: '대구제작소 운영 안내',
+        href: 'https://bridge.soilab-youth.kr/#youth-projects',
         primary: true,
-        internal: true,
+        external: true,
       },
     ],
   },
   {
-    badge: '지역생태계 활성화',
+    badge: '2026년 운영 중',
     badgeColor: 'green',
     title: '청년 탄탄대로',
     description:
-      '대구 청년의 일상회복과 사회참여를 지역 기업·기관과 잇는 Job Bridge 과정입니다. 회복, 훈련, 일경험, 정착까지 지역 안에서 이어갑니다.',
+      '대구 청년의 일상회복과 사회참여를 지역 기업·기관과 잇는 Job Bridge 과정입니다. 기초과정, 현장체험과 직무훈련, 일경험을 단계적으로 운영하며 청년과 직무의 적합성을 살핍니다.',
     tags: ['#JobBridge', '#일상회복', '#사회참여', '#일경험', '#기업매칭'],
-    note: '협동조합 소이랩 × (사)커뮤니티와경제 공동 운영',
+    note: '협동조합 소이랩 × (사)커뮤니티와경제 공동 운영 · 2026년 모집 마감·운영 중 · 실적은 종료 후 공개합니다.',
     color: '#228D7B',
     tagBg: '#E6F4F1',
     actions: [
@@ -87,26 +88,26 @@ const PROGRAMS: Program[] = [
   },
 ];
 
-const PROMOTION_PLANS = [
+const PARTICIPATION_GUIDES = [
   {
-    title: '전환 페이지 연결',
+    title: '청년·가족의 사업 문의',
     description:
-      '홈페이지, 카드뉴스, 뉴스레터의 주요 CTA를 브리지 페이지로 모아 참여 신청과 기업 참여 문의가 한 경로로 이어지게 합니다.',
+      '현재 사업의 대상과 운영 내용을 먼저 확인해 주세요. 모집 여부와 참여 가능 범위는 사업별 담당자에게 문의할 수 있습니다.',
   },
   {
-    title: '파트너 배포 키트',
+    title: '기관의 참여자 추천',
     description:
-      '복지관, 청년센터, 대학, 기업 담당자가 바로 전달할 수 있는 짧은 소개문·이미지·문의 링크 묶음을 제공합니다.',
+      '청년센터·복지관·대학 등은 대상 기준과 연계 절차를 먼저 협의합니다. 참여자의 의사를 확인한 뒤 필요한 범위에서 연결합니다.',
   },
   {
-    title: '성과 기반 콘텐츠',
+    title: '기업의 일경험 협력',
     description:
-      '회복, 훈련, 일경험, 채용 전환 흐름을 월간 카드뉴스와 뉴스레터로 반복 노출해 신뢰와 참여 동기를 함께 높입니다.',
+      '수행할 직무, 현장 지도 인력, 참여 기간과 지원 조건을 함께 확인합니다. 지원 종료 이후의 채용은 기업의 인력 수요와 채용 절차에 따라 결정됩니다.',
   },
   {
-    title: '현장 채널 확장',
+    title: '새로운 사업의 운영 협력',
     description:
-      '기업 설명회, 유관기관 회의, 청년 커뮤니티 모임에 연결 가능한 홍보 문구를 맞춰 배포하고 추천 유입을 추적합니다.',
+      '지역과 대상, 운영 기간, 예산에 맞춰 맡길 업무를 정합니다. 활동 운영·지역 자원 연계·결과 정리 등 필요한 범위로 협의할 수 있습니다.',
   },
 ];
 
@@ -118,17 +119,17 @@ export default function ProgramsSection() {
           <div className="w-10 h-0.5 mx-auto mb-4" style={{ background: '#46549C' }} />
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">주요 사업</h2>
           <p className="text-gray-500 text-sm mt-3">
-            청년의 회복과 연결, 지역 안착까지 이어지는 소이랩의 현재 사업입니다.
+            진행 중인 사업의 운영 안내와, 종료 후 정리한 공개 실적을 구분해 소개합니다.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {PROGRAMS.map((program) => (
-            <div key={program.title} className="bg-white rounded-2xl overflow-hidden border border-gray-100">
+            <article key={program.title} className="flex flex-col bg-white rounded-2xl overflow-hidden border border-gray-100">
               <div className="h-1.5" style={{ background: program.color }} />
-              <div className="p-6 flex h-full flex-col">
+              <div className="p-6 flex flex-1 flex-col">
                 <Badge label={program.badge} color={program.badgeColor} />
-                <h3 className="text-lg font-bold text-gray-900 mt-3 mb-2">{program.title}</h3>
+                <h3 className="break-keep text-lg font-bold text-gray-900 mt-3 mb-2">{program.title}</h3>
                 <p className="text-sm text-gray-600 leading-relaxed mb-4">{program.description}</p>
                 <div className="flex flex-wrap gap-2 mb-4">
                   {program.tags.map((tag) => (
@@ -177,7 +178,7 @@ export default function ProgramsSection() {
                   })}
                 </div>
               </div>
-            </div>
+            </article>
           ))}
         </div>
 
@@ -186,14 +187,14 @@ export default function ProgramsSection() {
             <div className="p-6 sm:p-8" style={{ background: '#46549C', color: '#fff' }}>
               <span className="text-xs font-semibold px-2.5 py-1 rounded-full"
                     style={{ background: 'rgba(255,255,255,0.16)' }}>
-                홍보 활성화
+                참여·추천·협력 안내
               </span>
               <h3 className="text-xl sm:text-2xl font-bold mt-4 mb-3">
-                청년 탄탄대로를 지역 네트워크의 참여 경로로 확장합니다
+                필요한 연결부터 확인해 주세요
               </h3>
               <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.78)' }}>
-                온라인 전환 페이지와 오프라인 추천 채널을 함께 운영해 청년, 보호자, 기업,
-                유관기관이 같은 메시지로 사업을 이해하고 바로 연결되도록 합니다.
+                청년·가족의 사업 문의, 기관의 추천, 기업의 일경험 협력은 확인할 내용이 다릅니다.
+                현재 운영 안내를 살펴보고 필요한 경로로 문의해 주세요.
               </p>
               <a
                 href="https://bridge.soilab-youth.kr/"
@@ -202,11 +203,12 @@ export default function ProgramsSection() {
                 className="inline-flex mt-6 text-sm px-4 py-2 rounded-lg font-semibold bg-white"
                 style={{ color: '#46549C' }}
               >
-                브리지 페이지 열기
+                현재 사업 운영 안내
               </a>
+              <Link href="/partnership" className="mt-4 block text-sm font-semibold text-white underline underline-offset-4">기관 협력 범위와 절차 보기 →</Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-gray-100">
-              {PROMOTION_PLANS.map((plan) => (
+              {PARTICIPATION_GUIDES.map((plan) => (
                 <div key={plan.title} className="bg-white p-6">
                   <h4 className="font-bold text-gray-900 mb-2">{plan.title}</h4>
                   <p className="text-sm text-gray-600 leading-relaxed">{plan.description}</p>

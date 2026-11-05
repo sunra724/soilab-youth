@@ -5,12 +5,16 @@ const DEFAULT_STATS: StatItem[] = [
   { id: '1', name: '총 발굴 쉼청년', value: 132, unit: '명',  description: '2025년 발굴 인원 · 등록 인원과 구분' },
   { id: '2', name: '프로그램 이수율', value: 100, unit: '%',  description: '2025년 등록자 125명 전원 이수' },
   { id: '3', name: '협력 유관기관',  value: 25,  unit: '개',  description: '지역 네트워크' },
-  { id: '4', name: '사회 진입 연계 비율', value: 52, unit: '%', description: '취업 20명 · 창업 2명 · 직업훈련 연계 43명 포함' },
+  { id: '4', name: '취·창업·직업훈련 연계 비율', value: 52, unit: '%', description: '취업 20명 · 창업 2명 · 직업훈련 연계 43명 포함' },
 ];
 
 export default async function StatsSection() {
   const stats = await getStatsList();
-  const items = stats.length > 0 ? stats : DEFAULT_STATS;
+  const items = (stats.length > 0 ? stats : DEFAULT_STATS).map((stat) => (
+    ['사회 진입 성공률', '사회 진입 연계 비율'].includes(stat.name)
+      ? { ...stat, name: '취·창업·직업훈련 연계 비율' }
+      : stat
+  ));
 
   return (
     <section id="stats" className="py-20" style={{ background: '#46549C' }}>
@@ -43,14 +47,14 @@ export default async function StatsSection() {
                 {stat.name}
               </div>
               {stat.description && (
-                <div className="mt-1 text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                <div className="mt-1 text-xs leading-6" style={{ color: 'rgba(255,255,255,0.8)' }}>
                   {stat.description}
                 </div>
               )}
             </div>
           ))}
         </div>
-        <p className="mt-7 text-center text-xs leading-6 text-white/80">발굴 인원과 등록 인원을 구분해 확인해 주세요. <a href="https://forms.gle/ADcNkuMBENKfyuEi8" target="_blank" rel="noopener noreferrer" className="font-semibold underline underline-offset-4">2025년 성과 사례집 열람 안내 ↗</a></p>
+        <p className="mt-7 text-center text-xs leading-6 text-white/80">발굴 인원과 등록 인원을 구분해 확인해 주세요. 연계 비율은 직업훈련 연계를 포함하며, 고용 유지 여부는 별도 지표로 확인해야 합니다.<br /><a href="https://forms.gle/ADcNkuMBENKfyuEi8" target="_blank" rel="noopener noreferrer" className="font-semibold underline underline-offset-4">2025년 성과 사례집 열람 안내 ↗</a></p>
       </div>
     </section>
   );

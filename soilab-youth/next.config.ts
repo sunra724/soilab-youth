@@ -6,6 +6,22 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // Literal abbreviated links previously shared outside the website.
+      {
+        source: '/.../youth-social-security-and',
+        destination: '/research/notes/youth-social-security-and-returning-to-support',
+        permanent: true,
+      },
+      {
+        source: '/.../incheon-research',
+        destination: '/research/notes/incheon-research',
+        permanent: true,
+      },
+      {
+        source: '/.../incheon-research...',
+        destination: '/research/notes/incheon-research',
+        permanent: true,
+      },
       {
         source: '/csr',
         destination: 'https://csr.soilab-youth.kr',

@@ -1,10 +1,16 @@
 import { XMLParser } from 'fast-xml-parser';
 import { publicUrl, parseBriefing, briefingIngestToken, type Briefing, type BriefingInput } from './core.ts';
 import { collapseRelatedNews } from '../newsletterDedupe.ts';
+import type { CollectedBatch, SourceType } from './ledger-core.ts';
 
 type Candidate = { title: string; url: string; publisher: string; excerpt: string; tier: 'official' | 'research' | 'news'; checked_at: string; published_at: string | null; publication_year?: number | null; reviewed_at?: string; review_scope?: string; scope?: string; feed_kind?: string };
 type Properties = { api: string; ingest: string; bot: string; chat: string; anthropic: string; model: string };
-export type DailyRuntime = { fetcher: typeof fetch; now: () => Date; draft: (props: Properties, seen: string[], runtime: DailyRuntime) => Promise<BriefingInput> };
+export type DailyRuntime = {
+  fetcher: typeof fetch; now: () => Date;
+  draft: (props: Properties, seen: string[], runtime: DailyRuntime) => Promise<BriefingInput>;
+  onCollected?: (batch: CollectedBatch) => Promise<void>;
+  onCollectionError?: () => void;
+};
 const clean = (v: unknown) => String(v ?? '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
 const key = (title: string) => clean(title).normalize('NFKC').toLowerCase();
 export const koreaDate = (now: Date) => new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now);
@@ -24,13 +30,14 @@ function tier(url: string): Candidate['tier'] {
   return 'news';
 }
 export async function collectDailyCandidates(props: Properties, seenTitles: string[], runtime: DailyRuntime) {
+  const started_at = runtime.now().toISOString();
   const google = (query: string, locale: string) => `https://news.google.com/rss/search?q=${encodeURIComponent(query + ' when:3d')}&${locale}`;
   const feeds = [
-    { name: '보건복지부', url: 'https://www.mohw.go.kr/rss/board.es?mid=a10503000000&bid=0027&info' },
-    { name: '국내 정책 동향', url: google('(고립 은둔 청년) (정책 OR 연구 OR 예산 OR 지원)', 'hl=ko&gl=KR&ceid=KR:ko') },
-    { name: '가족·지역 지원', url: google('("청년미래센터" OR "가족돌봄청년" OR "고립청년")', 'hl=ko&gl=KR&ceid=KR:ko') },
-    { name: '일본 정책 동향', url: google('(ひきこもり OR 孤独・孤立) (支援 OR 政策 OR 調査)', 'hl=ja&gl=JP&ceid=JP:ja') },
-    { name: '영국 정책 동향', url: google('loneliness (youth OR "young people" OR policy) UK', 'hl=en-GB&gl=GB&ceid=GB:en') },
+    { id: 'mohw', source_type: 'press' as SourceType, name: '보건복지부', url: 'https://www.mohw.go.kr/rss/board.es?mid=a10503000000&bid=0027&info' },
+    { id: 'kr_policy', source_type: 'news' as SourceType, name: '국내 정책 동향', url: google('(고립 은둔 청년) (정책 OR 연구 OR 예산 OR 지원)', 'hl=ko&gl=KR&ceid=KR:ko') },
+    { id: 'kr_family', source_type: 'news' as SourceType, name: '가족·지역 지원', url: google('("청년미래센터" OR "가족돌봄청년" OR "고립청년")', 'hl=ko&gl=KR&ceid=KR:ko') },
+    { id: 'jp', source_type: 'news' as SourceType, name: '일본 정책 동향', url: google('(ひきこもり OR 孤独・孤立) (支援 OR 政策 OR 調査)', 'hl=ja&gl=JP&ceid=JP:ja') },
+    { id: 'uk', source_type: 'news' as SourceType, name: '영국 정책 동향', url: google('loneliness (youth OR "young people" OR policy) UK', 'hl=en-GB&gl=GB&ceid=GB:en') },
   ];
   const now = runtime.now().getTime();
   const cutoff = now - 72 * 3600000;
@@ -62,6 +69,18 @@ export async function collectDailyCandidates(props: Properties, seenTitles: stri
     available = true;
     readings = data.items.filter((item: Candidate & { review_status: string }) => item.review_status === 'approved' && publicUrl(item.url) && Date.parse(item.reviewed_at || '') >= now - 7 * 86400000 && Date.parse(item.reviewed_at || '') <= now).map((item: Candidate) => ({ ...item, title: clean(item.title).slice(0, 240), excerpt: clean(item.excerpt).slice(0, 2500), feed_kind: 'reviewed_reading' }));
   } catch { failures.push('정책·연구 검토자료'); }
+  // Save every eligible collected candidate before title/history/event filtering.
+  // Mirror problems must never change the existing briefing's result.
+  if (runtime.onCollected) {
+    try {
+      await runtime.onCollected({ items: [...readings, ...rss], started_at, finished_at: runtime.now().toISOString(),
+        sources: [...results.map((result, i) => ({ id: feeds[i].id, source_type: feeds[i].source_type,
+          status: result.status === 'fulfilled' ? 'success' as const : 'failed' as const,
+          item_count: result.status === 'fulfilled' ? result.value.length : 0 })),
+        { id: 'reviewed_catalog', source_type: 'manual', status: available ? 'success' : 'failed', item_count: readings.length }],
+      });
+    } catch { runtime.onCollectionError?.(); }
+  }
   if (!available && failures.length === feeds.length + 1) throw new Error('all_sources_failed');
   const seen = new Set(seenTitles.map(key));
   const dedup = (items: Candidate[]) => items.filter(item => { const id = key(item.title); if (seen.has(id)) return false; seen.add(id); return true; });

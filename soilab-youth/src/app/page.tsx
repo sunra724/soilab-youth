@@ -1,3 +1,4 @@
+import { SeriesPreview } from '@/components/series/Archive';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import HeroSection from '@/components/sections/HeroSection';
@@ -23,6 +24,7 @@ export default function Home() {
         <FamilyLivingLabPreview />
         <CsrPreviewSection />
         <StatsSection />
+        <SeriesPreview />
         <CardNewsPreviewSection />
         <NewsletterPreviewSection />
         <ContactSection />

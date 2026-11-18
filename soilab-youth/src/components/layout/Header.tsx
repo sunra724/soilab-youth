@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { label: '사업', href: '/#programs' },
   { label: '리빙랩', href: '/livinglab' },
   { label: '정책·연구', href: '/research' },
+  { label: '연재', href: '/series' },
   { label: '성과', href: '/#stats' },
   { label: '소식', href: '/cardnews' },
   { label: '뉴스레터', href: '/newsletter' },
@@ -33,6 +34,7 @@ export default function Header() {
   const contactLabel = isNewsletterRoute ? '뉴스레터 문의' : '사업·협력 문의';
 
   const isCurrent = (href: string) => {
+    if (href === '/series') return pathname.startsWith('/series');
     if (href === '/research') return pathname.startsWith('/research');
     if (href === '/livinglab') return pathname === '/livinglab' || pathname.startsWith('/livinglab/');
     if (href === '/cardnews') return pathname.startsWith('/cardnews');
@@ -60,7 +62,7 @@ export default function Header() {
           : ''
       }`}
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         {/* 로고 */}
         <Link href="/" className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-lg flex items-center justify-center text-lg"
@@ -74,7 +76,7 @@ export default function Header() {
         </Link>
 
         {/* 데스크탑 Nav */}
-        <nav className="hidden lg:flex items-center gap-5">
+        <nav className="hidden xl:flex items-center gap-3">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.href}
@@ -108,7 +110,7 @@ export default function Header() {
 
         {/* 모바일 햄버거 */}
         <button
-          className="lg:hidden p-2 rounded-lg text-gray-700"
+          className="xl:hidden p-2 rounded-lg text-gray-700"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label={menuOpen ? '메뉴 닫기' : '메뉴 열기'}
         >
@@ -126,7 +128,7 @@ export default function Header() {
 
       {/* 모바일 메뉴 */}
       {menuOpen && (
-        <div className="lg:hidden bg-white border-t border-gray-100 px-4 pb-4">
+        <div className="xl:hidden bg-white border-t border-gray-100 px-4 pb-4">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.href}

@@ -33,6 +33,7 @@ export default function Footer({
               <li><Link href="/partnership" className="hover:text-white transition-colors">기관 협력 범위와 절차</Link></li>
               <li><Link href="/livinglab/family" className="hover:text-white transition-colors">가족지원 리빙랩 도입안</Link></li>
               <li><Link href="/research" className="hover:text-white transition-colors">청년 정책·연구</Link></li>
+              <li><Link href="/series" className="hover:text-white transition-colors">소이랩 연재 · 원고와 카드뉴스</Link></li>
               <li>
                 <a
                   href="https://csr.soilab-youth.kr"

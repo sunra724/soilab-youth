@@ -1,3 +1,4 @@
+import { SeriesAttachment } from '@/components/series/Archive';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -24,6 +25,7 @@ export default async function ResearchNotePage({ params }: { params: Promise<{ i
     <Link className="research-back" href="/research/notes">← 연구노트 목록</Link>
     <header className="research-page-heading"><p className="research-eyebrow">RESEARCH NOTE · <time dateTime={note.publishedAt}>{note.publishedAt}</time></p><h1>{note.title}</h1><p>{note.summary}</p></header>
     <p className="research-article-intro">{note.introduction}</p>
+    <SeriesAttachment sourcePath={`/research/notes/${id}`} />
     {note.highlights && <section className="research-note"><h2>세 줄로 읽는 핵심</h2><ul className="research-guide-list">{note.highlights.map(point => <li key={point}>{point}</li>)}</ul></section>}
     {note.sections.map(section => <section key={section.title}>
       <h2>{section.title}</h2><p>{section.evidence}</p>

@@ -1,4 +1,4 @@
-import { archiveSitemapPaths } from '@/lib/series-archive';
+import { archiveSitemapPaths, archiveLastModified } from '@/lib/series-archive';
 import type { MetadataRoute } from 'next';
 import { researchTopics } from '@/data/research';
 import { researchNotes } from '@/data/research-notes';
@@ -18,7 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]);
 
   const entries: MetadataRoute.Sitemap = [
-    ...archiveSitemapPaths().map(path => ({ url: `${baseUrl}${path}`, lastModified: '2026-11-18', changeFrequency: 'monthly' as const, priority: 0.8 })),
+    ...archiveSitemapPaths().map(path => ({ url: `${baseUrl}${path}`, lastModified: archiveLastModified(path), changeFrequency: 'monthly' as const, priority: 0.8 })),
     { url: baseUrl, changeFrequency: 'monthly', priority: 1 },
     { url: `${baseUrl}/partnership`, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${baseUrl}/livinglab`, changeFrequency: 'monthly', priority: 0.9 },

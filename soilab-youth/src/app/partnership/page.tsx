@@ -65,6 +65,21 @@ const faqs = [
 
 const container = 'mx-auto max-w-6xl px-4 sm:px-6';
 const button = 'inline-flex min-h-11 items-center justify-center rounded-lg px-5 py-3 text-sm font-bold focus-visible:outline-2 focus-visible:outline-offset-4';
+const returningGroupTitle = '쉬었다가 다시 올 수 있는 청년 소모임';
+const returningGroupSteps = [
+  {
+    title: '참여 전 연락',
+    description: '짧은 문자나 통화로 활동을 안내합니다. 참여자가 원하는 연락 방식과 첫날 머물 시간을 함께 정합니다.',
+  },
+  {
+    title: '모임에서 할 일',
+    description: '처음에는 공간을 둘러보거나 간단한 활동을 해봅니다. 혼자 할지 함께할지는 그날 고를 수 있습니다. 어느 회차에서든 처음 온 청년이 바로 참여할 수 있게 구성합니다.',
+  },
+  {
+    title: '쉬었다 돌아올 때',
+    description: '참여자와 미리 합의한 방식과 시점에 다음 모임을 안내합니다. 마지막 회차에는 다시 참여하기, 다른 활동으로 이어가기, 잠시 쉬기 중 다음 선택을 함께 정리합니다.',
+  },
+];
 
 export default function PartnershipPage() {
   return (
@@ -77,8 +92,62 @@ export default function PartnershipPage() {
             <h1 className="mt-5 max-w-3xl break-keep text-3xl font-bold leading-snug sm:text-5xl">청년의 참여가 이어지도록,<br />현장에서 함께 운영합니다</h1>
             <p className="mt-6 max-w-2xl text-sm leading-8 text-white/85 sm:text-base">소이랩은 청년을 만나는 과정, 일상회복과 관계 활동, 지역 자원 연계와 결과 정리를 함께합니다. 기관의 사업 목표와 기존 지원체계에 맞춰 필요한 수행 범위를 정합니다.</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a href="#scope" className={`${button} bg-white text-navy`}>수행 범위 살펴보기</a>
+              <a href="#returning-youth-group" className={`${button} bg-white text-navy`}>4주 소모임 운영안 보기</a>
+              <a href="#scope" className={`${button} border border-white/60 text-white hover:bg-white/10`}>수행 범위 살펴보기</a>
               <a href="#inquiry" className={`${button} border border-white/60 text-white hover:bg-white/10`}>기관 협력 문의</a>
+            </div>
+          </div>
+        </section>
+
+        <section id="returning-youth-group" aria-labelledby="returning-youth-group-title" className="scroll-mt-24 bg-white py-16 sm:py-20">
+          <div className={container}>
+            <p className="text-xs font-bold text-forest">기관 도입 제안</p>
+            <h2 id="returning-youth-group-title" className="mt-3 break-keep text-2xl font-bold text-navy sm:text-3xl">{returningGroupTitle}</h2>
+            <p className="mt-4 max-w-3xl break-keep text-sm leading-7 text-gray-600 sm:text-base">센터와 연결된 뒤에도 여러 사람과 함께하는 활동이 부담스럽거나, 한 번 참여한 뒤 다음 회차에 오기 어려운 청년이 있습니다. 소이랩은 <strong className="text-navy">짧게 머무는 것부터 시작하고, 한 회차를 쉬어도 이후에 돌아올 수 있는 4주 소모임</strong>을 제안합니다.</p>
+
+            <dl className="mt-7 grid gap-x-8 gap-y-4 border-y border-gray-200 py-5 text-sm sm:grid-cols-[2fr_1fr]">
+              <div className="flex flex-wrap gap-x-3 gap-y-1">
+                <dt className="font-bold text-navy">대상</dt>
+                <dd className="text-gray-700">처음 소그룹에 참여하거나 다시 시작하려는 청년 8명 내외</dd>
+              </div>
+              <div className="flex flex-wrap gap-x-3 gap-y-1">
+                <dt className="font-bold text-navy">일정</dt>
+                <dd className="text-gray-700">4주 · 주 1회</dd>
+              </div>
+            </dl>
+
+            <ol className="mt-7 grid gap-5 md:grid-cols-3">
+              {returningGroupSteps.map((step) => (
+                <li key={step.title} className="rounded-2xl bg-[#F6F7FB] p-5 sm:p-6">
+                  <h3 className="font-bold text-navy">{step.title}</h3>
+                  <p className="mt-2 break-keep text-sm leading-7 text-gray-600">{step.description}</p>
+                </li>
+              ))}
+            </ol>
+
+            <div className="mt-8 grid gap-x-8 gap-y-6 lg:grid-cols-2">
+              <div>
+                <h3 className="text-lg font-bold text-navy">역할 분담</h3>
+                <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm leading-7">
+                  <dt className="font-bold text-navy">의뢰기관</dt>
+                  <dd className="break-keep text-gray-600">참여자 추천, 사례관리, 후속 지원 결정</dd>
+                  <dt className="font-bold text-navy">소이랩</dt>
+                  <dd className="break-keep text-gray-600">첫 참여 안내, 소모임 설계·운영, 재참여 안내, 결과 정리</dd>
+                </dl>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-navy">운영 결과</h3>
+                <p className="mt-3 break-keep text-sm leading-7 text-gray-600">첫 방문과 재참여, 모임 이후 참여자가 선택한 활동을 익명으로 집계합니다. 참여하기 편했던 조건과 어려웠던 조건을 보고서에 정리합니다.</p>
+              </div>
+            </div>
+
+            <div className="mt-8 border-t border-gray-200 pt-6">
+              <a href={youthBusinessInquiryHref(returningGroupTitle)} className={`${button} bg-navy text-white hover:bg-navy-dark`}>4주 소모임 도입 문의</a>
+              <p className="mt-3 break-keep text-xs leading-6 text-gray-600">기관과 규모·일정·업무 범위를 협의합니다. 문의 메일에는 기관의 운영 상황만 적어 주세요.</p>
+              <div className="mt-3 flex flex-wrap gap-x-6">
+                <Link href="/research/notes/youth-social-security-and-returning-to-support" className="inline-flex min-h-11 items-center text-sm font-bold text-navy underline underline-offset-4">첫 참여와 재참여를 다룬 연구노트 →</Link>
+                <Link href="/#stats" className="inline-flex min-h-11 items-center text-sm font-bold text-navy underline underline-offset-4">2025년 고립·은둔 청년 지원사업 실적 →</Link>
+              </div>
             </div>
           </div>
         </section>

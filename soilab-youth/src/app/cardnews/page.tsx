@@ -1,3 +1,4 @@
+import { allArchiveEntries } from '@/lib/series-archive';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import Header from '@/components/layout/Header';
@@ -46,7 +47,7 @@ export default async function CardNewsPage({
           <aside className="mb-8 rounded-xl border border-indigo-100 bg-indigo-50 p-6">
             <p className="text-xs font-bold tracking-wide text-indigo-700">SOILAB STORIES</p>
             <h2 className="mt-2 text-xl font-bold text-slate-800">청년의 회복·일경험·지역 정착, 주제별로 읽기</h2>
-            <p className="mt-2 text-sm leading-7 text-slate-600">SNS에서 나눈 12건의 원고와 카드를 세 개의 연재로 모았습니다.</p>
+            <p className="mt-2 text-sm leading-7 text-slate-600">SNS에서 나눈 {allArchiveEntries().length}건의 원고와 카드를 세 개의 연재로 모았습니다.</p>
             <Link href="/series" className="mt-3 inline-block text-sm font-bold text-indigo-800">소이랩 연재 전체 보기 →</Link>
           </aside>
           <CardNewsFilter

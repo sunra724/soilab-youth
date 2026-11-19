@@ -25,3 +25,13 @@ export function sourceAttachment(path: string) {
 export function archiveSitemapPaths() {
   return ['/series', ...archive.series.map(series => `/series/${series.slug}`), ...allArchiveEntries().filter(entry => !entry.canonicalPath).map(entry => entry.path)];
 }
+
+export function archiveLastModified(path: string) {
+  const latest = (entries: ArchiveEntry[]) => entries.map(entry => entry.archivedAt).sort().at(-1);
+  if (path === '/series') return latest(allArchiveEntries());
+  for (const series of archive.series) {
+    if (path === `/series/${series.slug}`) return latest(series.entries);
+    const entry = series.entries.find(item => item.path === path);
+    if (entry) return entry.archivedAt;
+  }
+}

@@ -2,7 +2,7 @@ import { XMLParser } from 'fast-xml-parser';
 import { publicUrl, parseBriefing, briefingIngestToken, type Briefing, type BriefingInput } from './core.ts';
 import { collapseRelatedNews } from '../newsletterDedupe.ts';
 import { enrichBriefingSources, seenBriefingStory, sourceTier, type BriefingCandidate, type EvidenceRuntime } from './briefing-evidence.ts';
-import { composeEvidenceBriefing, editEvidenceSource } from './briefing-editor.ts';
+import { composeEvidenceBriefing, editEvidenceSource, editorialSchemas } from './briefing-editor.ts';
 import { crisisYouthPolicyScope, YOUTH_POLICY_DOMESTIC_FEEDS } from './briefing-scope.ts';
 import type { CollectedBatch, SourceType } from './ledger-core.ts';
 
@@ -104,7 +104,7 @@ export async function collectDailyCandidates(props: Properties, seenTitles: stri
   return { items: [...reading, ...news.slice(0, 10 - reading.length)], failures };
 }
 
-async function requestEditorialJson(props: Properties, runtime: DailyRuntime, instructions: string, payload: unknown, maxTokens = 1000) {
+async function requestEditorialJson(props: Properties, runtime: DailyRuntime, instructions: string, payload: unknown, maxTokens: number, step: keyof typeof editorialSchemas) {
   const response = await runtime.fetcher('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${props.openaiKey}` },
@@ -117,7 +117,7 @@ async function requestEditorialJson(props: Properties, runtime: DailyRuntime, in
           { type: 'input_text', text: JSON.stringify(payload) },
         ] },
       ],
-      max_output_tokens: maxTokens, text: { format: { type: 'json_object' } },
+      max_output_tokens: maxTokens, text: { format: { type: 'json_schema', name: 'briefing_' + step, strict: true, schema: editorialSchemas[step] } },
     }),
     signal: AbortSignal.timeout(40000),
   });
@@ -152,7 +152,7 @@ export async function prepareQualityDraft(props: Properties, seen: string[], run
   const evidence = await enrichBriefingSources(collected.items, runtime, history);
   const results = await Promise.allSettled(evidence.sources.map(async source => ({
     source,
-    note: await editEvidenceSource(source, (system, input, maxTokens) => requestEditorialJson(props, runtime, system, input, maxTokens)),
+    note: await editEvidenceSource(source, (system, input, maxTokens, step) => requestEditorialJson(props, runtime, system, input, maxTokens, step)),
   })));
   const notes = results.flatMap(result => result.status === 'fulfilled' ? [result.value] : []);
   const editorialChecks = results.map((result, index) => ({

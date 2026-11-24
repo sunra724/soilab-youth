@@ -5,6 +5,7 @@ import { canonicalLedgerUrl, entryIdentity, ITEM_HEADERS, RUN_HEADERS, ledgerHas
 import { createSheetsClient } from '../src/lib/research/ledger-sheets.ts';
 import { captureLedgerBatch, flushLedger, ledgerEnabled } from '../src/lib/research/ledger-bridge.ts';
 import { collectDailyCandidates } from '../src/lib/research/daily.ts';
+import { YOUTH_POLICY_DOMESTIC_FEEDS } from '../src/lib/research/briefing-scope.ts';
 
 const now = () => new Date('2026-11-10T22:00:00Z');
 const item = { title: '고립·은둔 청년 연구', publisher: '연구기관', url: 'https://media.example/view?id=42&utm_source=feed#section', checked_at: now().toISOString(), published_at: '2026-11-10', excerpt: 'PRIVATE_RAW_BODY', raw: 'SECRET_RAW_RESPONSE' };
@@ -197,8 +198,8 @@ test('all collected items reach the buffer before history selection; capture fai
   };
   const result = await collectDailyCandidates(props, ['고립·은둔 청년 연구'], runtime);
   assert.equal(result.items.length, 0);
-  assert.equal(captured.items.length, 5);
-  assert.equal(captured.sources.length, 6);
+  assert.equal(captured.items.length, YOUTH_POLICY_DOMESTIC_FEEDS.length + 3);
+  assert.deepEqual(captured.sources.map(source => source.id), ['mohw', ...YOUTH_POLICY_DOMESTIC_FEEDS.map(feed => feed.id), 'jp', 'uk', 'reviewed_catalog']);
   let failures = 0;
   const unaffected = await collectDailyCandidates(props, [], { ...runtime,
     onCollected: async () => { throw new Error('database unavailable'); },

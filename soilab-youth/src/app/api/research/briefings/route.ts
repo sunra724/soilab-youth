@@ -22,8 +22,11 @@ export async function GET(request: Request) {
   try {
     if (new URL(request.url).searchParams.get('history') === '30') {
       const since = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
-      const rows = await researchDb<{ sources: { title: string }[] }[]>(`select=sources&briefing_date=gte.${since}&delivery_status=eq.delivered&order=briefing_date.desc&limit=31`);
-      return Response.json({ success: true, titles: rows.flatMap(row => row.sources.map(source => source.title)) }, { headers: { 'Cache-Control': 'no-store' } });
+      const rows = await researchDb<{ sources: { title: string; url?: string }[] }[]>(`select=sources&briefing_date=gte.${since}&delivery_status=eq.delivered&order=briefing_date.desc&limit=31`);
+      return Response.json({ success: true,
+        titles: rows.flatMap(row => row.sources.map(source => source.title)),
+        items: rows.flatMap(row => row.sources.map(source => ({ title: source.title, url: source.url }))),
+      }, { headers: { 'Cache-Control': 'no-store' } });
     }
     const rows = await researchDb<unknown[]>(`select=briefing_date,delivery_status,body_text,sources,message_id&limit=1${date ? `&briefing_date=eq.${date}` : ''}`);
     return Response.json({ success: true, briefing: date ? rows[0] ?? null : null });

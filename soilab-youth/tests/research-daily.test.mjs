@@ -2,10 +2,16 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { deliverDaily, prepareDailyDraft, collectDailyCandidates, koreaDate } from '../src/lib/research/daily.ts';
 
-const props = { api: 'https://archive.test/api/research/briefings', ingest: 'a'.repeat(40), bot: 'test-bot', chat: '@youth_test', anthropic: 'fixture', model: 'fixture-model' };
+const props = { api: 'https://archive.test/api/research/briefings', ingest: 'a'.repeat(40), bot: 'test-bot', chat: '@youth_test', openaiKey: 'fixture', model: 'fixture-model' };
 const now = () => new Date('2026-09-07T00:00:00Z');
-const draft = { briefing_date: '2026-09-07', title: '청년 정책 브리핑', summary: '요약', body_text: '검토할 내용', sources: [], generator_model: null };
+const draft = { briefing_date: '2026-09-07', title: '청년 정책 브리핑', summary: '요약', body_text: '검토할 내용', sources: [{ title: '청년 지원', url: 'https://example.com/policy', publisher: '정책기관', tier: 'official', checked_at: now().toISOString() }], generator_model: null };
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status });
+const reviewedText = '고립·은둔 청년에게 정서지원과 사회참여 기회를 제공하는 지원체계를 검토하였다. 청년이 처음 상담을 요청하는 시점부터 지역의 참여 기회를 연결하는 과정까지 살펴보았다. 지역별 대상 범위와 실제 운영 조건은 별도로 확인해야 하며, 검토 내용만으로 프로그램의 효과나 전국 확대 여부를 단정할 수는 없다.';
+const editorialNote = title => ({ headline: title + '의 지원체계 검토',
+  facts: [{ text: '고립·은둔 청년의 정서지원과 사회참여 지원체계를 검토하였다.', quote: '고립·은둔 청년에게 정서지원과 사회참여 기회를 제공하는 지원체계를 검토하였다.' }], change: null,
+  youthMeaning: { text: '정서지원과 참여 기회를 연결하는 관점에서 읽을 수 있다.', basedOn: [1] },
+  fieldQuestion: { text: '정서지원과 사회참여 기회의 연결 방식을 검토할 수 있다.', basedOn: [1] },
+  limitation: '검토문만 확인했으며 원문 전문이나 실제 운영 효과를 확인한 것은 아니다.' });
 
 test('한국 날짜를 사용하고 기발송·전송 중·결과 불명 브리핑은 보내지 않는다', async () => {
   assert.equal(koreaDate(new Date('2026-09-06T23:00:00Z')), '2026-09-07');
@@ -47,13 +53,13 @@ test('Telegram 타임아웃은 uncertain으로, 성공 후 상태 저장 실패�
 });
 
 test('과거 검토자료를 최신 정책으로 표시하지 않고 승인 안 된 자료를 제외한다', async () => {
-  const item = { title: '청년 고립 연구', url: 'https://www.nkis.re.kr/a', publisher: '연구원', excerpt: '지원체계 검토', review_status: 'approved', tier: 'research', publication_year: 2021, published_at: null, reviewed_at: '2026-09-06T00:00:00Z', checked_at: now().toISOString() };
+  const item = { title: '청년 고립 연구', url: 'https://www.nkis.re.kr/a', publisher: '연구원', excerpt: reviewedText, review_status: 'approved', tier: 'research', publication_year: 2021, published_at: null, reviewed_at: '2026-09-06T00:00:00Z', checked_at: now().toISOString() };
   const runtime = { now, draft: prepareDailyDraft, fetcher: async (url, init) => {
     if (String(url).includes('/sources?')) return json({ available: true, items: [item, { ...item, title: '미승인', review_status: 'pending' }] });
-    if (String(url).includes('anthropic')) {
-      const input = JSON.parse(JSON.parse(init.body).messages[0].content);
-      const output = input.sources ? { ids: ['S1'] } : input.source ? { takeaway: '지원체계 살펴보기', check: '연령 범위' } : { signal: '기존 연구의 검토', action: '소이랩의 현장과 비교' };
-      return json({ stop_reason: 'end_turn', content: [{ type: 'text', text: JSON.stringify(output) }] });
+    if (String(url) === 'https://api.openai.com/v1/responses') {
+      const input = JSON.parse(JSON.parse(init.body).input);
+      const output = input.note ? { supported: true, unsupportedClaims: [] } : editorialNote(input.source.title);
+      return json({ status: 'completed', output: [{ type: 'message', role: 'assistant', content: [{ type: 'output_text', text: JSON.stringify(output) }] }] });
     }
     return new Response('<rss><channel></channel></rss>');
   } };
@@ -69,27 +75,34 @@ test('전 수집원 장애에서는 발행을 중단하고 빈 정상 응답과 
   await assert.rejects(collectDailyCandidates(props, [], { now, draft: prepareDailyDraft, fetcher: async () => json({}, 503) }), /all_sources_failed/);
 });
 
-test('선택 순서가 바뀌어도 각각의 단일 자료에서 생성한 요약을 원래 제목·URL과 묶는다', async () => {
-  const reviewed = title => ({ title, url: 'https://www.nkis.re.kr/' + encodeURIComponent(title), publisher: '연구원', excerpt: title + '의 검토 내용', review_status: 'approved', tier: 'research', publication_year: 2025, published_at: null, reviewed_at: '2026-09-06T00:00:00Z', checked_at: now().toISOString() });
+test('각각의 단일 자료에서 생성한 요약을 원래 제목·URL과 묶는다', async () => {
+  const reviewed = title => ({ title, url: 'https://www.nkis.re.kr/' + encodeURIComponent(title), publisher: '연구원', excerpt: reviewedText, review_status: 'approved', tier: 'research', publication_year: 2025, published_at: null, reviewed_at: '2026-09-06T00:00:00Z', checked_at: now().toISOString() });
   const calls = [];
   const runtime = { now, draft: prepareDailyDraft, fetcher: async (url, init) => {
     if (String(url).includes('/sources?')) return json({ available: true, items: [reviewed('가족지원'), reviewed('청년발굴')] });
-    if (String(url).includes('anthropic')) {
-      const input = JSON.parse(JSON.parse(init.body).messages[0].content);
+    if (String(url) === 'https://api.openai.com/v1/responses') {
+      const input = JSON.parse(JSON.parse(init.body).input);
       let output;
-      if (input.sources) output = { ids: ['S2', 'S1'] };
-      else if (input.source) { calls.push(input); output = { takeaway: input.source.title + '만 요약', check: input.source.title + '만 확인' }; }
-      else output = { signal: '두 연구의 검토', action: '적용 조건 확인' };
-      return json({ stop_reason: 'end_turn', content: [{ type: 'text', text: JSON.stringify(output) }] });
+      if (input.note) output = { supported: true, unsupportedClaims: [] };
+      else { calls.push(input); output = editorialNote(input.source.title); }
+      return json({ status: 'completed', output: [{ type: 'message', role: 'assistant', content: [{ type: 'output_text', text: JSON.stringify(output) }] }] });
     }
     return new Response('<rss><channel/></rss>');
   } };
   const result = await prepareDailyDraft(props, [], runtime);
   assert.equal(calls.length, 2); calls.forEach(call => assert.deepEqual(Object.keys(call), ['source']));
   const blocks = result.body_text.split(/\n\n/);
-  assert.match(blocks.find(block => block.startsWith('1.')), /청년발굴만 요약/);
-  assert.match(blocks.find(block => block.startsWith('2.')), /가족지원만 요약/);
-  assert.deepEqual(result.sources.map(source => source.title), ['청년발굴', '가족지원']);
+  assert.match(blocks.find(block => block.startsWith('1.')), /가족지원의 지원체계 검토/);
+  assert.match(blocks.find(block => block.startsWith('2.')), /청년발굴의 지원체계 검토/);
+  assert.deepEqual(result.sources.map(source => source.title), ['가족지원', '청년발굴']);
+});
+
+test('기준을 충족하는 자료가 없는 날에는 저장하거나 Telegram에 발송하지 않는다', async () => {
+  const methods = [];
+  const result = await deliverDaily(props, { now, draft: async () => ({ ...draft, sources: [] }),
+    fetcher: async (_url, init) => { methods.push(init.method); return json({ briefing: null, titles: [] }); } });
+  assert.equal(result.reason, 'no_eligible_sources');
+  assert.deepEqual(methods, ['GET', 'GET']);
 });
 
 test('Google RSS 설명에 섞인 다른 기사 내용은 개별 기사 발췌로 사용하지 않는다', async () => {

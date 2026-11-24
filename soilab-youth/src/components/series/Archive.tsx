@@ -50,7 +50,7 @@ export function ArchiveIndex() {
       <p className="sa-intro">{archive.description}</p><div className="sa-summary"><span>주제별 연재 <b>{archive.series.length}</b>개</span><span>원고·기록 <b>{total}</b>건</span><span>글·기획 <b>협동조합 소이랩</b></span></div>
     </header>
     <section className="sa-wrap sa-series-list" aria-label="전체 연재 목록">{archive.series.map((series, index) => <SeriesCard key={series.slug} series={series} index={index} />)}</section>
-    <div className="sa-wrap"><p className="sa-archive-note">SNS에서 나눈 원고와 카드를 주제별로 모았습니다. 기존 연구노트·포럼 기록과 함께 읽고, 각 글에서 근거와 관련 운영안으로 이어갈 수 있습니다.</p><OtherArchives /></div>
+    <div className="sa-wrap"><p className="sa-archive-note">소이랩의 원고와 카드를 주제별 연재로 모았습니다. 기존 연구노트·포럼 기록과 함께 읽고, 각 글에서 근거와 관련 운영안으로 이어갈 수 있습니다.</p><OtherArchives /></div>
   </div>;
 }
 
@@ -81,7 +81,7 @@ function Media({ entry }: { entry: ArchiveEntry }) {
 
 export function ArchiveArticle({ series, entry }: { series: ArchiveSeries; entry: ArchiveEntry }) {
   const canonical = new URL(entry.canonicalPath || entry.path, archive.baseUrl).toString();
-  const schema = { '@context': 'https://schema.org', '@type': 'Article', headline: entry.title, description: entry.description, mainEntityOfPage: canonical, dateCreated: `${entry.date}T00:00:00+09:00`, datePublished: `${entry.archivedAt}T00:00:00+09:00`, dateModified: `${entry.archivedAt}T00:00:00+09:00`, inLanguage: 'ko-KR', image: entry.cards.map(card => new URL(card.src, archive.baseUrl).toString()), author: { '@type': 'Organization', name: '협동조합 소이랩', url: 'https://www.soilabcoop.kr' }, isPartOf: { '@type': 'CreativeWorkSeries', name: series.title, url: new URL(seriesPath(series), archive.baseUrl).toString() } };
+  const schema = { '@context': 'https://schema.org', '@type': 'Article', headline: entry.title, description: entry.description, mainEntityOfPage: canonical, dateCreated: entry.date <= entry.archivedAt ? `${entry.date}T00:00:00+09:00` : undefined, datePublished: `${entry.archivedAt}T00:00:00+09:00`, dateModified: `${entry.archivedAt}T00:00:00+09:00`, inLanguage: 'ko-KR', image: entry.cards.map(card => new URL(card.src, archive.baseUrl).toString()), author: { '@type': 'Organization', name: '협동조합 소이랩', url: 'https://www.soilabcoop.kr' }, isPartOf: { '@type': 'CreativeWorkSeries', name: series.title, url: new URL(seriesPath(series), archive.baseUrl).toString() } };
   return <article className="sa-archive" data-site={archive.site}><div className="sa-wrap">
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, '\\u003c') }} />
     <header className="sa-article-heading"><ArchiveLink href={seriesPath(series)} kind="contents" className="sa-back">← {series.title}</ArchiveLink><p className="sa-eyebrow">{String(entry.number).padStart(2, '0')} / {series.entries.length} · SOILAB STORIES</p><h1>{entry.title}</h1><p className="sa-intro">{entry.description}</p><p className="sa-small">글·기획 협동조합 소이랩 · 원고 기준 <time dateTime={entry.date}>{dateLabel(entry.date)}</time> · 아카이브 등록 <time dateTime={entry.archivedAt}>{dateLabel(entry.archivedAt)}</time></p><nav className="sa-jump" aria-label="본문 바로가기"><a href="#series-cardnews">카드뉴스 보기</a><a href="#manuscript">원고 읽기</a><a href="#references">참고자료</a></nav></header>
@@ -101,7 +101,7 @@ export function SeriesAttachment({ sourcePath, showCards = true }: { sourcePath:
   const { series, entry } = match;
   return <aside id="series-cardnews" className="sa-archive sa-attachment" data-site={archive.site}>
     <header><p className="sa-eyebrow">함께 읽는 소이랩 연재 · {entry.number} / {series.entries.length}</p><h2>{series.title}</h2><p>{entry.description}</p><ArchiveLink href={seriesPath(series)} seriesSlug={series.slug} kind="contents" className="sa-text-link">연재 목차 보기 →</ArchiveLink></header>
-    {showCards && <><Media entry={entry} /><details className="sa-original"><summary>SNS 원고 함께 읽기</summary><div className="sa-manuscript"><Text value={entry.body} /></div></details></>}
+    {showCards && <><Media entry={entry} /><details className="sa-original"><summary>원고 함께 읽기</summary><div className="sa-manuscript"><Text value={entry.body} /></div></details></>}
     <SeriesNavigation series={series} entry={entry} />
   </aside>;
 }

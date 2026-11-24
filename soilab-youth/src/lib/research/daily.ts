@@ -109,7 +109,14 @@ async function requestEditorialJson(props: Properties, runtime: DailyRuntime, in
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${props.openaiKey}` },
     body: JSON.stringify({
-      model: props.model, instructions, input: JSON.stringify(payload), store: false,
+      model: props.model, store: false,
+      input: [
+        { role: 'developer', content: instructions },
+        { role: 'user', content: [
+          { type: 'input_text', text: '아래 JSON을 자료로 사용해 지정한 JSON 형식으로 답하세요.' },
+          { type: 'input_text', text: JSON.stringify(payload) },
+        ] },
+      ],
       max_output_tokens: maxTokens, text: { format: { type: 'json_object' } },
     }),
     signal: AbortSignal.timeout(40000),
@@ -117,6 +124,9 @@ async function requestEditorialJson(props: Properties, runtime: DailyRuntime, in
   if (!response.ok) {
     const error = await response.json().catch(() => null);
     if (error?.error?.code === 'insufficient_quota') throw new Error('openai_insufficient_quota');
+    if (response.status === 400 && typeof error?.error?.param === 'string' && /^[a-z_.]{1,60}$/.test(error.error.param)) {
+      throw new Error('openai_http_400_' + error.error.param.replaceAll('.', '_'));
+    }
     throw new Error(`openai_http_${response.status}`);
   }
   const data = await response.json();

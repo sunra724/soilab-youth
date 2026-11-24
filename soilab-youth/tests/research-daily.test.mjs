@@ -57,7 +57,7 @@ test('과거 검토자료를 최신 정책으로 표시하지 않고 승인 안 
   const runtime = { now, draft: prepareDailyDraft, fetcher: async (url, init) => {
     if (String(url).includes('/sources?')) return json({ available: true, items: [item, { ...item, title: '미승인', review_status: 'pending' }] });
     if (String(url) === 'https://api.openai.com/v1/responses') {
-      const input = JSON.parse(JSON.parse(init.body).input);
+      const input = JSON.parse(JSON.parse(init.body).input[1].content[1].text);
       const output = input.note ? { supported: true, unsupportedClaims: [] } : editorialNote(input.source.title);
       return json({ status: 'completed', output: [{ type: 'message', role: 'assistant', content: [{ type: 'output_text', text: JSON.stringify(output) }] }] });
     }
@@ -81,7 +81,7 @@ test('각각의 단일 자료에서 생성한 요약을 원래 제목·URL과 �
   const runtime = { now, draft: prepareDailyDraft, fetcher: async (url, init) => {
     if (String(url).includes('/sources?')) return json({ available: true, items: [reviewed('가족지원'), reviewed('청년발굴')] });
     if (String(url) === 'https://api.openai.com/v1/responses') {
-      const input = JSON.parse(JSON.parse(init.body).input);
+      const input = JSON.parse(JSON.parse(init.body).input[1].content[1].text);
       let output;
       if (input.note) output = { supported: true, unsupportedClaims: [] };
       else { calls.push(input); output = editorialNote(input.source.title); }

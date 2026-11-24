@@ -106,11 +106,11 @@ export function parseGoogleNewsBatchResponse(payload: string) {
   return decoded;
 }
 
-async function fetchDecodeParams(url: string): Promise<DecodeParams | null> {
+async function fetchDecodeParams(url: string, fetcher: typeof fetch = fetch): Promise<DecodeParams | null> {
   const id = articleId(url);
   if (!id) return null;
 
-  const response = await fetch(`https://${GOOGLE_NEWS_HOST}/rss/articles/${id}`, {
+  const response = await fetcher(`https://${GOOGLE_NEWS_HOST}/rss/articles/${id}`, {
     headers: { 'User-Agent': 'Mozilla/5.0 (compatible; SoilabNewsClipping/1.0)' },
     signal: AbortSignal.timeout(10_000),
   });
@@ -140,8 +140,8 @@ async function mapWithConcurrency<T, R>(
   return result;
 }
 
-export async function decodeGoogleNewsUrls(urls: string[]) {
-  const params = await mapWithConcurrency(urls, 5, fetchDecodeParams);
+export async function decodeGoogleNewsUrls(urls: string[], fetcher: typeof fetch = fetch) {
+  const params = await mapWithConcurrency(urls, 5, url => fetchDecodeParams(url, fetcher));
   const valid = params
     .map((value, index) => ({ value, index }))
     .filter((entry): entry is { value: DecodeParams; index: number } => Boolean(entry.value));
@@ -155,7 +155,7 @@ export async function decodeGoogleNewsUrls(urls: string[]) {
     const body = new URLSearchParams({
       'f.req': JSON.stringify([[rpcEntry(entry.value)]]),
     });
-    const response = await fetch(
+    const response = await fetcher(
       `https://${GOOGLE_NEWS_HOST}/_/DotsSplashUi/data/batchexecute?rpcids=${GOOGLE_NEWS_RPC}`,
       {
         method: 'POST',

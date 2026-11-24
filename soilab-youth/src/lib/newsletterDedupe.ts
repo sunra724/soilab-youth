@@ -27,7 +27,10 @@ function normalizeAlias(value: string) {
     .replace(/마음\s*건강/gu, '마음건강')
     .replace(/은둔형\s*외톨이/gu, '은둔형외톨이')
     .replace(/상담\s*받(?:는|는다|았다|기)/gu, '상담')
-    .replace(/가족/gu, '부모')
+    .replace(/가족(?!\s*돌봄)/gu, '부모')
+    .replace(/자립\s*준비\s*청년|보호\s*종료\s*(?:아동|청년)/gu, '자립준비청년')
+    .replace(/가족\s*돌봄\s*(?:청년|청소년)|영\s*케어러/gu, '가족돌봄청년')
+    .replace(/탈가정\s*청년|가정\s*밖\s*(?:청년|청소년)/gu, '탈가정청년')
     .replace(/서울시/gu, '서울');
 }
 

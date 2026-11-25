@@ -8,7 +8,7 @@ const data = JSON.parse(readFileSync(path.join(root, 'src/data/series-archive.js
 test('published archive has complete, distinct articles and accessible media', () => {
   assert.equal(data.series.length, 3);
   const entries = data.series.flatMap(series => series.entries);
-  assert.equal(entries.length, 18);
+  assert.equal(entries.length, 19);
   assert.equal(new Set(entries.map(entry => entry.id)).size, entries.length);
   assert.equal(new Set(entries.map(entry => entry.path)).size, entries.length);
   for (const series of data.series) {

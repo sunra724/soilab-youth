@@ -44,6 +44,7 @@ export const metadata: Metadata = {
     }],
   },
   alternates: {
+    types: { 'application/rss+xml': '/feed.xml' },
     canonical: "/",
   },
   twitter: {

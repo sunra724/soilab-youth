@@ -21,7 +21,25 @@ export default async function ResearchNotePage({ params }: { params: Promise<{ i
   const { id } = await params;
   const note = researchNotes.find(item => item.id === id);
   if (!note) notFound();
+  const canonical = new URL(`/research/notes/${note.id}`, 'https://www.soilab-youth.kr').href;
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    '@id': `${canonical}#article`,
+    mainEntityOfPage: canonical,
+    headline: note.title,
+    description: note.summary,
+    datePublished: `${note.publishedAt}T00:00:00+09:00`,
+    inLanguage: 'ko-KR',
+    author: {
+      '@type': 'Organization',
+      '@id': 'https://www.soilabcoop.kr/#organization',
+      name: '협동조합 소이랩',
+      url: 'https://www.soilabcoop.kr/',
+    },
+  };
   return <article className="research-wrap research-section research-detail research-article">
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, '\\u003c') }} />
     <Link className="research-back" href="/research/notes">← 연구노트 목록</Link>
     <header className="research-page-heading"><p className="research-eyebrow">RESEARCH NOTE · <time dateTime={note.publishedAt}>{note.publishedAt}</time></p><h1>{note.title}</h1><p>{note.summary}</p></header>
     <p className="research-article-intro">{note.introduction}</p>

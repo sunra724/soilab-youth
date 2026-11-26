@@ -76,7 +76,12 @@ function Related({ entry, series }: { entry: ArchiveEntry; series: ArchiveSeries
 }
 
 function Media({ entry }: { entry: ArchiveEntry }) {
-  return <><CardViewer cards={entry.cards} title={entry.title} />{entry.videos.map(video => <figure className="sa-video" key={video.src}><video controls preload="metadata" playsInline poster={entry.cards[0].src} aria-label={video.label}><source src={video.src} type="video/mp4" /><a href={video.src}>영상 내려받기</a></video><figcaption>{video.label}</figcaption></figure>)}<a href={entry.download} download className="sa-download">카드·첨부 원본 ZIP 내려받기 ↓</a></>;
+  return <>
+    <CardViewer cards={entry.cards} title={entry.title} />
+    {entry.contactLink && <p><a className="sa-button" href={entry.contactLink.href}>{entry.contactLink.label}</a></p>}
+    {entry.videos.map(video => <figure className="sa-video" key={video.src}><video controls preload="metadata" playsInline poster={entry.cards[0].src} aria-label={video.label}><source src={video.src} type="video/mp4" /><a href={video.src}>영상 내려받기</a></video><figcaption>{video.label}</figcaption></figure>)}
+    <a href={entry.download} download className="sa-download">카드·첨부 원본 ZIP 내려받기 ↓</a>
+  </>;
 }
 
 export function ArchiveArticle({ series, entry }: { series: ArchiveSeries; entry: ArchiveEntry }) {

@@ -7,6 +7,7 @@ export type ArchiveEntry = {
   archivedAt: string; path: string; canonicalPath: string; href: string;
   cards: ArchiveCard[]; body: string; sources: ArchiveReference[];
   related: ArchiveReference[]; notice: string; download: string;
+  contactLink?: ArchiveReference;
   videos: { src: string; label: string }[]; tags: string[];
 };
 export type ArchiveSeries = { slug: string; title: string; subtitle: string; description: string; entries: ArchiveEntry[] };
